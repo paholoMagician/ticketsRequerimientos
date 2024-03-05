@@ -13,7 +13,7 @@ export class FormularioRegistroProblemasService {
   constructor(private http: HttpClient, public router: Router, private env: Environments) { }
 
   obtenerMaquinaria( cci: string ) {
-    return this.http.get( this.url + 'Maquinaria/obtenerMaquinaria/' + cci );
+    return this.http.get( this.url + 'Maquinaria/obtenerMaquinaria/' + cci )
   }
 
 }
