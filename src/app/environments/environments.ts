@@ -10,33 +10,34 @@ export class Environments {
 
     constructor( private encrypt: EncryptService ) { }
         
-    // apingRok: any = 'http://181.188.224.4:5208';
-    apingRok: any = 'http://192.168.100.12:9095';
-    // apingRok: any = 'https://sfiback.azurewebsites.net';
+    // apiHelpDeskSytem: any = 'http://181.188.224.4:5208';
+    apiHelpDeskSytem: any = 'http://localhost:5075';
+    apiCMS: any = 'http://192.168.55.66:5130';
+    // apiHelpDeskSytem: any = 'https://sfiback.azurewebsites.net';
 
 
-    version: string = 'v.1.0.1.4';
+    version: string = '1.0.1';
     es:      number = 5;
     hash:    number = 10;
     encode: number = 99
 
     apiurl(): string {
-        const  env:string = this.apingRok+'/api/';
+        const  env:string = this.apiHelpDeskSytem+'/api/';
         return env;
     }
 
     apiUrlHub(): string {
-        const  envHub: string = this.apingRok+'/hubs/';
+        const  envHub: string = this.apiHelpDeskSytem+'/hubs/';
         return envHub;
     }
 
     apiUrlStorage(): string {
-        const  envstorage:string = this.apingRok+'/storage/';
+        const  envstorage:string = this.apiHelpDeskSytem+'/storage/';
         return envstorage;
     }
 
     apiUrlIcon(): string {
-        const  envicon = this.apingRok+'/iconsApp/';
+        const  envicon = this.apiHelpDeskSytem+'/iconsApp/';
         return envicon;
     }
 

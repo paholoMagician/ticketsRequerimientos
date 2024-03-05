@@ -12,6 +12,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     animation: envFloating 1s ease-in infinite alternate;
   }
 
+  .img-icon {
+    width: 75px;
+    height: 75px;
+    border: solid 3px orange;
+    border-radius: 7px;
+  }
+
   .module-work {
     background-color: whitesmoke;
     border: groove 1px white;

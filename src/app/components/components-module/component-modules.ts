@@ -57,12 +57,23 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { LoginComponent } from '../login/login.component';
+import { DashboardComponent } from '../dashboard/dashboard.component';
+import { FormularioRegistroProblemasComponent } from '../dashboard/formulario-registro-problemas/formulario-registro-problemas.component';
+import { NavsideComponent } from '../shared/navside/navside.component';
+
 
 @NgModule({
   declarations: [
-    LoginComponent
+    LoginComponent,
+    DashboardComponent,
+    FormularioRegistroProblemasComponent,
+    NavsideComponent
   ],
   imports: [
+
+    DragDropModule,
+
+    // #angularMaterial
     MatFormFieldModule,
     CommonModule,
     MatTabsModule,
@@ -96,17 +107,11 @@ import { LoginComponent } from '../login/login.component';
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,
-
-
-
-    FormsModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-
-    DragDropModule,
-    
+    DragDropModule
   ], 
   exports: [
+    FormularioRegistroProblemasComponent,
+    NavsideComponent
   ]
 })
 export class ComponentsAppsModuModule { }

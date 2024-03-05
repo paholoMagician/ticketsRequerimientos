@@ -6,7 +6,8 @@ import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentsAppsModuModule } from './components/components-module/component-modules';
-import { LoginComponent } from './components/login/login.component';
+import { FormularioRegistroProblemasComponent } from './components/dashboard/formulario-registro-problemas/formulario-registro-problemas.component';
+import { NavsideComponent } from './components/shared/navside/navside.component';
 
 @NgModule({
   declarations: [
