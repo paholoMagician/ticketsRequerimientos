@@ -11,7 +11,7 @@ export class Environments {
     constructor( private encrypt: EncryptService ) { }
         
     // apiHelpDeskSytem: any = 'http://181.188.224.4:5208';
-    apiHelpDeskSytem: any = 'http://localhost:5075';
+    apiHelpDeskSytem: any = 'http://192.168.100.148:5075';
     apiCMS: any = 'http://192.168.55.66:5130';
     // apiHelpDeskSytem: any = 'https://sfiback.azurewebsites.net';
 
