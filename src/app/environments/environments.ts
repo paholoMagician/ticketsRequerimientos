@@ -11,15 +11,16 @@ export class Environments {
     constructor( private encrypt: EncryptService ) { }
         
     // apiHelpDeskSytem: any = 'http://181.188.224.4:5208';
-    apiHelpDeskSytem: any = 'http://192.168.100.148:5075';
-    apiCMS: any = 'http://192.168.55.66:5130';
+    apiHelpDeskSytem: any = 'http://192.168.100.148:5075/api/';
+    apiCMS: any = 'http://192.168.100.148:5130/api/';
     // apiHelpDeskSytem: any = 'https://sfiback.azurewebsites.net';
 
 
     version: string = '1.0.1';
     es:      number = 5;
     hash:    number = 10;
-    encode: number = 99
+    encode:  number = 99;
+    codcia:  string = 'CMS-001-2023';
 
     apiurl(): string {
         const  env:string = this.apiHelpDeskSytem+'/api/';
