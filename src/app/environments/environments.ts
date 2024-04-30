@@ -11,9 +11,9 @@ export class Environments {
         
     // apiHelpDeskSytem: any = 'http://181.188.224.4:5208';
     // apiHelpDeskSytem: any = 'http://localhost:5075/api/';
-    apiHelpDeskSytem:  any = 'http://192.168.55.66/:5075/api/';
-    apiHelpDeskSytemh: any = 'http://192.168.55.66/:5075/';
-    apiCMS:            any = 'http://192.168.55.66/:5130/api/';
+    apiHelpDeskSytem:  any = 'http://192.168.55.66:5075/api/';
+    apiHelpDeskSytemh: any = 'http://192.168.55.66:5075/';
+    apiCMS:            any = 'http://192.168.55.66:5130/api/';
     // apiHelpDeskSytem: any = 'http://localhost:9998/api/';
     // apiCMS:            any = 'http://192.168.100.12:1131/api/';
     
