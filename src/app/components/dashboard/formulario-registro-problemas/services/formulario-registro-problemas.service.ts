@@ -8,12 +8,25 @@ import { Environments } from 'src/app/environments/environments';
 })
 export class FormularioRegistroProblemasService {
 
-  public url: string = this.env.apiCMS;
+  public urlCms:      string = this.env.apiCMS;
+  public urlHelpDesk: string = this.env.apiHelpDeskSytem;
 
   constructor(private http: HttpClient, public router: Router, private env: Environments) { }
 
   obtenerMaquinaria( cci: string ) {
-    return this.http.get( this.url + 'Maquinaria/obtenerMaquinaria/' + cci );
+    return this.http.get( this.urlCms + 'Maquinaria/obtenerMaquinaria/' + cci )
+  }
+
+  obtenerAgencias( cci: string, filter: string, codprov: number ) {
+    return this.http.get( this.urlCms + 'ClienteAgencia/obtenerAgencias/' + cci + '/' + filter + '/' + codprov );
+  }  
+
+  obtenerAsignacionMaquinAgencia(cagencia: string, codcia: string) {
+    return this.http.get( this.urlCms + 'MaquinaAgencia/obtenerAsignacionmaquinacliente/' + cagencia + '/' + codcia );
+  }
+
+  guardarTicket( model:any [] ) {
+    return this.http.post( this.urlHelpDesk + 'TicketResolucion/GuardarTickets', model );
   }
 
 }

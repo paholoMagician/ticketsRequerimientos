@@ -1,0 +1,15 @@
+
+<div class="w-100 p-2">
+    <form [formGroup]="exportdataform" class="w-100" (ngSubmit)="onSubmitData()">
+        <label for="" class="d-flex align-items-center" >
+            <mat-icon>search</mat-icon> <span> Busca tu ticket:  </span>
+        </label>
+        <input fxFlex="auto" type="text"
+               class="form-control rounded-pill"
+               formControlName="filter"
+               #filter
+               placeholder="...búsqueda por agencia o descripción del problema"
+               id="filter">
+    </form>
+</div>
+

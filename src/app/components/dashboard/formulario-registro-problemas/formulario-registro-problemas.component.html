@@ -5,41 +5,105 @@
     <form [formGroup]="registerTroubleForm" class="mb-2" (ngSubmit)="onSubmit()">
         <div class="mb-3">
             <label for="email" class="form-label text-secondary d-flex align-items-center">
-                <mat-icon>point_of_sale</mat-icon> Equipos disponibles:
+                <mat-icon>build</mat-icon> Tipo de requerimiento:
             </label>
+            <select name=""
+                    class="form-control"
+                    id="tipo"
+                    #tipo
+                    formControlName="tipo"
+                    (change)="validateTipoData()"
+                    >
+                    <option [value]="tipo.codigo" *ngFor="let tipo of listaTipos">
+                         {{ tipo.nombre }}
+                    </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label text-secondary d-flex align-items-center">
+                <mat-icon>factory</mat-icon> Seleccionar {{_data_label}}: &nbsp; <strong>( {{listaAgencias.length}} )</strong>
+            </label>
+            <select name="" class="form-control"
+                    id="agencia"
+                    formControlName="agencia"
+                    (change)=" validateAgencia(); obtenerAsignacionMaquinariaAgencia()"
+                    #agencia>                
+                    <option [value]="agencia.codagencia"
+                            *ngFor="let agencia of listaAgencias">
+                            {{ agencia.nombre | uppercase }}
+                    </option>
+            </select>
+        </div>
+        <div class="mb-3" *ngIf="maquinarias_show">
+            <label for="email" class="form-label text-secondary d-flex align-items-center">
+                <mat-icon>point_of_sale</mat-icon> Equipos disponibles en esta {{_data_label}}: &nbsp; <strong>( {{listaEquipos.length}} )</strong>
+            </label>
+            <select name=""
+                    class="form-control"
+                    id="equipo"
+                    #equipo
+                    formControlName="equipo">
+                    <option [value]="equipo.codmaquina" *ngFor="let equipo of listaEquipos">
+                         {{ equipo.nombremarca }} - {{ equipo.nserie }}
+                    </option>
+            </select>
         </div>
         <div class="mb-3">
             <label for="mensajeDelProblema" class="form-label text-secondary d-flex align-items-center">
                <mat-icon>list_alt</mat-icon> Mensaje del problema:
             </label>
-            <!-- <input type="text" class="form-control"
-                   formControlName="requerimiento"
-                   #requerimiento
-                   id="requerimiento"
-                   placeholder=""> -->
-            <textarea name="" id=""
+            <textarea id="mensajeDelProblema"
                       formControlName="mensajeDelProblema"
                       #mensajeDelProblema
                       class="form-control"
                       rows="3"
-                      id="mensajeDelProblema">
+                      >
+            </textarea>
+        </div>
+        <div class="mb-3">
+            <label for="mensajeDelProblema" class="form-label text-secondary d-flex align-items-center">
+               <mat-icon>book_mark</mat-icon> Observación:
+            </label>
+            <textarea 
+                      formControlName="observacion"
+                      #observacion
+                      class="form-control"
+                      rows="1"
+                      id="observacion">
             </textarea>
         </div>
         <div class="mb-3">              
             <label for="contrasenia" class="form-label text-secondary d-flex align-items-center">
-              <mat-icon>lock</mat-icon>Contraseña:
+              <mat-icon>image</mat-icon>Imagen:
             </label>
-            <input type="password"
+            <input type="file"
                    class="form-control"
-                   formControlName="contrasenia"
-                   #contrasenia
-                   id="contrasenia"
-                   placeholder="******">
+                   (change)="encodeImageFileAsURL('fileA'); onFileSelected($event);"
+                   formControlName="fileA"
+                   #fileA
+                   id="fileA">
         </div>
-        <button type="submit"
-                class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center">
-                <mat-icon>key</mat-icon> Ingresar
-        </button>
+        <!-- <div class="mb-3">              
+            <label for="contrasenia" class="form-label text-secondary d-flex align-items-center">
+              <mat-icon>image</mat-icon>Imagen (B):
+            </label>
+            <input type="file"
+                   class="form-control"
+                   (change)="encodeImageFileAsURLB('fileB'); onFileSelectedB($event);"
+                   formControlName="fileB"
+                   #fileB
+                   id="fileB">
+        </div> -->
+        <div class="d-flex" >
+            <button type="button" (click)="cancelBtn()"
+                    class="btn btn-outline-danger d-flex align-items-center justify-content-center">
+                    <mat-icon>cancel</mat-icon>
+            </button>
+            <button type="submit" [disabled]="_dis_btn"
+                    class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center">
+                    <mat-icon>key</mat-icon> Ingresar
+            </button>
+        </div>
     </form>
 </div>
 

@@ -1,0 +1,50 @@
+
+.box-messenger {
+    height: 70vh;
+    border: solid 1px gray;
+    width: 100%;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+.tip-message {
+    width: 100%;
+    border: solid 1px gray;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #444;
+}
+
+textarea {
+    background-color: #2d2d2d65;
+    color: whitesmoke;
+    outline-color: transparent;
+    outline: none;
+
+    &:focus {
+        background-color: #2d2d2d65;
+        color: white;
+    }
+}
+
+#btn-ico {
+    position: absolute;
+    bottom: 35px;
+    right: 25px;
+}
+
+
+.msj-box {
+    min-width: auto;
+    max-width: 100%;
+    color: rgb(248, 255, 238);
+    background-color: #2e2e2e;
+    padding: 15px;
+    border-radius: 10px;
+    border: groove 2px gray;
+    box-shadow: 10px 10px 10px rgba($color: #000000, $alpha: 0.5);
+}

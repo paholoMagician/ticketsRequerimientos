@@ -1,7 +1,9 @@
 <app-navside></app-navside>
 <div class="d-flex justify-content-evenly">
-    <div class="form-left" >
-        <app-formulario-registro-problemas></app-formulario-registro-problemas>
+    <div class="p-4 w-100">        
+        <app-tabla-help-desk (showFormPermission) = "showFormPermission($event)" [listenTicket]="getti" (emitTicket)=" listenTicket($event) " ></app-tabla-help-desk>
     </div>
-    <div></div>
+    <div class="form-left animate__animated animate__fadeIn" *ngIf="form_view" >
+         <app-formulario-registro-problemas (showFormView)=" closeFormularioTicket($event) " (GetTickets)=" getTicket($event) " ></app-formulario-registro-problemas>
+    </div>
 </div>

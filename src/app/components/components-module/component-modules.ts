@@ -53,21 +53,26 @@ import {OverlayModule} from '@angular/cdk/overlay';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
-
-
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { LoginComponent } from '../login/login.component';
 import { DashboardComponent } from '../dashboard/dashboard.component';
 import { FormularioRegistroProblemasComponent } from '../dashboard/formulario-registro-problemas/formulario-registro-problemas.component';
 import { NavsideComponent } from '../shared/navside/navside.component';
-
+import { TablaHelpDeskComponent } from '../dashboard/tabla-help-desk/tabla-help-desk.component';
+import { FilterComponent } from '../shared/filter/filter.component';
+import { ClientesHelpDeskComponent } from '../dashboard/clientes-help-desk/clientes-help-desk.component';
+import { MensajeriaTicketComponent } from '../dashboard/tabla-help-desk/mensajeria-ticket/mensajeria-ticket.component';
 
 @NgModule({
   declarations: [
     LoginComponent,
     DashboardComponent,
     FormularioRegistroProblemasComponent,
-    NavsideComponent
+    NavsideComponent,
+    TablaHelpDeskComponent,
+    FilterComponent,
+    ClientesHelpDeskComponent,
+    MensajeriaTicketComponent
   ],
   imports: [
 
@@ -111,7 +116,11 @@ import { NavsideComponent } from '../shared/navside/navside.component';
   ], 
   exports: [
     FormularioRegistroProblemasComponent,
-    NavsideComponent
+    NavsideComponent,
+    TablaHelpDeskComponent,
+    FilterComponent,
+    ClientesHelpDeskComponent,
+    MensajeriaTicketComponent
   ]
 })
 export class ComponentsAppsModuModule { }

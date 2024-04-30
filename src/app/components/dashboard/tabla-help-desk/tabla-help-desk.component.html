@@ -1,0 +1,68 @@
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+      <span class="fs-5 d-flex flex-column align-items-start" id="offcanvasRightLabel">
+        <small class="text-light"> Seguimiento y soluciones del ticket: </small>
+        <span class="box-ticket" > {{ numberTicket }} </span>
+      </span>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <hr>
+    <div class="offcanvas-body">
+        <app-mensajeria-ticket [listenTicketCliente]="ticketSend"></app-mensajeria-ticket>
+    </div>
+</div>
+
+<section class="d-flex">
+<div class="" *ngIf="_cli_view">
+    <app-clientes-help-desk (codcli)="obetenerModeloCliente($event)"></app-clientes-help-desk>
+</div>
+
+<div class="table-responsive w-100 p-2">
+    <div class="d-flex justify-content-between align-items-center">
+        <app-filter class="w-75"></app-filter>
+        <div class="btn-ico" *ngIf="actionButton" (click)="showPermissionsEmit()">
+             <mat-icon>add</mat-icon>
+        </div>
+    </div>
+    <table class="table table-striped table-dark align-middle ">
+
+        <thead class="table-warning bg-warning">
+            <th class="p-2">#</th>
+            <th class="p-2">Fecha</th>
+            <th class="p-2">{{head_agen}}</th>
+            <th class="p-2">Descripción del problema</th>
+            <th class="p-2">Observación</th>
+            <th class="p-2">Estado</th>
+        </thead>
+        <tbody>
+            <tr *ngFor="let tickets of listaTickets" >
+                <td>{{tickets.idRequerimientoPad}}</td>
+                <td>{{tickets.fechacrea     | date: 'short'}}</td>
+                <td>{{tickets.nombreAgencia | uppercase}}</td>
+                <td>{{tickets.mensajeDelProblema}}</td>
+                <td>{{tickets.obervacion}}</td>
+                <td [title]="tickets.estadoSignificado">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="msjestado rounded-2 p-2 animate__animated animate__backInLeft ">
+                            <small style="color: yellowgreen;">
+                                {{ tickets.mssageEstado | uppercase }} 
+                            </small>
+                        </div>
+                        <div class="box-estado"
+                             [style]="'background-color:' + tickets.colorEstado">
+                        </div>
+                        <div class="actions" (click)="actualizarEstado( tickets.idRequerimiento, 2, tickets.idRequerimientoPad, tickets )"
+                             data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                             <div class="btn-ico">
+                                 <mat-icon>{{icon_action}}</mat-icon>
+                             </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>
+</section>
