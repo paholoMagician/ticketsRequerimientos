@@ -16,7 +16,7 @@ export class Environments {
     apiCMS:            any = 'http://192.168.55.66/:5130/api/';
     // apiHelpDeskSytem: any = 'http://localhost:9998/api/';
     // apiCMS:            any = 'http://192.168.100.12:1131/api/';
-    // apiHelpDeskSytem: any = 'https://sfiback.azurewebsites.net';
+    
 
     version: string = '1.0.1';
     es:      number = 5;
