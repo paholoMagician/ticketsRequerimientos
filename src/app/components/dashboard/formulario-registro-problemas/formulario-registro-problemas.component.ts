@@ -1,9 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormularioRegistroProblemasService } from './services/formulario-registro-problemas.service';
 import { Environments } from 'src/app/environments/environments';
+import { ImagecontrolService } from '../../shared/imagen-control/imagecontrol.service';
 
-
+import Swal from 'sweetalert2'
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer);
+    toast.addEventListener('mouseleave', Swal.resumeTimer);
+  }
+})
 
 @Component({
   selector: 'app-formulario-registro-problemas',
@@ -11,12 +23,28 @@ import { Environments } from 'src/app/environments/environments';
   styleUrls: ['./formulario-registro-problemas.component.scss']
 })
 export class FormularioRegistroProblemasComponent implements OnInit {
+  _show_spinner: boolean = false;
+  listaEquipos: any = [];
+  @Output() showFormView: EventEmitter<any> = new EventEmitter();
+  @Output() GetTickets: EventEmitter<any> = new EventEmitter();
 
+  maquinarias_show: boolean = false;
   listaAgencias: any    = [];
   _dis_btn: boolean = false;
   _data_label:   string = 'agencia';
   codcli: any;
   listaMaquinaria: any = [];
+  modelTicket: any = [];
+
+  nameFile: string = '';
+  nameFileB: string = '';
+  _IMGE:any;
+  _IMGEB:any;
+  public file!: File;
+  public fileB!: File;
+  public fileId: any;
+  public fileIdB: any;
+
   registerTroubleForm = new FormGroup  ({
       agencia:            new FormControl(''),
       mensajeDelProblema: new FormControl(''),
@@ -28,7 +56,7 @@ export class FormularioRegistroProblemasComponent implements OnInit {
   })
 
 
-  constructor( private maquinaria: FormularioRegistroProblemasService, private env: Environments ) {}
+  constructor( private maquinaria: FormularioRegistroProblemasService, private env: Environments, private fileserv: ImagecontrolService ) {}
 
   onSubmit() {
     this.guardarTicket();
@@ -41,30 +69,19 @@ export class FormularioRegistroProblemasComponent implements OnInit {
   }
 
   obtenerAgenciaCliente(cci:string, filter:string) {
-    this.maquinaria.obtenerAgencias( cci, filter, 777 ).subscribe(
-      {
+    this.maquinaria.obtenerAgencias( cci, filter, 777 ).subscribe({
         next: ( x ) => {
           this.listaAgencias = x;
         }, error: (e) => {
           console.error(e);
-        }, complete: () => {}
+        }, complete: () => { }
       }
     )
   }
 
-  obtenerMaquinas() {
-    this.maquinaria.obtenerMaquinaria(this.codcli).subscribe({
-      next: (x) => {
-        this.listaMaquinaria = x;
-        console.log(this.listaMaquinaria);
-      }
-    })
-  }
-
-
   validateTipoData() {
-    if ( this.registerTroubleForm.controls['tipo'].value == undefined || 
-         this.registerTroubleForm.controls['tipo'].value == null || 
+    if ( this.registerTroubleForm.controls['tipo'].value == undefined ||
+         this.registerTroubleForm.controls['tipo'].value == null ||
          this.registerTroubleForm.controls['tipo'].value == '' ) {
          this.registerTroubleForm.controls['agencia'].disable();
          this.registerTroubleForm.controls['mensajeDelProblema'].disable();
@@ -73,8 +90,8 @@ export class FormularioRegistroProblemasComponent implements OnInit {
          this.registerTroubleForm.controls['fileB'].disable();
          this.registerTroubleForm.controls['observacion'].disable();
          this._dis_btn = true;
-    } else if ( this.registerTroubleForm.controls['tipo'].value != undefined || 
-         this.registerTroubleForm.controls['tipo'].value != null || 
+    } else if ( this.registerTroubleForm.controls['tipo'].value != undefined ||
+         this.registerTroubleForm.controls['tipo'].value != null ||
          this.registerTroubleForm.controls['tipo'].value != '' ) {
          this.registerTroubleForm.controls['agencia'].enable();
          this._dis_btn = false;
@@ -83,12 +100,6 @@ export class FormularioRegistroProblemasComponent implements OnInit {
   }
 
   validateAgencia() {
-
-    console.log('=======================================================');
-    console.log('verificando');
-    console.log(this.registerTroubleForm.controls['agencia'].value);
-    console.log('=======================================================');
-
     if ( this.registerTroubleForm.controls['agencia'].value == undefined || 
         this.registerTroubleForm.controls['agencia'].value == null || 
         this.registerTroubleForm.controls['agencia'].value == '' ) {
@@ -112,9 +123,7 @@ export class FormularioRegistroProblemasComponent implements OnInit {
     }
   }
 
-  listaEquipos: any = [];
   obtenerAsignacionMaquinariaAgencia() {
-
     const codAgencia: any = this.registerTroubleForm.controls['agencia'].value;
     this.maquinaria.obtenerAsignacionMaquinAgencia( codAgencia, this.env.codcia ).subscribe({
       next: (x) => {
@@ -123,7 +132,6 @@ export class FormularioRegistroProblemasComponent implements OnInit {
       }
     })
   }  
-
 
   listaTipos: any = [
 
@@ -137,14 +145,17 @@ export class FormularioRegistroProblemasComponent implements OnInit {
 
   ]
 
-  modelTicket: any = [];
+  cancelBtn() {
+    this.showFormView.emit( false );
+  }
+
   guardarTicket() {
 
     this.modelTicket = {
 
       idAgencia:          this.registerTroubleForm.controls['agencia'].value,
-      urlA:               this.registerTroubleForm.controls['fileA'].value,
-      urlB:               this.registerTroubleForm.controls['fileB'].value,
+      urlA:               this.nameFile,
+      urlB:               '- sf -',
       estado: 1,
       mensajeDelProblema: this.registerTroubleForm.controls['mensajeDelProblema'].value,
       obervacion:         this.registerTroubleForm.controls['observacion'].value,
@@ -154,21 +165,27 @@ export class FormularioRegistroProblemasComponent implements OnInit {
 
     }
 
-    console.warn(this.modelTicket);
-
     this.maquinaria.guardarTicket(this.modelTicket).subscribe({
       next: (x) => {
-        alert('Guardado');
+        Toast.fire({
+          icon: "success",
+          title: "Estado cambiado a leido"
+        });
       }, error: (e) => {
-        alert('Error');
+        Toast.fire({
+          icon: "error",
+          title: "Algo ha pasado"
+        });
+        // alert('Error');
         console.error(e);
       }, complete: () => {
+        this.uploadServerFile();   
+        this.GetTickets.emit( true );
         this.limpiar();
       }
     })
   }
 
-  maquinarias_show: boolean = false;
   tipoRequerimiento() {
     if( this.registerTroubleForm.controls['tipo'].value == 'BS' ) {
       this.maquinarias_show = false;
@@ -178,7 +195,6 @@ export class FormularioRegistroProblemasComponent implements OnInit {
   }
 
   limpiar() {
-
     this.registerTroubleForm.controls['agencia'].setValue('');
     this.registerTroubleForm.controls['fileA'].setValue('');
     this.registerTroubleForm.controls['fileB'].setValue('');
@@ -186,7 +202,6 @@ export class FormularioRegistroProblemasComponent implements OnInit {
     this.registerTroubleForm.controls['observacion'].setValue('');
     this.registerTroubleForm.controls['equipo'].setValue('');
     this.registerTroubleForm.controls['tipo'].setValue('');
-    // this.validateAgencia();
     this.registerTroubleForm.controls['tipo'].enable();
     this.registerTroubleForm.controls['agencia'].disable();
     this.registerTroubleForm.controls['fileA'].disable();
@@ -196,5 +211,48 @@ export class FormularioRegistroProblemasComponent implements OnInit {
     this.registerTroubleForm.controls['tipo'].enable();
     this.maquinarias_show = false;
   }
+
+  encodeImageFileAsURL(id:any) {
+    this._show_spinner = true;
+    const filesSelected: any = document.getElementById(id) as HTMLInputElement;
+    this.fileId = filesSelected.files;
+    let s = this.fileId[0].name.split('.');
+    this.nameFile = s[0].toString().replace(' ', '_');
+    console.warn('this.nameFile');
+    console.warn(this.nameFile);
+    let base;
+    if (this.fileId.length > 0) {
+      const fileToLoad: any = filesSelected[0];
+      const fileReader: any = new FileReader();
+      fileReader.onload = () => {
+        base = fileReader.result;
+      };
+      fileReader.onloadend = () => {
+        this._IMGE = fileReader.result;
+        // this.validacionHayImagen();
+      };
+      fileReader.readAsDataURL(this.fileId[0]);
+      this._show_spinner = false;
+    }
+
+  }
+
+  onFileSelected(event: any): void {
+    this.file = event.target.files[0];
+  }
+
+  uploadServerFile() {
+    // this.guardarImgFileDB();
+    this.fileserv.uploadFile(this.file, this.nameFile).subscribe({
+      next: (x) => {
+        console.log(x);
+      }, error: (e) => {
+        console.error(e);
+      }, complete: () => {
+      }
+    })  
+  }
+
+
 
 }

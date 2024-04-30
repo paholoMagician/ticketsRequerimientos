@@ -10,6 +10,8 @@ import { Environments } from 'src/app/environments/environments';
 })
 export class DashboardComponent implements OnInit {
 
+  view_cli: boolean = true;
+  form_view: boolean = false;
   nameidentifier:any;
   sub:    any;
   name:   any;
@@ -20,15 +22,17 @@ export class DashboardComponent implements OnInit {
   aud:    any;
   codcli: any;
 
-  constructor(private ncrypt: EncryptService, private env: Environments) {}
+  constructor( private ncrypt: EncryptService, private env: Environments ) {}
 
   ngOnInit(): void {
+    this.getToken();  
+  }
+
+  getToken() {
     let xtoken:any = sessionStorage.getItem('token');
     const xtokenDecript: any = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
     if (xtokenDecript != null || xtokenDecript != undefined) {
-      
-      var decoded:any = jwtDecode(xtokenDecript);    
-      
+        var decoded:any = jwtDecode(xtokenDecript);
       this.sub                   = decoded["sub"];
       this.nameidentifier        = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
       this.name                  = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
@@ -38,22 +42,37 @@ export class DashboardComponent implements OnInit {
       this.iss                   = decoded["iss"];
       this.aud                   = decoded["aud"];
       this.codcli                = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
-      
       const rolEncrypt: any = this.ncrypt.encryptWithAsciiSeed(this.role, this.env.es, this.env.hash);
       sessionStorage.setItem('PR', rolEncrypt);
       sessionStorage.setItem('ID', this.nameidentifier);
-      sessionStorage.setItem('codcli', this.codcli);
+      sessionStorage.setItem('codcli', this.codcli)
 
-      console.log(xtokenDecript);
-      console.log(rolEncrypt);
-      console.log(this.role);
-      console.log(this.codcli);
-
-      // if(this.role == 'R003') {
-      //   this.router.navigate(['moneq']);
-      // }
+      if(this.role == 'C') this.view_cli = true;
+      else if(this.role == 'A') this.view_cli = false;
 
     } 
+  }
+
+  getti:any;
+  getTicket(event:any) {
+    console.warn(event);
+    if(event) {
+      this.getti = event;
+    }
+  }
+
+  showFormPermission(event:any) {
+    this.form_view = event;
+  }
+ 
+  closeFormularioTicket(event:any) {
+    this.form_view = event;
+  }
+
+  listenTicket(event:any) {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.log(event);
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
   }
 
 }

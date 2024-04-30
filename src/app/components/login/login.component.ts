@@ -3,9 +3,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { LoginService } from './services/login.service';
 import { Environments } from 'src/app/environments/environments';
 
-import Swal from 'sweetalert2'
 import { EncryptService } from '../shared/services/encrypt.service';
 import { Router } from '@angular/router';
+
+import Swal from 'sweetalert2'
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -17,7 +18,6 @@ const Toast = Swal.mixin({
     toast.addEventListener('mouseleave', Swal.resumeTimer);
   }
 })
-
 
 @Component({
   selector:    'app-login',
@@ -42,14 +42,6 @@ export class LoginComponent implements OnInit {
   constructor( private log: LoginService, private env: Environments, private router: Router, private ncrypt: EncryptService  ) { }
 
   ngOnInit(): void {
-
-    // let xtoken = sessionStorage.getItem('token');
-    //   if( xtoken == null || xtoken == undefined )  { 
-    //     //console.warn('No hay credenciales') 
-    //   }
-    //   else if (xtoken != null || xtoken != undefined) {
-    //     this.router.navigate(['dashboard'])
-    //   };
       this.log.validate();
   }
 

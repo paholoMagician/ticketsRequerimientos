@@ -1,4 +1,3 @@
-
 import { Injectable } from "@angular/core";
 import { EncryptService } from "../components/shared/services/encrypt.service";
 
@@ -11,10 +10,13 @@ export class Environments {
     constructor( private encrypt: EncryptService ) { }
         
     // apiHelpDeskSytem: any = 'http://181.188.224.4:5208';
-    apiHelpDeskSytem: any = 'http://192.168.100.148:5075/api/';
-    apiCMS: any = 'http://192.168.100.148:5130/api/';
+    // apiHelpDeskSytem: any = 'http://localhost:5075/api/';
+    apiHelpDeskSytem:  any = 'http://192.168.55.66/:5075/api/';
+    apiHelpDeskSytemh: any = 'http://192.168.55.66/:5075/';
+    apiCMS:            any = 'http://192.168.55.66/:5130/api/';
+    // apiHelpDeskSytem: any = 'http://localhost:9998/api/';
+    // apiCMS:            any = 'http://192.168.100.12:1131/api/';
     // apiHelpDeskSytem: any = 'https://sfiback.azurewebsites.net';
-
 
     version: string = '1.0.1';
     es:      number = 5;
@@ -23,22 +25,23 @@ export class Environments {
     codcia:  string = 'CMS-001-2023';
 
     apiurl(): string {
-        const  env:string = this.apiHelpDeskSytem+'/api/';
+        const  env: string      = this.apiHelpDeskSytem+'api/';
         return env;
     }
 
     apiUrlHub(): string {
-        const  envHub: string = this.apiHelpDeskSytem+'/hubs/';
+        const  envHub: string   = this.apiHelpDeskSytem+'hubs/';
+        // const  envHub: string   = this.apiCMS+'hubs/';
         return envHub;
     }
 
     apiUrlStorage(): string {
-        const  envstorage:string = this.apiHelpDeskSytem+'/storage/';
+        const  envstorage:string = this.apiHelpDeskSytem;
         return envstorage;
     }
 
     apiUrlIcon(): string {
-        const  envicon = this.apiHelpDeskSytem+'/iconsApp/';
+        const  envicon           = this.apiHelpDeskSytem+'iconsApp/';
         return envicon;
     }
 

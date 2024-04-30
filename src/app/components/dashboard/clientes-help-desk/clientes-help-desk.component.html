@@ -1,0 +1,32 @@
+
+<div class="clientes">
+
+    <div class="mb-2 d-flex w-100">
+        <form [formGroup]="filterForm" class="w-100">
+            <input class=" w-100 shadow-sm form-control rounded-pill"
+            fxFlex="auto"
+            type="text"            
+            formControlName="filterCli"
+            #filterCli
+            id="filterCli"
+            (keyup)="filterCliente()" 
+            placeholder="Búsqueda de clientes registrados...">
+        </form>
+    </div>
+    <div style="height: 73vh; overflow-y: auto;" >
+        <div *ngFor="let clientes of listaClientes" 
+             class="clientes-box d-flex justify-content-between align-items-center"
+             (click)="emitCli(clientes)">
+             <span> {{ clientes.nombre }} </span>
+             <div class=" d-flex justify-content-end align-items-center">
+                <span>
+                   <strong> {{ clientes.cantidadRequerimientos }} </strong>
+                </span>
+                <div>
+                    <mat-icon>chevron_right</mat-icon>
+                </div>
+             </div>
+        </div>
+    </div>
+</div>
+

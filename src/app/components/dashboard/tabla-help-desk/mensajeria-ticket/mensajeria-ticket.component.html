@@ -1,0 +1,28 @@
+<div>
+    
+    <div class="box-messenger">
+        <div class="msj-box" *ngFor="let mensaje of listaMensajes" >
+            <div>
+                {{mensaje.mensaje}}
+            </div>
+            <div>
+                {{mensaje.fechaemit | date: 'short'}}
+            </div>
+        </div>
+    </div>
+    <div class="tip-message">
+        <form  [formGroup]="messengerForm" class="mb-2"
+               (ngSubmit)="onSubmit()">
+               <textarea formControlName="msj"
+                         #msj
+                         id="msj" class="form-control"
+                         rows="4">
+               </textarea>
+               <button class="btn-ico" id="btn-ico" >
+                   <mat-icon>send</mat-icon>
+               </button>
+        </form>
+
+    </div>
+
+</div>
