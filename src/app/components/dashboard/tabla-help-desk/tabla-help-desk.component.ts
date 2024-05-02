@@ -30,8 +30,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
   @Output() showFormPermission: EventEmitter<any> = new EventEmitter();
   // @Output() emitTicket: EventEmitter<any[]> = new EventEmitter();
   @Input() listenTicket: any;
-
-  
   numberTicket: string = '';
   sub:                   any;
   _cli_view:             boolean = false;
@@ -46,9 +44,7 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
   head_agen:             any = 'Agencia';
   actionButton:          boolean = true;
   listaTickets:          any = [];
-
   icon_action: string = 'message';
-
   private urlHub:        any = this.env.apiHelpDeskSytemh;
   private estadoTickets: HubConnection;
 
@@ -72,15 +68,13 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
     this.obtenerTickets(xcodcli);
 
     this.estadoTickets.start().then( ()=> {   
-      console.log('CONECTADO@!@')
+      console.log('Conectado al sistema!')
     }).catch( e => {
       console.error('ALGO HA PASADO CON LA TRANSMISION DEL ESTADO DEL TICKET:',e);
     })
 
   }
-
   
-
   ngOnChanges(changes: SimpleChanges): void {
       if(changes) {
         if (this.listenTicket) {
@@ -141,18 +135,14 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
         this.actionButton = false;
         this.icon_action  = 'message';
       }
-
     } 
   }
 
-
-
   obtenerTickets( xcodcli: string ) {
-
     this.helpdeskserv.obtenerTickets(xcodcli).subscribe({
       next: (x) => {
         this.listaTickets = x;
-        console.table(this.listaTickets);
+        // console.table(this.listaTickets);
       }, complete: () => {
         this.listaTickets.filter( (x:any) => {
           x.idRequerimientoPad = '#'+x.tipo +'-'+ x.idRequerimiento.toString().padStart(9,'0');
@@ -192,9 +182,9 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
 
   ticketSend:any = [];
   actualizarEstado( id:number, estado:number, idTicket:string, ticket:any ) {
-    console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
-    console.log(ticket)
-    console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
+    // console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
+    // console.log(ticket)
+    // console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
     this.ticketSend = ticket;
     this.numberTicket = idTicket;
     if ( ticket.estado == 1 ) {

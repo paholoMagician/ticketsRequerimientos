@@ -1,50 +1,70 @@
-
 .box-messenger {
-    height: 70vh;
-    border: solid 1px gray;
-    width: 100%;
-    border-radius: 10px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
+  height: 58vh;
+  border: solid 1px gray;
+  width: 100%;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
 }
 
 .tip-message {
-    width: 100%;
-    border: solid 1px gray;
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #444;
+  width: 100%;
+  border: solid 1px gray;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #444;
 }
 
 textarea {
+  background-color: #2d2d2d65;
+  color: whitesmoke;
+  outline-color: transparent;
+  outline: none;
+  &:focus {
     background-color: #2d2d2d65;
-    color: whitesmoke;
-    outline-color: transparent;
-    outline: none;
-
-    &:focus {
-        background-color: #2d2d2d65;
-        color: white;
-    }
+    color: white;
+  }
 }
 
 #btn-ico {
-    position: absolute;
-    bottom: 35px;
-    right: 25px;
+  position: absolute;
+  bottom: 35px;
+  right: 25px;
 }
 
-
 .msj-box {
-    min-width: auto;
-    max-width: 100%;
-    color: rgb(248, 255, 238);
-    background-color: #2e2e2e;
-    padding: 15px;
-    border-radius: 10px;
-    border: groove 2px gray;
-    box-shadow: 10px 10px 10px rgba($color: #000000, $alpha: 0.5);
+  min-width: auto;
+  max-width: 100%;
+  margin-bottom: 10px;
+  color: rgb(248, 255, 238);
+  background-color: #2d2d2d65;
+  padding: 15px;
+  border-radius: 10px;
+  border: groove 2px gray;
+  box-shadow: 10px 10px 10px rgba($color: #000000, $alpha: 0.5);
+}
+.sent-m {
+  align-self: flex-start;
+}
+
+.received-m {
+  text-align: right;
+  align-self: flex-end;
+}
+
+.sent-message {
+  background-color: #2A4D6A;
+  color: white;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.received-message {
+  background-color: #2FA477;
+  color: white;
+  border-radius: 10px;
+  padding: 10px;
 }

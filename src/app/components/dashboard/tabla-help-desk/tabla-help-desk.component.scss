@@ -1,57 +1,51 @@
 .box-estado {
-    width: 25px;
-    height: 25px;
-    border: solid 1px white;
-    border-radius: 100%;
-    box-shadow: 5px 5px 5px rgba($color: #000000, $alpha: 0.7);
+  width: 25px;
+  height: 25px;
+  border: solid 1px white;
+  border-radius: 100%;
+  box-shadow: 5px 5px 5px rgba($color: #000000, $alpha: 0.7);
 }
 
 .msjestado {
-    transition: ease all 1s;
-    animation: bounceAnim ease 3s infinite;
+  transition: ease all 1s;
+  animation: bounceAnim ease 3s infinite;
 }
 
 @keyframes bounceAnim {
-    0% {
-        opacity: 0;
-    }
-    70% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
+  0% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 #offcanvasRight {
-
-    width: 40%;
-    background-color: #444;
-
+  width: 40%;
+  background-color: #444;
 }
 
 .btn-close {
-    color: white !important;
+  color: white !important;
 }
 
 @media screen and (max-width: 850px) {
-    #offcanvasRight {
-
-        width: 95%;
-    
-    }   
+  #offcanvasRight {
+    width: 95%;
+  }
 }
 
 .box-ticket {
-    margin-top: 10px;
-    background-color: #444;
-    color: rgb(128, 255, 0);
-    font-weight: bold;
-    font-size: 24pt;
-    border: solid 2px rgb(128, 255, 0);
-    box-shadow: 5px 5px 10px rgba($color: #000000, $alpha: 0.7);
-    padding: 15px;
-    border-radius: 5px;
+  margin-top: 10px;
+  background-color: #444;
+  color: rgb(128, 255, 0);
+  font-weight: bold;
+  font-size: 24pt;
+  border: solid 2px rgb(128, 255, 0);
+  box-shadow: 5px 5px 10px rgba($color: #000000, $alpha: 0.7);
+  padding: 15px;
+  border-radius: 5px;
 }
-
-
