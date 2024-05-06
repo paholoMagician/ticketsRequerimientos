@@ -2,11 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { LoginService } from './services/login.service';
 import { Environments } from 'src/app/environments/environments';
-
 import { EncryptService } from '../shared/services/encrypt.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
-import Swal from 'sweetalert2'
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -75,11 +74,7 @@ export class LoginComponent implements OnInit {
       }, error: (e) => {
         console.error(e);
       }, complete: () => {
-
       }
     })
-
   }
-
-
 }

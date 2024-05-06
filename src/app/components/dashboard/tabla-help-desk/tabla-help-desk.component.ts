@@ -4,7 +4,6 @@ import { TablaHelpDeskService }                        from './services/tabla-he
 import { EncryptService }                              from '../../shared/services/encrypt.service';
 import { Environments }                                from 'src/app/environments/environments';
 import { jwtDecode }                                   from "jwt-decode";
-
 import Swal from 'sweetalert2'
 import { tick } from '@angular/core/testing';
 const Toast = Swal.mixin({
@@ -26,7 +25,6 @@ const Toast = Swal.mixin({
 })
 
 export class TablaHelpDeskComponent implements OnInit, OnChanges {
-
   @Output() showFormPermission: EventEmitter<any> = new EventEmitter();
   // @Output() emitTicket: EventEmitter<any[]> = new EventEmitter();
   @Input() listenTicket: any;
@@ -62,7 +60,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    
     this.getToken();
     const xcodcli:any = sessionStorage.getItem('codcli');
     this.obtenerTickets(xcodcli);
@@ -72,7 +69,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
     }).catch( e => {
       console.error('ALGO HA PASADO CON LA TRANSMISION DEL ESTADO DEL TICKET:',e);
     })
-
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -142,7 +138,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
     this.helpdeskserv.obtenerTickets(xcodcli).subscribe({
       next: (x) => {
         this.listaTickets = x;
-        // console.table(this.listaTickets);
       }, complete: () => {
         this.listaTickets.filter( (x:any) => {
           x.idRequerimientoPad = '#'+x.tipo +'-'+ x.idRequerimiento.toString().padStart(9,'0');
@@ -182,9 +177,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
 
   ticketSend:any = [];
   actualizarEstado( id:number, estado:number, idTicket:string, ticket:any ) {
-    // console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
-    // console.log(ticket)
-    // console.log('*/**/*/***/*/*/*/*/*/*/*/*/*/*/*/*/')
     this.ticketSend = ticket;
     this.numberTicket = idTicket;
     if ( ticket.estado == 1 ) {
@@ -208,7 +200,5 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
         /** Para hacer algo mijin */
       }
     }
-     
   }
-
 }

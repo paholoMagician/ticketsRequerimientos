@@ -4,6 +4,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MensajeriaTicketService } from './services/mensajeria-ticket.service';
@@ -20,7 +21,6 @@ export class MensajeriaTicketComponent implements OnInit, OnChanges {
   messengerForm = new FormGroup({
     msj: new FormControl(''),
   });
-
   dataMsj: any = []
   idRequerimiento: number = 0;
   modelSendMsj: any = [];
@@ -67,16 +67,16 @@ export class MensajeriaTicketComponent implements OnInit, OnChanges {
   }
 
   onSubmit() {
-    this.enviarMensaje();
+    const mensaje = this.messengerForm.controls['msj'];
+    if(mensaje && mensaje.value && mensaje.value.trim() !== ''){
+      this.enviarMensaje();
+    }
   }
 
-  enviarMensajePressBotton(event: Event) {
+  enviarMensajeKey(event: Event) {
     const keyboardEvent = event as KeyboardEvent;
     keyboardEvent.preventDefault();
     this.onSubmit();
-    const textarea = document.getElementById('msj') as HTMLTextAreaElement;
-    textarea.value = '';
-    console.log('Enviado');
   }
 
   enviarMensaje() {
@@ -92,6 +92,7 @@ export class MensajeriaTicketComponent implements OnInit, OnChanges {
         console.log('Enviado');
         const textarea = document.getElementById('msj') as HTMLTextAreaElement;
         textarea.value = '';
+        this.messengerForm.controls['msj'].setValue('');
       },
       error: (e) => {
         console.error(e);
@@ -103,6 +104,7 @@ export class MensajeriaTicketComponent implements OnInit, OnChanges {
     this.mensajeria.obtenerMensaje(idRequerimiento, top).subscribe({
       next: (x) => {
         this.listaMensajes = x;
+        console.log(this.listaMensajes);
       },
       error: (e) => {
         console.error(e);
