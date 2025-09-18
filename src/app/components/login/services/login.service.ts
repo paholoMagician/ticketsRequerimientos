@@ -17,29 +17,29 @@ export class LoginService {
   }
 
   validate() {
-
-    console.log('Tratando de validar')
-
     let token: any = sessionStorage.getItem('token');
     if( token == undefined || token == null || token == '' ) {
-      console.log('No hay token')
+      // // console.log('No hay token')
       this.router.navigate(['login']);
     } else {
-      console.log('Si hay token')
+      // // console.log('Si hay token')
       this.router.navigate(['home']);
     }
+    
   }
 
+
+
   closeSession() {
-    sessionStorage.removeItem('UserCod');
-    sessionStorage.removeItem('UserName');
-    sessionStorage.removeItem('cedula');
-    sessionStorage.removeItem('tipo');
+    sessionStorage.removeItem('ID');
+    sessionStorage.removeItem('PR');
+    sessionStorage.removeItem('codcli');
+    sessionStorage.removeItem('usuario');
     sessionStorage.removeItem('token');
-    sessionStorage.removeItem('imagen');
-    sessionStorage.removeItem('email');
-    localStorage.removeItem('imgperfil');
-    localStorage.removeItem('codcia');
+    sessionStorage.removeItem('exp');
+    localStorage.removeItem('id-cliente-escogido');
+    localStorage.removeItem('nombre-cliente-escogido');
+    localStorage.removeItem('idRequerimientoShow');
     this.validate();
   }
   

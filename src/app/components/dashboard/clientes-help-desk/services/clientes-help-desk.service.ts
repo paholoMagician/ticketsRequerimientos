@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Environments } from 'src/app/environments/environments';
 
@@ -12,8 +12,14 @@ export class ClientesHelpDeskService {
 
   constructor(private http: HttpClient, private env: Environments) { }
 
-  obtenerClientes( ccia:string, tp: any ) {
-    return this.http.get( this.urlCms + 'ClienteAgencia/obtenerClientes/' + ccia + '/' + tp );
+  private get headers(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${this.env.TokenJWT()}`,
+      'Content-Type': 'application/json'
+    });
   }
 
+  obtenerClientes( ccia:string, tp: any ) {
+    return this.http.get( this.urlCms + 'ClienteAgencia/obtenerClientes/' + ccia + '/' + tp, { headers: this.headers });
+  }
 }

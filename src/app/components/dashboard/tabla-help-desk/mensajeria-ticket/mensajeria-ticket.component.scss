@@ -1,13 +1,16 @@
 
+
 .box-messenger {
-    height: 70vh;
-    border: solid 1px gray;
+    height: 65vh;
+    overflow-y: auto;
+    // border: groove 1px rgba(211, 211, 211, 0.362);
     width: 100%;
     border-radius: 10px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: end;
+    transition:  ease all 1s;
 }
 
 .tip-message {
@@ -31,6 +34,37 @@ textarea {
     }
 }
 
+#btn-ico2 {
+    position: absolute;
+    bottom: 35px;
+    right: 75px;
+}
+
+.imagen-mensajeria {
+    width: 100%;
+    max-width: 400px;
+    min-width: none;
+    height: auto;
+}
+
+.imgPrev {
+    display: flex;
+    justify-content: start;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.619);
+    padding: 10px; 
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
+    width: auto;
+    bottom: 220px;
+    right: 15px;
+}
+
+// #imgMsjSend {
+//     // display: none; /* Oculta completamente el input */
+//     width: 10px;
+// }
+
 #btn-ico {
     position: absolute;
     bottom: 35px;
@@ -39,12 +73,14 @@ textarea {
 
 
 .msj-box {
-    min-width: auto;
-    max-width: 100%;
-    color: rgb(248, 255, 238);
+    min-width:          auto;
+    max-width:          100%;
+    color:            rgb(248, 255, 238);
     background-color: #2e2e2e;
-    padding: 15px;
-    border-radius: 10px;
-    border: groove 2px gray;
-    box-shadow: 10px 10px 10px rgba($color: #000000, $alpha: 0.5);
+    padding:            15px;
+    border-radius:      10px;
+    // border:             groove 2px gray;
+    box-shadow:         10px 10px 10px rgba($color: #000000, $alpha: 0.5);
+    transition:         ease all 1s;
 }
+

@@ -4,6 +4,7 @@
     background-color: whitesmoke;
     border-radius: 10px;
     border: groove 1px rgb(216, 216, 216);
+    
 }
 
 .clientes-box {
@@ -12,13 +13,10 @@
     transition: ease all 2s;
 }
 
-
-.clientes-box:hover {
+.clientes-box:hover, .clientes-box.selected {
     transition: ease all 0.5s;
     background-color: #e9ca16;
     cursor: pointer;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
-
-
 }

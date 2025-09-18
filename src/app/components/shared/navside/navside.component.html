@@ -1,8 +1,15 @@
-<div class="w-100 d-flex justify-content-between nav">
+<div class="w-100 d-flex justify-content-between nav align-items-center">
     <div class="user p-3 text-light fs-4 d-flex align-items-center">
         Bienvenido, {{nombreUser | uppercase}}
     </div>
-    <div class="img-icon">
-        
+    <div class="d-flex">
+        <button class="m-1 btn btn-outline-warning d-flex align-items-center" (click)="openDataConfigDialog()"
+                *ngIf="_cli_view">
+                <mat-icon>settings</mat-icon>
+        </button>
+        <button class="m-1 btn btn-outline-warning d-flex align-items-center" 
+                (click)="cerrarSesion()">
+                <mat-icon>logout</mat-icon> <span>Cerrar sesión</span>
+        </button>
     </div>
 </div>
