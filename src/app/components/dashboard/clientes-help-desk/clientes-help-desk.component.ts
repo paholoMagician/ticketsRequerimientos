@@ -4,6 +4,15 @@ import { ClientesHelpDeskService } from './services/clientes-help-desk.service';
 import { Environments } from 'src/app/environments/environments';
 import { FormControl, FormGroup } from '@angular/forms';
 
+import Swal from 'sweetalert2';
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 2000,
+  timerProgressBar: true,
+})
+
 @Component({
   selector: 'app-clientes-help-desk',
   templateUrl: './clientes-help-desk.component.html',
@@ -62,25 +71,34 @@ export class ClientesHelpDeskComponent implements OnInit, OnChanges {
       next: (x) => {
         this.listaClientes = x;
         this.listaClientesGhost = x;
-        
         // Si hay un codCliTikenAlert, buscar y emitir el cliente
-        if (this.codCliTikenAlert) {
-          const cliente = this.listaClientes.find((item: any) => 
-            item.codcliente === this.codCliTikenAlert
-          );
+        // if (this.codCliTikenAlert) {
+        //   const cliente = this.listaClientes.find((item: any) => 
+        //     item.codcliente === this.codCliTikenAlert
+        //   );
           
-          if (cliente) {
-            this.emitCliStyle(cliente);
-            this.emitCli(cliente);
-          }
-        }
+        //   if (cliente) {
+        //     this.emitCliStyle(cliente);
+        //     this.emitCli(cliente);
+        //   }
+        // }
+      }, error: (e) => {
+        console.error('Error al obtener clientes:', e);
       }
     })
   }
 
   emitCli(model:any) {
-    console.warn('MODELO ENVIADO DESDE CLIENTES HELP DESK');
-    console.warn(model);
+    if ( model.cantidadRequerimientos == 0 ) {
+    
+      Swal.fire({
+                    title: "Sin datos!",
+                    text: "Este cliente no tiene tickets.",
+                    icon: "info"
+                  });
+    
+      return;
+    }
     this.codcli.emit(model);
     localStorage.setItem('id-cliente-escogido', model.codcliente);
     localStorage.setItem('nombre-cliente-escogido', model.nombre);

@@ -79,11 +79,11 @@ export class NavsideComponent {
       this.nombreUser = this.name[0];
       this.ccia = this.name[1];
 
-      if ( this.role == 'C' ) {
+      if ( this.role == 'R004' ) {
         this._cli_view    = false;
-      } else if ( this.role == 'G' ) {
+      } else if ( this.role == 'R002' ) {
         this._cli_view    = false;
-      } else if( this.role == 'A' ) {
+      } else if( this.role == 'R003' ) {
         this._cli_view    = true;
       }
 

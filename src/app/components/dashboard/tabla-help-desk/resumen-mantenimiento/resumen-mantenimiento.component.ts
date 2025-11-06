@@ -11,6 +11,8 @@ export class ResumenMantenimientoComponent implements OnInit, OnChanges {
   _show_spinner: boolean = false;
   @Input() idRequerimiento:any;
   @Input() manetenimientoEsuchado: any;
+  @Input() refreshList: any;
+
 
   listaMantenimientosAgregados: any = [];
   constructor( private mant: MantenimientoService ) {}
@@ -23,6 +25,24 @@ export class ResumenMantenimientoComponent implements OnInit, OnChanges {
       if( changes ) {
         this.obtenerMantenimientosAgregados();
       }
+
+      if ( this.refreshList ) {
+        this.eliminarMantenimiento(  )
+      }
+
+  }
+
+
+  eliminarMantenimiento(  ) {
+
+    this.listaMantenimientosAgregados.filter( (x:any) => {
+      console.table(x);
+      if ( x.id == this.refreshList.idResMant ) {
+          const index = this.listaMantenimientosAgregados.indexOf(x);
+          if (index > -1) this.listaMantenimientosAgregados.splice(index, 1);          
+      }
+    });
+
   }
 
   obtenerMantenimientosAgregados() {

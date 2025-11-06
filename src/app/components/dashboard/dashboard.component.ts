@@ -204,11 +204,15 @@ export class DashboardComponent implements OnInit {
       sessionStorage.setItem('codcli', this.codcli);
       sessionStorage.setItem('exp',    this.exp.toString());
 
-      if ( this.role == 'C' ) {
+      if ( this.role == 'R004' ) {
         this.view_cli = true;
         this.show_alert_tickets = false;
       }
-      else if ( this.role == 'A' ) {
+      else if ( this.role == 'R003' ) {
+        this.view_cli = false;
+        this.show_alert_tickets = true;
+      }
+      else if ( this.role == 'R001' ) {
         this.view_cli = false;
         this.show_alert_tickets = true;
       }

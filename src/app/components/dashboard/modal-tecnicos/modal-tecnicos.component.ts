@@ -65,6 +65,7 @@ export class ModalTecnicosComponent implements OnInit {
       this.mant.obtenerLocalidadesAgencia(id).subscribe({
         next: (x) => {
           this.listaTecnicos = x;
+          console.table(x);
           this.listaTecnicosGhost = x;
           this._show_spinner = false;
         }, error: (e) => {

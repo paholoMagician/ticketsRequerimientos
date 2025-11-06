@@ -5,6 +5,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { ModalTecnicosComponent } from '../../modal-tecnicos/modal-tecnicos.component';
 import { MantenimientoService } from '../mantenimiento/services/mantenimiento.service';
 import Swal from 'sweetalert2'
+import { FileMediaTicketsService } from '../../file-media-ticket/services/file-media-tickets.service';
+import { EmailSettingsServiceX } from 'src/app/components/shared/configuraciones/services/email-settings.service';
+import { Environments } from 'src/app/environments/environments';
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -24,14 +27,17 @@ const Toast = Swal.mixin({
 })
 
 export class FechaRealComponent implements OnInit, OnChanges {
-
-  idAgencia: any;
-  _show_spinner: boolean = false;
-  @Input() requerimiento: any;
+  listaTecnicosRecibidos:              any = [];
+  modelDataRequer:                     any = [];
+  idAgencia:                           string = '';
+  _show_spinner:                       boolean = false;
+  listConfmail:                        any = [];
+  reporteTecnicoSettingsEmail:         any = [];
+  @Input()  requerimiento:             any;
   @Output() emitTecnicosMantenimiento: EventEmitter<any> = new EventEmitter();
-  @Output() showFormFechaReal: EventEmitter<any> = new EventEmitter();
+  @Output() showFormFechaReal:         EventEmitter<any> = new EventEmitter();
 
-  constructor( private fecReal: FechasRealesService, private mantServ: MantenimientoService,  public dialog: MatDialog ) {}
+  constructor( private env: Environments, private eSet: EmailSettingsServiceX, private fecReal: FechasRealesService, private mantServ: MantenimientoService,  public dialog: MatDialog, private nodeServer: FileMediaTicketsService ) {}
 
   dateTimeRegisterForm = new FormGroup ({
       fecreaRealIni:   new FormControl(null),
@@ -43,6 +49,7 @@ export class FechaRealComponent implements OnInit, OnChanges {
 
   ngOnInit(): void { 
     this.inicializarHora();
+    this.obtenerEmailCliSetts( 1 );
   }
   
   ngOnChanges( changes: SimpleChanges ): void {
@@ -71,8 +78,8 @@ export class FechaRealComponent implements OnInit, OnChanges {
   }
 
   validateFecha() {
-    let xFecIni: any = this.dateTimeRegisterForm.controls['fecreaRealIni'].value;    
-    let xFecFin: any = this.dateTimeRegisterForm.controls['fecreaRealFin'].value;    
+    let xFecIni: any = this.dateTimeRegisterForm.controls['fecreaRealIni'].value;
+    let xFecFin: any = this.dateTimeRegisterForm.controls['fecreaRealFin'].value;
   
     let currentDate: any = new Date();
     
@@ -280,10 +287,12 @@ export class FechaRealComponent implements OnInit, OnChanges {
       horaFinalPlanificada: this.requerimiento.horaFinalPlanificada,
       usercrea: this.requerimiento.usercrea,
       valor: this.requerimiento.valor,
-      observacion: this.requerimiento.observacion,
+      observacion: this.dateTimeRegisterForm.controls['observacion'].value,
       ccia: xccia,
       codUserAtencionTicket: xuser
     }
+
+    console.log('Modelo a enviar:', model);
 
     this._show_spinner = true;
     this.fecReal.actualizarFechaReal(this.requerimiento.idTicket, 2, model,).subscribe({
@@ -300,9 +309,43 @@ export class FechaRealComponent implements OnInit, OnChanges {
         this._show_spinner = false;
         this.showFormFechaReal.emit(true);
         this.emitTecnicosMantenimiento.emit(this.listaTecnicosRecibidos);
+        this.obtenerReportecnicoCorrectivo(this.requerimiento.idTicket);
+
+
       }
     });
   }
+
+fileUrl: any;
+obtenerReportecnicoCorrectivo(id:any) {
+    let pathFile: string = 'C:/Users/Administrador/Desktop/NODE-SMTP/src/wwwroot/reptec/';
+    // alert('local path asignada: ' + pathFile)
+    this.nodeServer.getReporteTecnicoCorrectivo( id, 'CM' ).subscribe({
+      next:(x:any) => {
+        this.fileUrl = x.url_file;
+
+        // alert(this.fileUrl)
+
+      }, error: (e) => {
+        console.error('Error al generar el reporte técnico correctivo:', e);
+      }, complete: () => {
+        // Obtener el nombre del archivo desde la URL
+        const nombreArchivo = this.fileUrl.split('/').pop();        
+        // Concatenar con pathFile
+        const rutaCompleta = pathFile + nombreArchivo;        
+        console.log('Ruta completa del archivo:', rutaCompleta);
+        // ENVIO DE EMAIL
+        this.sendMail(
+         [rutaCompleta],
+         this.tecnicosEmail,
+         this.reporteTecnicoSettingsEmail.fromAddress,
+         this.reporteTecnicoSettingsEmail.replyTo,
+         this.reporteTecnicoSettingsEmail.body,
+         this.reporteTecnicoSettingsEmail.subject
+        )
+      }
+    })
+}
   
   // Función auxiliar para formatear fecha a ISO string
   private formatDate(date: any): string {
@@ -326,8 +369,8 @@ export class FechaRealComponent implements OnInit, OnChanges {
     return { ticks };
   }
 
-  listaTecnicosRecibidos: any = [];
-  modelDataRequer: any = [];
+
+  tecnicosEmail: any = [];
   openDataTecnicosDialog() {
     
     this.modelDataRequer = {
@@ -335,8 +378,8 @@ export class FechaRealComponent implements OnInit, OnChanges {
       idAgencia:       this.requerimiento.idAgencia,
       horaInicialReal: this.dateTimeRegisterForm.controls['horaInicialReal'].value,
       horaFinalReal:   this.dateTimeRegisterForm.controls['horaFinalReal'].value,
-      codMarca:        this.requerimiento.codMarca,
       fecreaRealIni:   this.dateTimeRegisterForm.controls['fecreaRealIni'].value,
+      codMarca:        this.requerimiento.codMarca,
       fecreaRealFin:   this.dateTimeRegisterForm.controls['fecreaRealFin'].value,
       codfrecuencia:   this.requerimiento.codfrecuencia
     }
@@ -347,15 +390,18 @@ export class FechaRealComponent implements OnInit, OnChanges {
       data: this.modelDataRequer
     });
 
-    dialogRef.afterClosed().subscribe((result: any) => {
-      if (result) {
+    dialogRef.afterClosed().subscribe((result: any) => { if (result) {
+      this.listaTecnicosRecibidos = result;
 
-        // console.warn('Lista de técnicos recibidos desde el modal:');
-        console.table(result);
+      console.table(this.listaTecnicosRecibidos);
 
-        this.listaTecnicosRecibidos = result;
-      }
-    });
+      this.listaTecnicosRecibidos.filter( (x:any) => {
+        console.warn(x);
+        console.warn(x.email);
+        this.tecnicosEmail.push( x.email );
+      })
+      console.warn(this.tecnicosEmail);
+    }});
     
   }
 
@@ -372,6 +418,259 @@ export class FechaRealComponent implements OnInit, OnChanges {
     })
   
   }
+
+  obtenerEmailCliSetts( idConfig: number ) {
+    this.eSet.obtenerEmailCliSetts( idConfig ).subscribe({
+      next: (x) => {
+        this.listConfmail = x;
+      },
+      error: (err) => {
+        console.error('Error al obtener configuración de email:', err);
+      }, complete: () => {
+
+        this.listConfmail.forEach((element: any) => {
+        
+          if ( element.codecProcess == '007' ) {
+            
+            this.reporteTecnicoSettingsEmail = element;
+
+          }  
+        
+        
+        });
+
+      }
+    });}
+
+  // Envio de correo electronico
+  sendMail(filePathServer: any, recipients: any, fromAddress: any, replyTo: any, contentHtml: any, subject: any) {  
+  
+    let toRecipients = recipients.toString().split(',').map( (email: string) => (
+      {
+        email: email.trim(),
+        name: '---'
+      }
+    ));
+    let headerColor = '#9C27B0';
+    let headerText = 'Autorización Requerida';
+    let icon = '🔐';
+  
+    // Plantilla HTML mejorada
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${headerText} - CMS</title>
+        <style>
+
+          /* Estilos base */
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+          }
+          
+          /* Contenedor principal */
+          .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+          
+          /* Encabezado */
+          .email-header {
+            background-color: ${headerColor};
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+          }
+          
+          .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+          }
+          
+          /* Cuerpo del email */
+          .email-body {
+            padding: 25px;
+          }
+          
+          /* Detalles del ticket */
+          .ticket-info {
+            background: #f9f9f9;
+            border-left: 4px solid ${headerColor};
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 4px 4px 0;
+          }
+          
+          .ticket-info p {
+            margin: 5px 0;
+          }
+          
+          .ticket-info strong {
+            color: ${headerColor};
+          }
+          
+          /* Contenido específico */
+          .email-content {
+            margin-bottom: 20px;
+          }
+          
+          /* Footer */
+          .email-footer {
+            background: #f1f1f1;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+          }
+          
+          .logo {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 15px;
+          }
+          
+          /* Tablas (para técnicos) */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+          }
+          
+          th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+          }
+          
+          th {
+            background-color: ${headerColor};
+            color: white;
+          }
+          
+          tr:hover {
+            background-color: #f5f5f5;
+          }
+
+        </style>
+      </head>
+
+      <body>
+        <div class="email-container">
+          <div class="email-header">
+            <h1>${icon} ${headerText}</h1>
+          </div>
+          
+          <div class="email-body">
+            <div class="ticket-info">
+              <p>
+                <strong>
+                  Ticket: 
+                 </strong>
+                ${this.requerimiento.idRequerimientoPad}
+              </p>
+              <p>
+                <strong>
+                  Cliente:
+                </strong>
+                ${this.requerimiento.nombreCliente}
+              </p>
+              <p>
+                <strong>
+                  Agencia:
+                </strong>
+                ${this.requerimiento.nombreAgencia}
+              </p>
+            </div>            
+            <div class="email-content">
+              ${contentHtml}
+            </div>
+          </div>
+          
+          <div class="email-footer">
+            <h3 style="color: blue;" > <strong> CASHMACHINE SERVICES. </strong> </h3>
+            <br>
+            <p>Victor Manuel Rendón y Pedro Carbo<br>
+            Guayaquil, Ecuador<br>
+            Telf.: (+593) 9999985552<br>
+            <a href="http://www.cashmachinesserv.com" style="color: ${headerColor};">www.cashmachinesserv.com</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  
+    // Crear el modelo para Brevo manteniendo el manejo original de adjuntos
+    const brevoMail: any = {
+      to: toRecipients,
+      subject: `${headerText}: ${this.requerimiento.idRequerimientoPad} - ${this.requerimiento.nombreCliente}`,
+      htmlContent: htmlContent,
+      sender: {
+        email: "notificaciones@cashmachserv.com",
+        name: "Sistema de Notificaciones CMS"
+      },
+      replyTo: {
+        email: replyTo || fromAddress || "notificaciones@cashmachserv.com"
+      },
+      params: {
+        nombreCliente: this.requerimiento.nombreCliente,
+        agencia: this.requerimiento.nombreAgencia
+      }
+    };
+
+    console.log('ESTO SE ESTA ENVIANDO A BREVO');
+    console.log(brevoMail)
+  
+    // Validación y agregado de adjuntos (manteniendo tu lógica original)
+    if (filePathServer && filePathServer.length > 0) {
+      // Filtrar rutas válidas
+      const validAttachments = filePathServer
+        .filter((file: string) => file && file.trim() !== '')
+        .map((file: string) => ({
+          filePath: file,
+          name: file.split('\\').pop() || file.split('/').pop() || 'documento.pdf'
+        }));
+  
+      if (validAttachments.length > 0) {
+        brevoMail.attachments = validAttachments;
+      }
+    }
+  // <img src="${this.env.logoCMS64bits}" alt="Cash Machine Systems" class="logo">
+    this.eSet.enviarEmails(brevoMail).subscribe({
+      next: (x) => {
+        Swal.fire({
+          title: filePathServer?.length > 0 ? "Archivo enviado" : "Correo enviado",
+          html: `Email enviado a: ${recipients}`,
+          icon: "success"
+        });
+      },
+      error: (e) => {
+        Swal.fire({
+          title: "Error en envío",
+          text: "Ocurrió un error al enviar el correo",
+          icon: "error"
+        });
+        console.error('Error al enviar:', e);
+      }
+    });
+    }
+  
 
 
 }

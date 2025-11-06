@@ -260,29 +260,36 @@
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
-/* Asegurar que el botón de toggle no desaparezca */
-.toggle-panel-btn.right {
-  display: block !important;
-}
-
+// Estilos para la paginación
 .pagination {
-  margin-bottom: 0;
+  .page-item {
+    &.active .page-link {
+      background-color: #ffc107;
+      border-color: #ffc107;
+      color: #000;
+    }
+    
+    .page-link {
+      color: #6c757d;
+      border: 1px solid #dee2e6;
+      
+      &:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #000;
+      }
+    }
+    
+    &.disabled .page-link {
+      color: #6c757d;
+      background-color: #f8f9fa;
+    }
+  }
 }
 
-.page-item.active .page-link {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #000;
-}
-
-.page-link {
-  color: #6c757d;
-  cursor: pointer;
-}
-
-.page-link:hover {
-  color: #000;
-  background-color: #f8f9fa;
+// Estilos para el selector de items por página
+.form-select-sm {
+  border-radius: 0.375rem;
 }
 
 .form-select:focus {

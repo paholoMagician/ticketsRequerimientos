@@ -65,12 +65,13 @@ export class LoginComponent implements OnInit {
 
     this.log.login(this.loginModel).subscribe({
       next: (x: any) => {
-        // console.warn(x);
         Toast.fire({
           icon: 'success',
           title: 'Te has logeado con éxito'
         });
+        
         const tokenEn: any = this.ncrypt.encryptWithAsciiSeed(x.token, 5, 10);
+
         sessionStorage.setItem('token', tokenEn);
         let xuser: any = this.loginForm.controls['email'].value;
         sessionStorage.setItem('usuario', xuser);

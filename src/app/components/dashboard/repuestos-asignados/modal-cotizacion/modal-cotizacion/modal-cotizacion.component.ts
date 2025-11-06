@@ -309,8 +309,12 @@ constructor(
           <div style="display: flex; justify-content: space-between; margin-top: 50px; padding: 25px">
                   <div style="display: flex; flex-direction: column;">
                     <div>RECIBÍ CONFORME</div>
-                    <div style="margin-top: 70px; border-top: solid 3px black;"> 
-                      <div>Ma. Asunción Santos</div>
+                    <img  src="${this.urlImagenFirma}"
+                            alt="Firma del encargado"
+                            style="max-width: 250px; height: 80px;">
+                    <div style="border-top: solid 3px black;"> 
+                      
+                      <div>${this.usuarioAsignadoBodega}</div>
                       <div><strong>(BODEGA)</strong></div>
                     </div>
                   </div>
@@ -326,6 +330,10 @@ constructor(
                     <div style="margin-top: 70px; border-top: solid 3px black;"> 
                       <div>${this.nombreCliente}</div>
                       <div><strong>(CLIENTE)</strong></div>
+                      <br>
+                      <div><strong>Fecha:_________________________</strong></div>
+                      <br>
+                      <div><strong>Hora: _________________________</strong></div>
                     </div>
                   </div>
           </div>
@@ -441,7 +449,9 @@ constructor(
                             </h1>
                             <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
                             <h4 style="margin: 0px; ">
-                                <strong style="font-size: 11pt !important;">CASH MACHINE SERVICE C. LTDA.</strong>
+                                <strong style="font-size: 11pt !important;">
+                                  CASH MACHINE SERVICE C. LTDA.
+                                </strong>
                             </h4>
                         </div>
                     </div>
@@ -567,38 +577,32 @@ constructor(
                                     height: 15px;
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
-                                    border-bottom: dashed 1px gray;
-                                    
+                                    border-bottom: dashed 1px gray;                                    
                                     height: 15px;
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
-                                    
+                                    height: 15px;                                    
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
-                                    
+                                    height: 15px;                                    
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
-                                    
+                                    height: 15px;                                    
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
-                                    
+                                    height: 15px;                                    
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
-                                    
+                                    height: 15px;                                    
                                     width: 100%;"></div>
                         <div style="border-bottom: solid 2px gray;
                                     border-bottom: dashed 1px gray;
-                                    height: 15px;
+                                    height: 15px; 
                                     
                                     width: 100%;"></div>
                     </div>
@@ -649,9 +653,7 @@ constructor(
                                 align-content: center;
                                 flex-direction: column;
                                 width: 50%;">
-                        <div style="height: 100px;">
-
-                        </div>
+                        <div style="height: 100px;"></div>
                     </div>
                     <div style="border: solid 1px gray;
                                 padding: 5px;
@@ -660,11 +662,12 @@ constructor(
                                 align-content: center;
                                 flex-direction: column;
                                 width: 50%;">
-                        <div style="height: 100px;">
-
-                        </div>
+                        <div style="height: 100px;"></div>
                         <small style="font-size: 8pt; color: black;">
-                            Previo a la firma de conformidad se llenan la <strong>HORA DE INGRESO Y DE SALIDA</strong>
+                            Previo a la firma de conformidad se llenan la
+                            <strong>
+                              HORA DE INGRESO Y DE SALIDA
+                            </strong>
                         </small>
                     </div>
                 </div>
@@ -902,27 +905,48 @@ constructor(
         console.error(e);
       }, complete: () => {
 
-        this.serieTicket            = this.listaReporteTecnicoCorrectivo[0].serieTicket;
-        this.idAgencia              = this.listaReporteTecnicoCorrectivo[0].idAgencia;
-        this.nombreCliente          = this.listaReporteTecnicoCorrectivo[0].nombreCliente;
-        this.nombreAgencia          = this.listaReporteTecnicoCorrectivo[0].nombreAgencia;
-        this.nombreTecnico          = this.listaReporteTecnicoCorrectivo[0].nombreTecnico;
-        this.cedulaTecnico          = this.listaReporteTecnicoCorrectivo[0].cedulaTecnico;
-        this.provinciaAgencia       = this.listaReporteTecnicoCorrectivo[0].provinciaAgencia;
-        this.tipoMantenimientoCorto = this.listaReporteTecnicoCorrectivo[0].tipoMantenimientoCorto;
-        this.nSerieEquipo           = this.listaReporteTecnicoCorrectivo[0].nSerieEquipo;
-        this.tipoMaquina            = this.listaReporteTecnicoCorrectivo[0].tipoMaquina;
-        this.capacidad              = this.listaReporteTecnicoCorrectivo[0].capacidad;
-        this.marca                  = this.listaReporteTecnicoCorrectivo[0].marca;
-        this.modelo                 = this.listaReporteTecnicoCorrectivo[0].modelo;
-        this.contadorinicial        = this.listaReporteTecnicoCorrectivo[0].contadorfinal || 0;
-        this.codigobp               = this.listaReporteTecnicoCorrectivo[0].codigobp;
-        this.ninventario            = this.listaReporteTecnicoCorrectivo[0].ninventario;
-        this.estadoEquipo           = this.listaReporteTecnicoCorrectivo[0].estadoEquipo;
-        this.direccion              = this.listaReporteTecnicoCorrectivo[0].direccion;
-        this.telf1                  = this.listaReporteTecnicoCorrectivo[0].telf1;
-        this.telf2                  = this.listaReporteTecnicoCorrectivo[0].telf2;
-        this.email                  = this.listaReporteTecnicoCorrectivo[0].email;
+        this.serieTicket            = this.listaReporteTecnicoCorrectivo[0]
+                                          .serieTicket;
+        this.idAgencia              = this.listaReporteTecnicoCorrectivo[0]
+                                          .idAgencia;
+        this.nombreCliente          = this.listaReporteTecnicoCorrectivo[0]
+                                          .nombreCliente;
+        this.nombreAgencia          = this.listaReporteTecnicoCorrectivo[0]
+                                          .nombreAgencia;
+        this.nombreTecnico          = this.listaReporteTecnicoCorrectivo[0]
+                                          .nombreTecnico || 'No hay técnico asignado';
+        this.cedulaTecnico          = this.listaReporteTecnicoCorrectivo[0]
+                                          .cedulaTecnico;
+        this.provinciaAgencia       = this.listaReporteTecnicoCorrectivo[0]
+                                          .provinciaAgencia;
+        this.tipoMantenimientoCorto = this.listaReporteTecnicoCorrectivo[0]
+                                          .tipoMantenimientoCorto;
+        this.nSerieEquipo           = this.listaReporteTecnicoCorrectivo[0]
+                                          .nSerieEquipo;
+        this.tipoMaquina            = this.listaReporteTecnicoCorrectivo[0]
+                                          .tipoMaquina;
+        this.capacidad              = this.listaReporteTecnicoCorrectivo[0]
+                                          .capacidad;
+        this.marca                  = this.listaReporteTecnicoCorrectivo[0]
+                                          .marca;
+        this.modelo                 = this.listaReporteTecnicoCorrectivo[0]
+                                          .modelo;
+        this.contadorinicial        = this.listaReporteTecnicoCorrectivo[0]
+                                          .contadorfinal || 0;
+        this.codigobp               = this.listaReporteTecnicoCorrectivo[0]
+                                          .codigobp;
+        this.ninventario            = this.listaReporteTecnicoCorrectivo[0]
+                                          .ninventario;
+        this.estadoEquipo           = this.listaReporteTecnicoCorrectivo[0]
+                                          .estadoEquipo;
+        this.direccion              = this.listaReporteTecnicoCorrectivo[0]
+                                          .direccion;
+        this.telf1                  = this.listaReporteTecnicoCorrectivo[0]
+                                          .telf1;
+        this.telf2                  = this.listaReporteTecnicoCorrectivo[0]
+                                          .telf2;
+        this.email                  = this.listaReporteTecnicoCorrectivo[0]
+                                          .email;
         
         /** =============================================
          *  ========================================= */
@@ -944,7 +968,8 @@ constructor(
       }
     })
   }
-
+usuarioAsignadoBodega: string = '';
+urlImagenFirma: string = '';
   listaNotaRepuestos: any = [];
   obtenerNotaRepuestos( idTicket: number ) {
     // alert('Obteniendo nota repuestos')
@@ -953,13 +978,12 @@ constructor(
     this.cotiza.obtenerNotaReporteRepuestos( idTicket, this.ccia ).subscribe({
       next: (x) => {
         this.listaNotaRepuestos = x;
-        // console.warn(this.listaNotaRepuestos);
         this.listaNotaRepuestos.filter( (listaNotaRepuestos:any) => {
           this.serieTicket            = 'CMS-'+listaNotaRepuestos.idTicket.toString().padStart(9,0);
           this.idAgencia              = listaNotaRepuestos.idAgencia;
           this.nombreCliente          = listaNotaRepuestos.nombreCliente;
           this.nombreAgencia          = listaNotaRepuestos.nombreAgencia;
-          this.nombreTecnico          = listaNotaRepuestos.nombreTecnico;
+          this.nombreTecnico          = listaNotaRepuestos.nombreTecnico || 'No hay técnico asignado';
           this.cedulaTecnico          = listaNotaRepuestos.cedulaTecnico;
           this.provinciaAgencia       = listaNotaRepuestos.provinciaAgencia;
           this.tipoMantenimientoCorto = listaNotaRepuestos.tipoMantenimientoCorto;
@@ -976,8 +1000,11 @@ constructor(
           this.telf1                  = listaNotaRepuestos.telf1;
           this.telf2                  = listaNotaRepuestos.telf2;
           this.email                  = listaNotaRepuestos.email;
+          this.usuarioAsignadoBodega  = listaNotaRepuestos.usuarioAsignadoBodega;
+          this.urlImagenFirma         = listaNotaRepuestos.urlImagenFirma;
         })
                
+
         this._show_spinner = false;
       }, error: (e) => {
         console.error(e);

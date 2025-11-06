@@ -24,7 +24,7 @@ const Toast = Swal.mixin({
   styleUrls: ['./configuraciones.component.scss']
 })
 export class ConfiguracionesComponent implements OnInit {
-
+  receipts: any;
   modelSendEmailCliSetts: any = [];
   emailChips: string[] = [];
   listItemProcess: any = [];
@@ -40,9 +40,43 @@ export class ConfiguracionesComponent implements OnInit {
   listEmailCLiSetts: any = [];
   listEmailCLiSettsGhost: any = [];
 
+  //visualizaciones
+  dociess_show:         boolean = true;
+  encargadoBodega_show: boolean = false;
+  procesosMailing_show: boolean = false;
+
   public exportdataform = new FormGroup({
     filter:              new FormControl('')
   })
+
+
+  /**
+  * Función para mostrar solo el panel seleccionado y ocultar los demás.
+  * @param panelName El nombre del panel a mostrar ('dociess', 'bodega', 'mailing').
+  */
+  public showPanel(panelName: 'dociess' | 'bodega' | 'mailing'): void {
+    // Primero, ocultamos todos
+    this.dociess_show = false;
+    this.encargadoBodega_show = false;
+    this.procesosMailing_show = false;
+
+    // Luego, mostramos solo el seleccionado
+    switch (panelName) {
+      case 'dociess':
+        this.dociess_show = true;
+        break;
+      case 'bodega':
+        this.encargadoBodega_show = true;
+        break;
+      case 'mailing':
+        this.procesosMailing_show = true;
+        break;
+      default:
+        // Opcional: define un comportamiento por defecto
+        this.dociess_show = true; 
+        break;
+    }
+  }
 
   constructor(
     public dialog: MatDialog, 
@@ -208,7 +242,7 @@ export class ConfiguracionesComponent implements OnInit {
     this.btn_ico = 'save';
     this.show_form_setts = false;
   }
-  receipts: any;
+
   catchData(data: any) {
     // console.warn(data);
     this.idSettsEmailCLi = data.id;

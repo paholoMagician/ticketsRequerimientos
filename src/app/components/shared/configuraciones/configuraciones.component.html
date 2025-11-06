@@ -1,15 +1,53 @@
-<div style="background-color: whitesmoke; width: 100%; border-radius: 5px;" class="p-3">
+<div class="d-flex justify-content-between p-1 w-100" id="container_conf">
+<div class="nav-side bg-light p-3 mb-3 rounded shadow-sm w-25 m-1 h-100">
+    
+    <!-- AQUI CREAR UN MENU QUE GESTIONE LOS NGIF -->
+    <div class="nav-side bg-light p-3 mb-3 rounded shadow-sm">
+    
+    <nav class="nav flex-column">
+        <a class="nav-link d-flex align-items-center cursor-pointer 
+                  {{ dociess_show ? 'active text-primary bg-light' : 'text-dark' }}" 
+           (click)="showPanel('dociess')">
+            <mat-icon class="me-2">description</mat-icon>
+            Documentación IESS
+        </a>
+        
+        <a class="nav-link d-flex align-items-center cursor-pointer 
+                  {{ encargadoBodega_show ? 'active text-primary bg-light' : 'text-dark' }}" 
+           (click)="showPanel('bodega')">
+            <mat-icon class="me-2">person_pin</mat-icon>
+            Personal Encargado Bodega
+        </a>
+        
+        <a class="nav-link d-flex align-items-center cursor-pointer 
+                  {{ procesosMailing_show ? 'active text-primary bg-light' : 'text-dark' }}" 
+           (click)="showPanel('mailing')">
+            <mat-icon class="me-2">mail</mat-icon>
+            Configuración de Mailing
+        </a>
+    </nav>
+
+    </div>
+
+</div>
+
+<div style="background-color: whitesmoke; width: 100%; border-radius: 5px; overflow-y: auto;" class="p-3 w-75 m-1 h-100">
     <div class="header d-flex align-items-center p-3">
         <mat-icon class="fs-3 text-success">settings</mat-icon>        
         <span class="fs-3 text-success"><strong> Configuraciones del sistema. </strong></span>
     </div>
     <hr>
 
-    <div class="panel-settings flex-grow-1 bg-white p-4 rounded shadow-sm">
+    <!-- visualizar docu  iess -->
+    <div class="panel-settings flex-grow-1 bg-white p-4 rounded shadow-sm mb-2"  *ngIf="dociess_show" >
         <app-docu-iess></app-docu-iess>
     </div>
 
-    <div class="body d-flex justify-content-between flex-column flex-md-row">
+    <div class="panel-settings flex-grow-1 bg-white p-4 rounded shadow-sm" *ngIf="encargadoBodega_show" >
+        <app-personal-encargado-bodega></app-personal-encargado-bodega>
+    </div>
+
+    <div class="body d-flex justify-content-between flex-column flex-md-row" *ngIf=" procesosMailing_show " >
         <!-- show_action_panel -->
         <div *ngIf="true"  class="w-100 d-flex flex-column">
         <div class="panel-settings flex-grow-1 bg-white p-4 rounded shadow-sm"
@@ -178,4 +216,6 @@
         </div>
     </div>
     </div>
+
+</div>
 </div>

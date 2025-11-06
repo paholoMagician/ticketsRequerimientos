@@ -156,8 +156,8 @@ actualizarEstadoCabCotiza() {
       console.table(decoded)
       this.role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
       this.codUserLog = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
-      if(this.role == 'C') this._cli_view = false;
-      if(this.role == 'A' || this.role == 'G') this._cli_view = true;
+      if(this.role == 'R004') this._cli_view = false;
+      if(this.role == 'R003' || this.role == 'R002') this._cli_view = true;
     }
   }
 
@@ -493,7 +493,7 @@ generarTablaTecnicos(): string {
       this.fileControlServ.obtenerFileMediaTicket(this.requerimiento.idTicket, type).subscribe({
         next: (x) => {
             this.listaReporteCotizacion = x;
-            if ( this.role == 'G' ) {
+            if ( this.role == 'R002' ) {
               // Verificar si hay más de un elemento antes de hacer splice
               if (this.listaReporteCotizacion.length > 1) {
                   // Sacar el elemento con índice 0
@@ -525,10 +525,10 @@ generarTablaTecnicos(): string {
         
                 // Validar si el índice es 0 para asignar show_multiply_options
                 if (index === 0) {
-                    if (this.role == 'G') {
+                    if (this.role == 'R002') {
                         x.show_multiply_options = false; // Solo el primer elemento será false
                     } 
-                    else if (this.role == 'A') {
+                    else if (this.role == 'R003') {
                         x.show_multiply_options = true; // Solo el primer elemento será false
                     }
                 } else if (index >= 1) {
