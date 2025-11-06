@@ -12,6 +12,18 @@
     padding: 10px;
 }
 
+#container_conf {
+
+  height: 94vh;
+
+}
+
+
+.nav-link {
+  border-bottom: solid 1px gray;
+  cursor: pointer ;
+}
+
 .chips-container {
     .chip {
       padding: 0.35rem 0.75rem;
@@ -40,9 +52,6 @@
   width: 100%;
 }
 
-.contain-table {
-  
-}
 
 /* Estilo para los correos dentro de la celda */
 .recipient-email {

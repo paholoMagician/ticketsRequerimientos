@@ -47,8 +47,10 @@
           <mat-icon>invert_colors</mat-icon>
         </button>
       </div>
-      <app-filter (datafilter)="obtenerDataFilter($event)" 
-        [clienteData]="modelCliente" class="w-100">
+      <app-filter (datafilter)="obtenerDataFilter($event)"
+                  [listenTicketTableHelpDesk]="nticketEmitido"
+                  [clienteData]="modelCliente"
+                  class="w-100">
       </app-filter>
       <div class="btn-ico" *ngIf="actionButton" (click)="showPermissionsEmit()">
         <mat-icon>add</mat-icon>
@@ -111,8 +113,8 @@
       <span> Este cliente no ha emitido ningún requerimiento. </span>
     </span>
     <div class="accordion accordion-flush mt-2 px-2" id="accordionFlushExample">
-      <div  class="accordion-item mt-2 shadow rounded-4"
-        *ngFor="let requer of listaTickets; let i = index">
+      <div class="accordion-item mt-2 shadow rounded-4"
+        *ngFor="let requer of paginatedTickets; let i = index">
         <h2 class="accordion-header m-0" [id]="'flush-heading-' + requer.idTicket">
           <div class="w-100 d-inline-flex justify-content-center align-items-center">
             <div class="btn-CloseTicket">
@@ -131,7 +133,7 @@
                   <mat-icon>delete</mat-icon>
                   <span>Eliminar requerimiento</span>
                 </button>
-                <button mat-menu-item
+                <button mat-menu-item *ngIf="requer.estado < 4"
                   (click)="actualizarSoloEstadoTicket(requer.idTicket, 4, requer)"
                   class="d-flex justify-content-end align-items-center">
                   <mat-icon>done_all</mat-icon>
@@ -181,7 +183,7 @@
                 <div class="d-flex align-items-center p-1">
                   <ng-container *ngIf="requer.tecnicos.length > 0" >
                     <ng-container *ngFor="let tecnico of requer.tecnicos">
-                      <img [src]="tecnico.imagenTecnico || '../../../../assets/user-default/defect-user.png' "  alt="No image" width="40px" height="40px"
+                      <img [src]="tecnico.imagenTecnico || '../../../../assets/user-default/defect-user.png' " alt="No image" width="40px" height="40px"
                            class="rounded-circle animate__animated animate__bounceIn"
                            style="margin-left: -25px" 
                            [title]="tecnico.nombreTecnico + ' ' + tecnico.apellidoTecnico"
@@ -241,7 +243,9 @@
                       <mat-icon>picture_as_pdf</mat-icon>
                       <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary" style="transform: translate(-50%, -50%); font-size: 0.5em;">
                         {{requer.fileRepTec}}
-                        <span class="visually-hidden">unread messages</span>
+                        <span class="visually-hidden">
+                          unread messages
+                        </span>
                       </span>
                     </div>
                   </ng-template>
@@ -255,7 +259,8 @@
                   <ng-container *ngIf="requer.fileCotiza !== 0; else vacioCotizacion">
                     <div style="cursor: pointer; position: relative;" (click)="getFileMedia(requer.idTicket,'COTIZA')">
                       <img src="../../../../assets/pdf-icons/pdf-logotipo.png" alt="No image" width="20px" height="auto" />
-                      <span class="position-absolute animate__animated animate__bounceIn top-0 start-100 translate-middle badge rounded-pill bg-danger" style="transform: translate(-50%, -50%); font-size: 0.5em;">
+                      <span class="position-absolute animate__animated animate__bounceIn top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="transform: translate(-50%, -50%); font-size: 0.5em;">
                         {{requer.fileCotiza}}
                         <span class="visually-hidden">unread messages</span>
                       </span>
@@ -412,8 +417,7 @@
                         <div mat-menu-item
                           class="d-flex align-items-center p-2"
                           (click)="openDataRepuestosDialog(requer.idTicket, 'NOTAENTREGA')">
-                          <mat-icon>picture_as_pdf</mat-icon>
-                          &nbsp;
+                          <mat-icon>picture_as_pdf</mat-icon>&nbsp;
                           <span>Nota de entrega</span>
                         </div>
                       </mat-menu>
@@ -422,7 +426,7 @@
                       <span>Resumen de mantenimiento</span>
                     </div>
                     <div class="table-responsive-lg">
-                      <app-resumen-mantenimiento [manetenimientoEsuchado]="mantenimientosAgregados" [idRequerimiento]="idTicketEmit">
+                      <app-resumen-mantenimiento  [refreshList]="datosEnviarResumenMantenimientoController"  [manetenimientoEsuchado]="mantenimientosAgregados" [idRequerimiento]="idTicketEmit">
                       </app-resumen-mantenimiento>
                     </div>
                   </div>
@@ -438,7 +442,7 @@
                     </div>
                     <div class="w-75">
                       <div>
-                        <app-repuestos-asignados [idRequerimiento]="idTicketEmit" [repuestosEscuchados]="listaRepuestosRecibidos">
+                        <app-repuestos-asignados [idRequerimiento]="idTicketEmit" [repuestosEscuchados]="listaRepuestosRecibidos" (refreshListData)="obtenerDatos($event)" >
                         </app-repuestos-asignados>
                       </div>
                     </div>
@@ -450,7 +454,63 @@
         </div>
       </div>
     </div>
+     <!-- Paginación -->
+<div class="d-flex justify-content-between align-items-center p-3" *ngIf="listaTickets.length > 0">
+<div class="text-muted">
+  Mostrando {{ (currentPage - 1) * pageSize + 1 }} - 
+  {{ math.min(currentPage * pageSize, totalItems) }} de {{ totalItems }} tickets
+</div>
+  
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mb-0">
+      <!-- Botón Anterior -->
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      
+      <!-- Números de página -->
+      <li class="page-item" *ngFor="let page of pageNumbers"
+          [class.active]="page === currentPage"
+          [class.disabled]="page === -1">
+        <a *ngIf="page !== -1"
+           class="page-link" href="javascript:void(0)"
+           (click)="changePage(page)">
+          {{ page }}
+        </a>
+        <span *ngIf="page === -1" class="page-link">...</span>
+      </li>
+      
+      <!-- Botón Siguiente -->
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Selector de items por página -->
+  <div class="d-flex align-items-center">
+    <label class="me-2 text-muted small">Items por página:</label>
+    <select class="form-select form-select-sm" style="width: auto;" 
+            [(ngModel)]="pageSize" (change)="currentPage = 1; updatePagination()">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+    </select>
   </div>
+</div>
+
+<!-- Mensaje cuando no hay resultados -->
+<!-- <div class="text-center p-4" *ngIf="listaTickets.length === 0 && !_show_spinner">
+  <mat-icon class="text-muted" style="font-size: 48px; height: 48px; width: 48px;">inbox</mat-icon>
+  <p class="text-muted mt-2">No se encontraron tickets</p>
+</div> -->
+  </div>
+ 
 <!-- Botón de visibilidad (solo visible cuando el panel está oculto) -->
 <button class="btn-visibility btn btn-sm d-flex align-items-center animate__animated animate__backInRight rounded-pill"
         *ngIf="_cli_view && panelState === 'hidden'"

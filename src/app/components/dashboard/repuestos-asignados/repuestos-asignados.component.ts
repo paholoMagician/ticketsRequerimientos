@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MantenimientoService } from '../tabla-help-desk/mantenimiento/services/mantenimiento.service';
 import { EncryptService } from '../../shared/services/encrypt.service';
 import { jwtDecode } from 'jwt-decode';
@@ -17,6 +17,7 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
 
   @Input() idRequerimiento:     any;
   @Input() repuestosEscuchados: any;
+  @Output() refreshListData: EventEmitter<any> = new EventEmitter();
 
   role:                         any;
   _cli_view:                    boolean = true;
@@ -33,36 +34,27 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
       this.obtenerRepuestosRequerimientos();
-      this.getToken()
+      this.getToken();
   }
 
   ngOnChanges(changes: SimpleChanges) {
       if(changes) {
         this.obtenerRepuestosRequerimientos();
         this.getToken();
-        // alert(this.idRequerimiento)
       }
   }
 
   obtenerRepuestosRequerimientos() {
-    let data: any;
     const idTicket: any = localStorage.getItem('idRequerimientoShow');
-    // console.log(idTicket);
     this.mant.obtenerRepuestosRequerimientos(idTicket).subscribe({
       next: (x) => {
         this.listaRepuestoRequerimientos = x;
-        // // console.warn('this.listaRepuestoRequerimientos');
-        //// console.warn(this.listaRepuestoRequerimientos);
-        data = x;
       }, error: (e) => {
-        if ( e.status != 200 ) console.error(e);
+        if ( e.status != 200 ) {
+          console.error(e);
+        }
       }, complete: () => {
-        this.calcularTotalFactur(data);
-        // let arrPVP: any[] = [];
-        // this.listaRepuestoRequerimientos.filter( (x:any) => {
-        //   arrPVP.push( x.valorFinal );
-        // })
-        // this.calculoTotalFactur = arrPVP.reduce((acc, curr) => acc + curr, 0);
+        this.calcularTotalFactur(this.listaRepuestoRequerimientos);
       }
     })
   }
@@ -70,7 +62,7 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
   calcularTotalFactur(data: any) {
     let arrPVP: any[] = [];
     data.filter( (x:any) => {
-      arrPVP.push( x.valorFinal );
+      arrPVP.push(x.valorFinal);
     })
     this.calculoTotalFactur = arrPVP.reduce((acc, curr) => acc + curr, 0);
   }
@@ -78,17 +70,18 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
   darDeBajaCotizacion() {
     this. analisisCodRep = [];
     this.listaRepuestoRequerimientos.forEach( (x:any) => {
-      // console.warn (x);
-      this.analisisCodRep.push( 
-        { 
-          cantidad: x.cantidad, 
-          codRep: x.codrep, 
-          name: x.nombreRep, 
-          icon: 'hourglass_top', 
-          colorState: 'orange',
-          idRequer: x.idRequer
-        }
-      )
+      this.analisisCodRep.push({ 
+          cantidad:            x.cantidad,
+          codRep:              x.codrep,
+          name:                x.nombreRep,
+          icon:                'hourglass_top',
+          colorState:          'orange',
+          idRequer:            x.idRequer,
+          idResManten:         x.idResManten,
+          nombreAgencia:       x.nombreAgencia,
+          nombreCliente:       x.nombreCliente,
+          correomantenimiento: x.correomantenimiento
+        });
     })
   }
 
@@ -104,11 +97,15 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
 
     dialogRef.afterClosed().subscribe( (result: any) => {
       if (result) { 
-        // alert( result )
+        this.listaRepuestoRequerimientos = [];
+        this.refreshListData.emit( { idReuqer: result.idRequer, idResMant: result.idResManten });
         if ( result != null ) {
           // alert(result)
-          this.elimianarAsignRepuTicket(result);
+          this.elimianarAsignRepuTicket(result.idRequer);
+          return;
+        
         }
+
       }
     });
     
@@ -147,11 +144,11 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
       var decoded:any = jwtDecode(xtokenDecript);
       this.role                  = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];      
       // alert(this.role)
-      if( this.role == 'C' || this.role == 'G' ) {
+      if( this.role == 'R004' || this.role == 'R002' ) {
         this._cli_view    = false;
         this.actionButton = true;
       }
-      else if(this.role == 'A') {
+      else if(this.role == 'R003') {
         this._cli_view    = true;
         this.actionButton = false;
       }

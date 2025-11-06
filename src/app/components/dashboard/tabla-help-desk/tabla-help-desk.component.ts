@@ -46,18 +46,27 @@ const Toast = Swal.mixin({
 
 export class TablaHelpDeskComponent implements OnInit, OnChanges {
 
-  @ViewChild('audioPlayer') audioPlayer!: ElementRef;  
-  @Output() dataUpdateTicketEmit: EventEmitter<any> = new EventEmitter();
-  @Output() showFormPermission: EventEmitter<any> = new EventEmitter();
-  @Output() ticketAlertEmit: EventEmitter<any> = new EventEmitter();
-  @Output() codCliToPanelCliente:EventEmitter<any> = new EventEmitter();
+  @ViewChild('audioPlayer') audioPlayer!: ElementRef;
+  @Output() dataUpdateTicketEmit:         EventEmitter<any> = new EventEmitter();
+  @Output() showFormPermission:           EventEmitter<any> = new EventEmitter();
+  @Output() ticketAlertEmit:              EventEmitter<any> = new EventEmitter();
+  @Output() codCliToPanelCliente:         EventEmitter<any> = new EventEmitter();
   @Input() listenTicket:        any;
   @Input() listenCodCli:        any;
   @Input() listenTagTicket:     any;
 
-  show_panel_cliente: boolean = false;
+  nticketEmitido: any;
+  cont: number = 0;
+
+  public math = Math;
+  currentPage:                  number = 1;
+  pageSize:                     number = 10;
+  totalItems:                   number = 0;
+  paginatedTickets:             any[] = [];
+
+  show_panel_cliente:           boolean = false;
   panelState: 'visible' | 'hidden' = 'visible';
-  panelHidden = false;
+  panelHidden:                  boolean = false;
   show_files_cotiza:            boolean = false;
   getFileMediaListen:           any;
   getListaRepuRequer:           any;
@@ -66,11 +75,11 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
   modelDataSend:                any = [];
   listaTicketPendientes:        any = [];
   _show_order_work:             boolean = true;
+  _cli_view:                    boolean = false;
   _show_resumen_mantenimiento:  boolean = false;
   _show_file_media_ticket:      boolean = false;
   _show_fecha_real:             boolean = false;
   sub:                          any;
-  _cli_view:                    boolean = false;
   nameidentifier:               any;
   name:                         any;
   role:                         any;
@@ -125,7 +134,6 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
       icon: "perm_media",
       codec: "003"
     }
-
   ]
 
   private urlHub:               any = this.env.apiHelpDeskSytemh;
@@ -137,27 +145,28 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
   private mensajesHub:          HubConnection;
   private eliminaTecinoSignal:  HubConnection;
   private eliminarFileSignal:   HubConnection;
+  
   playAudio() { 
     this.audioPlayer.nativeElement.play();
   }  
 
-togglePanel() {
+  togglePanel() {
     this.panelState = this.panelState === 'visible' ? 'hidden' : 'visible';
   }
 
   showPanel() {
     this.panelState = 'visible';
   }
-
   
-  constructor(public  dialog: MatDialog,
-    private helpdeskserv: TablaHelpDeskService, 
-    private mensajeria: MensajeriaTicketService,
-    private ncrypt:EncryptService,
-    private env: Environments,
-    private fileControlServ: ImagecontrolService,
-    private form: FormularioRegistroProblemasService,
-    private estadoTick:FechasRealesService
+  constructor(
+    public  dialog:           MatDialog,
+    private helpdeskserv:     TablaHelpDeskService,
+    private mensajeria:       MensajeriaTicketService,
+    private ncrypt:           EncryptService,
+    private env:              Environments,
+    private fileControlServ:  ImagecontrolService,
+    private form:             FormularioRegistroProblemasService,
+    private estadoTick:       FechasRealesService
   ) {
 
     this.estadoTickets = new HubConnectionBuilder().withUrl(this.urlHub+'hubs/estadoTickets').build();
@@ -212,39 +221,28 @@ togglePanel() {
   eliminarFileSignalHub(data: any) {  
     this.listaTickets.forEach((ticket: any) => {
       if (ticket.idTicket === data.idTicket) {
-
-        // console.warn('ENCONTRADO!!!');
-        // console.warn(ticket);
-
         if( data.tipo == 'REPTEC' ) {
           ticket.fileRepTec = ticket.fileRepTec - 1;
           if ( ticket.fileRepTec < 0 ) ticket.fileRepTec = 0;
         }
-
         if( data.tipo == 'COTIZA' ) {
           ticket.fileCotiza = ticket.fileCotiza - 1;
           if ( ticket.fileCotiza < 0 ) ticket.fileCotiza = 0;
         }
-
         if ( data.tipo == 'NOTENT' ) {
           ticket.fileNotEnt = ticket.fileNotEnt - 1;
           if ( ticket.fileNotEnt < 0 ) ticket.fileNotEnt = 0;
         }
-
       }
     });  
   }
 
   eliminarTecinoSignal(data: any) {
-    // console.warn('Elimina técnico recibido:', data);
-    // console.warn(this.listaTickets);
     this.listaTickets.forEach((ticket: any) => {
       if (ticket.idTicket === data.idTIcket) {
-        // console.warn(ticket);
         ticket.tecnicos = ticket.tecnicos.filter((tec: any) => tec.coduser !== data.idTecnico);
       }
     });
-
   }
 
   ngOnInit(): void {
@@ -252,8 +250,6 @@ togglePanel() {
     this.xccia = sessionStorage.getItem('ccia');
     this.getToken();
     this.urlServer = this.env.apiHelpDeskSytemh;
-    // Solicitar permisos para notificaciones y suscribir al servicio push
-    // this.obtenerTicketsRequerimientos( this.xcodcli );
     this.requestNotificationPermission();
     this.subscribeToPushNotifications();
     this.connectSignalR();
@@ -264,15 +260,21 @@ togglePanel() {
     if (changes['listenCodCli'] && this.listenCodCli) {
       this.codCliToPanelCliente.emit(this.listenCodCli);
       this.obtenerTicketsRequerimientos(this.listenCodCli);
-
-      // Forzar la detección de cambios en el componente de clientes
       setTimeout(() => {
         this.codCliToPanelCliente.emit(this.listenCodCli);
-      });
+      },500);
+    }
+    
+    if(changes['listenTicket'] && this.listenTicket) {
+      if ( this.role == 'R004' || this.role == 'R002' ) {
+          console.warn('Estamos escuchando un cambio en listenTicket, y desde el ROL Cliente:', this.listenTicket);
+          this.obtenerTicketsRequerimientos(this.listenCodCli);
+      }
     }
 
     if (changes['listenTagTicket'] && this.listenTagTicket) {
       this.obtenerTicketsRequerimientos(this.listenCodCli);
+      console.warn( 'Termino!!' )
     }
   }
 
@@ -299,16 +301,12 @@ togglePanel() {
     });
 
     this.eliminaTecinoSignal.start().then(() => {
-    // console.log('CONECTADO@! HUB DE ELIMINAR TECNICO')
     }).catch(e => {
         console.error('ALGO HA PASADO CON LA TRANSMISION DE ELIMINAR TECNICO:', e);
     })
 
     this.eliminarFileSignal.start().then(() => {
-    // console.log('CONECTADO@! HUB DE ELIMINAR ARCHIVO')
-    }).catch(e => {
-        console.error('ALGO HA PASADO CON LA TRANSMISION DE ELIMINAR ARCHIVO:', e);
-    })
+    }).catch(e => console.error('ALGO HA PASADO CON LA TRANSMISION DE ELIMINAR ARCHIVO:', e));
 
   }
 
@@ -330,6 +328,7 @@ togglePanel() {
     });
   }
 
+  //#region ELIMINAR TICKET
   deleteRequer( idRequer: number, index: number ) {
     Swal.fire({
       title:              "Estás seguro?",
@@ -359,6 +358,57 @@ togglePanel() {
       }
     });
   }
+  //#endregion
+
+  //#region  PAGINACION
+  // Método para actualizar la paginación
+  updatePagination() {
+    this.totalItems = this.listaTickets.length;
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedTickets = this.listaTickets.slice(startIndex, endIndex);
+  }
+
+  // Cambiar página
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  // Obtener números de páginas para mostrar
+  get pageNumbers(): number[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+
+    if (total <= 1) return [1];
+
+    const delta = 2; // Cuántas páginas mostrar a cada lado de la actual
+    const range = [];
+
+    for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+      range.push(i);
+    }
+
+    if (current - delta > 2) {
+      range.unshift(-1); // -1 representa los puntos suspensivos
+    }
+    if (current + delta < total - 1) {
+      range.push(-1);
+    }
+
+    range.unshift(1);
+    if (total > 1) range.push(total);
+
+    return range;
+  }
+
+  // Obtener total de páginas
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize);
+  }
+  //#endregion
 
   openDataEstadosTicketsInformation(data:any) {
     const dialogRef = this.dialog.open( ModalEstadoColorComponent, {
@@ -508,7 +558,7 @@ togglePanel() {
     const notification = new Notification('Nuevo Ticket', options);
     notification.onclick = (event) => {
       event.preventDefault();
-      window.open(`/tickets/${data.idRequerimiento}`, '_blank'); // Redirigir al usuario cuando hace clic en la notificación
+      window.open(`/tickets/${data.idRequerimiento}`, '_blank');
     };
 
   }
@@ -635,13 +685,6 @@ getRepuestosMantenimiento( event:any ) {
   }
 
   ticketRequer( data:any ) {
-    
-    console.log('///////////////////////////////////////////////////////////////////////////');
-    console.log('///////////////////////////////////////////////////////////////////////////');
-    console.log('Nuevo ticket de requerimiento recibido:');
-    console.log(data)
-    console.log('///////////////////////////////////////////////////////////////////////////');
-    console.log('///////////////////////////////////////////////////////////////////////////');
 
     this.playAudio();
     this.listaTickets.filter( ( j:any ) => {
@@ -659,9 +702,7 @@ getRepuestosMantenimiento( event:any ) {
           j.colorEstado       = '#bbbbbb';
           j.estadoSignificado = 'Ticket cerrado.';
         }
-
         j.tiempoTotalExactoMinutos = data.tiempoTotalExactoMinutos;
-
       };
     })
   }
@@ -670,6 +711,17 @@ getRepuestosMantenimiento( event:any ) {
     this.estadoTickets.start().then().catch( e => {
       console.error('ALGO HA PASADO CON LA TRANSMISION DEL ESTADO DEL TICKET:', e);
     })
+  }
+
+
+
+  datosEnviarResumenMantenimientoController: any;
+  obtenerDatos( event:any ) {
+    if ( event ) {
+      this.datosEnviarResumenMantenimientoController = event;
+      console.warn('DATOS RECIBIDOS DESDE EL RESUMEN DE MANTENIMIENTO AL PADRE');
+      console.warn(this.datosEnviarResumenMantenimientoController);
+    }
   }
 
   getToken() {
@@ -687,12 +739,12 @@ getRepuestosMantenimiento( event:any ) {
       this.aud                   = decoded["aud"];
       this.codcli                = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
       
-      if ( this.role == 'C' || this.role == 'G' ) {
+      if ( this.role == 'R004' || this.role == 'R002' ) {
         this.obtenerTicketsRequerimientos( this.xcodcli );     
       }
 
       this.actionMenuTicket.filter( (x:any) => {
-        if ( this.role == 'C' ) {  
+        if ( this.role == 'R004' ) {  
           if ( x.codec == "003"  ) {
             x.permison = true;
           } 
@@ -703,9 +755,9 @@ getRepuestosMantenimiento( event:any ) {
             x.permison = false;            
           }
         }
-        else if ( this.role == 'A' ) {
+        else if ( this.role == 'R003' ) {
           x.permison = true;
-        } else if ( this.role == 'G' ) {
+        } else if ( this.role == 'R002' ) {
           if ( x.codec == "003" ) {
             x.permison = true;
           } else if ( x.codec == '000') {
@@ -714,16 +766,32 @@ getRepuestosMantenimiento( event:any ) {
           else {
             x.permison = false;
           }
+        } else if ( this.role == 'R001' ) {
+          if ( x.codec == "000"  ) {
+            x.permison = true;
+          } 
+          else if ( x.codec == '004') {
+            x.permison = true;
+          } 
+          else {
+            x.permison = false;            
+          }
         }
       })
 
 
-      if(this.role == 'C') {
+      if(this.role == 'R004') {
         this._cli_view    = false;
         this.actionButton = true;
         this.icon_action  = 'preview'; 
       }
-      if(this.role == 'A') {
+      if(this.role == 'R003') {
+        this._cli_view    = true;
+        this.actionButton = false;
+        this.icon_action  = 'message';
+      }
+      if ( this.role == 'R001' ) {
+        // este es el rol de supervisor
         this._cli_view    = true;
         this.actionButton = false;
         this.icon_action  = 'message';
@@ -731,13 +799,17 @@ getRepuestosMantenimiento( event:any ) {
     } 
   }
 
-  
-
   obtenerTicketsRequerimientos(codcli: string): void {
-  this.listaTecnicosRecibidos = [];
-  this._show_spinner = true;
   
-  this.form.obtenerTicketsRequerimientos(codcli, this.xccia, 1).subscribe({
+    let codcliente = codcli;
+    if ( codcli == null || codcli == undefined || codcli == '' ) {
+      const xcli: any = sessionStorage.getItem('codcli');
+      codcliente = xcli;
+    }
+    
+    this.listaTecnicosRecibidos = [];
+    this._show_spinner = true;
+    this.form.obtenerTicketsRequerimientos(codcliente, this.xccia, 1).subscribe({
     next: (tickets: any) => {
       // Ordenar por fecha (fecrea) de más reciente a más antigua
       const ticketsOrdenados = [...tickets].sort((a, b) => {
@@ -768,12 +840,12 @@ getRepuestosMantenimiento( event:any ) {
 
       this.listaTickets.forEach((ticket: any) => {
         // Control de vision de archivos por ROL
-        if (this.role == 'G') {
+        if (this.role == 'R002') {
           this.show_files_cotiza = true;
           if (ticket.fileCotiza > 1) ticket.fileCotiza = ticket.fileCotiza - 1;
         }
-        if (this.role == 'A') this.show_files_cotiza = true;
-        if (this.role == 'C') this.show_files_cotiza = false;
+        if (this.role == 'R003') this.show_files_cotiza = true;
+        if (this.role == 'R004') this.show_files_cotiza = false;
 
         ticket.collapseShow = 'accordion-collapse collapse';
         const requerimientoMap: any = {
@@ -803,6 +875,12 @@ getRepuestosMantenimiento( event:any ) {
         ticket.colorEstado = estadoInfo?.color || '#FFFFFF';
         ticket.estadoSignificado = estadoInfo?.significado || 'Estado desconocido.';
       });
+
+      this.cont ++;
+      if ( this.cont > 2 ) {
+        this.nticketEmitido = this.listenTagTicket;
+      } 
+    
     },
     error: (error) => {
       this._show_spinner = false;
@@ -829,13 +907,14 @@ getRepuestosMantenimiento( event:any ) {
           }
         });
       }
-      this._show_spinner = false;
-    }
-    
 
-  });
-}
-  
+      this._show_spinner = false;
+      // Actualizar paginación después de cargar tickets
+      this.updatePagination();
+    }   
+
+    });
+  }
 
   
   sendIdTicket( idTicket: number ) {
@@ -881,10 +960,12 @@ getRepuestosMantenimiento( event:any ) {
       item.idTicket.toString().toLowerCase().includes(event.toLowerCase()) ||
       item.nombreAgencia.toString().toLowerCase().includes(event.toLowerCase()) ||
       item.descripcionProblema.toString().toLowerCase().includes(event.toLowerCase())
-    )
+    );
+
+    // Resetear a primera página y actualizar paginación
+    this.currentPage = 1;
+    this.updatePagination();
   }
-
-
 
   obtenerCantMensajesUpdate(event:any) {
     this.listaTicketsNoLeidos.filter( (x:any) => {
@@ -909,7 +990,7 @@ getRepuestosMantenimiento( event:any ) {
     this.ticketSend = ticket;
     this.numberTicket = idTicket;
     if ( ticket.estado == 1 ) {
-      if(this.role == 'A') {
+      if(this.role == 'R003') {
         this.helpdeskserv.updateTicketsEstado( id, estado ).subscribe({
           next: (x) => {}, 
           error: (e) => {
@@ -945,7 +1026,7 @@ getRepuestosMantenimiento( event:any ) {
 
           // Filtramos los archivos a descargar según rol y cantidad de elementos
           const filesToDownload = 
-            (this.role === 'G' && type === 'COTIZA' && listaDocumentos.length > 1) 
+            (this.role === 'R002' && type === 'COTIZA' && listaDocumentos.length > 1) 
               ? listaDocumentos.slice(1)  // Ignora el primer elemento si hay más de 1
               : listaDocumentos;          // Descarga todos en otros casos
 

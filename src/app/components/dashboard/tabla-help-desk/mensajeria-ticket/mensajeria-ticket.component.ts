@@ -257,11 +257,11 @@ export class MensajeriaTicketComponent implements OnInit, OnChanges, AfterViewCh
       this.aud                   = decoded["aud"];
       this.codcli                = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
 
-      if(this.role == 'C') {
+      if(this.role == 'R004') {
         this._cli_view = false;
       }
 
-      else if(this.role == 'A') {
+      else if(this.role == 'R003') {
         this._cli_view = true;
       }
 

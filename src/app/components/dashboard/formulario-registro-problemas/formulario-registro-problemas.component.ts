@@ -165,16 +165,12 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     if (this.selectedFile) {
       this.fileService.uploadFile(this.selectedFile, this.selectedFile!.name).subscribe({
         next: (x) => {
-          // // // console.log('Imagen subida con éxito', x);
-          this.guardarArchivosDB( 'CTICK', this.selectedFile!.name, idTicket )
-          // alert('Imagen subida con éxito');
+          this.guardarArchivosDB( 'CTICK', this.selectedFile!.name, idTicket );
         }, error: (e) => {
           console.error('Error al subir la imagen', e);
-          // alert('Error al subir la imagen');
         }
       });
     } else {
-      // alert('Por favor, selecciona una imagen antes de intentar subirla.');
       // console.log('No has subido ninguna imagen referente al problema');
     }
   }
@@ -340,13 +336,9 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
   }
 
   esDiaLaboral(fecha: Date): boolean {
-    const dia = new Date(fecha.setHours(0, 0, 0, 0)).getDay(); // Ignorar la hora
-    // // console.warn("dia: " + dia);
-
+    const dia = new Date(fecha.setHours(0, 0, 0, 0)).getDay();
     // Validación para fines de semana
-    if (dia === 5) { // Si es sábado
-        // alert("Es fin de semana. La fecha será ajustada al lunes siguiente.");
-
+    if (dia === 5) {
         // Sumar 2 días para pasar al lunes
         let nuevaFecha = new Date(fecha);
         nuevaFecha.setDate(fecha.getDate() + 3);
@@ -357,8 +349,7 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
         this.registerTroubleForm.controls['fechainiPlanif'].setValue(nuevaFechaFormateada);
 
         return false;
-    } else if (dia === 6) { // Si es domingo
-        // alert("Es fin de semana. La fecha será ajustada al lunes siguiente.");
+    } else if (dia === 6) {
         // Sumar 1 día para pasar al lunes
         let nuevaFecha = new Date(fecha);
         nuevaFecha.setDate(fecha.getDate() + 2);
@@ -673,41 +664,6 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     };
 }
 
-  actualizarRequerimiento() {
-
-    // if (this.validateInputFill()) {
-    //   this.modelSendRequerimiento = {
-    //     "idAgencia": this.registerTroubleForm.controls['agencia'].value,
-    //     "url": "",
-    //     "estado": 1,
-    //     "codprov": this.registerTroubleForm.controls['codprov'],
-    //     "ciudad": this.registerTroubleForm.controls['codcan'],
-    //     "fecrea": new Date(),
-    //     "fechainiPlanif": this.registerTroubleForm.controls['fechainiPlanif'],
-    //     "fechafinPlanif": this.registerTroubleForm.controls['fechafinPlanif'],
-    //     "area": this.registerTroubleForm.controls['espacioSirve'],
-    //     "motivoTrabajo": this.registerTroubleForm.controls['observacion'],
-    //     "espacioSirve": this.registerTroubleForm.controls['espacioSirve'],
-    //     "descripcionProblema": this.registerTroubleForm.controls['mensajeDelProblema'],
-    //     "nserieEquipo": this.registerTroubleForm.controls['equipo'],
-    //     "beneficiario": "",
-    //     "telefono": "",
-    //     "email": "",
-    //     "fecreaRealIni": ,
-    //     "fecreaRealFin": this.registerTroubleForm.controls['fecreaRealFin'],
-    //     "codTipoEquipo": this.nTipomaquina,
-    //     "codMarca":      this.registerTroubleForm.controls['fecreaRealFin'],
-    //     "codModelo":     this.nModelo,
-    //     "tipo":          '002',
-    //     "horaInicialReal": this.registerTroubleForm.controls['horaInicialReal'],
-    //     "horaFinalReal": this.registerTroubleForm.controls['horaFinalReal'],
-    //     "horaInicialPlanificada": this.registerTroubleForm.controls['horaInicialPlanificada'],
-    //     "horaFinalPlanificada": this.registerTroubleForm.controls['horaFinalPlanificada']
-    //   }
-    // }
-
-  }
-
   validateInputFill(): boolean {
     if ( this.registerTroubleForm.controls['agencia'].value == null ||
       this.registerTroubleForm.controls['agencia'].value == undefined ||
@@ -734,24 +690,8 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
         title: "No puedes enviar el campo cantón vacío"
       });
       return false;
-  } else if ( this.registerTroubleForm.controls['espacioSirve'].value == null ||
-               this.registerTroubleForm.controls['espacioSirve'].value == undefined ||
-               this.registerTroubleForm.controls['espacioSirve'].value == '' ) {
-       Toast.fire({
-          icon: "warning",
-          title: "No puedes enviar el campo espacio al que sirve vacío"
-       });
-       return false;
-   } 
-  //  else if ( this.registerTroubleForm.controls['observacion'].value == null ||
-  //              this.registerTroubleForm.controls['observacion'].value == undefined ||
-  //              this.registerTroubleForm.controls['observacion'].value == '' ) {
-  //      Toast.fire({
-  //         icon: "warning",
-  //         title: "No puedes enviar el campo c vacío"
-  //      });
-  //      return false;
-  //  }
+  } 
+  
     else if ( this.registerTroubleForm.controls['mensajeDelProblema'].value == null ||
                this.registerTroubleForm.controls['mensajeDelProblema'].value == undefined ||
                this.registerTroubleForm.controls['mensajeDelProblema'].value == '' ) {
@@ -806,21 +746,13 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
       
       this.maquinaria.guardarTicketRequerimiento(this.modelSendRequerimiento).subscribe({
         next: (x:any) => {
-
-          // console.warn('Este es el ticket que se esta guardando')
-          console.table(x)
-
           this.onUpload(x.id);
-
           this.modelSendRequerimiento.idTicket = x.id;
           this.GetTickets.emit(this.modelSendRequerimiento);
-
-
           Toast.fire({
               icon: "success",
               title: "Ticket creado con éxito!"
-            }
-          );
+          });
         }, error: (e) => {
           Toast.fire({
             icon: "error",
@@ -844,6 +776,7 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     this.fileId = filesSelected.files;
     let s = this.fileId[0].name.split('.');
     this.nameFile = s[0].toString().replace(' ', '_');
+    
     let base;
     if (this.fileId.length > 0) {
       const fileToLoad: any = filesSelected[0];
@@ -851,12 +784,15 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
       fileReader.onload = () => {
         base = fileReader.result;
       };
+
       fileReader.onloadend = () => {
         this._IMGE = fileReader.result;
         // this.validacionHayImagen();
       };
+
       fileReader.readAsDataURL(this.fileId[0]);
       this._show_spinner = false;
+
     }
 
   }

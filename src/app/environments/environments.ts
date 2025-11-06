@@ -27,13 +27,30 @@ export class Environments {
     // apiCMSfile:                          any = 'http://104.243.44.89:4003/';
     // api_server_nodejsbrevo_mailing_send: any = 'http://104.243.44.89:4004/api/brevoemail/send';
     // api_server_nodejs:                   any = 'http://104.243.44.89:4004/';
+    
+    // SERVIDOR EXXALINK DOMINIO (DNS)       
+    apiHelpDeskSytem:                    any = 'https://cmsbackticket.cashmachserv.com/api/';
+    apiHelpDeskSytemh:                   any = 'https://cmsbackticket.cashmachserv.com/';
+    apiCMS:                              any = 'https://cmsbackerp.cashmachserv.com/api/';
+    apiCMSfile:                          any = 'https://cmsbackerp.cashmachserv.com/';
+    api_server_nodejsbrevo_mailing_send: any = 'https://cmsmailing.cashmachserv.com/api/brevoemail/send';
+    api_server_nodejs:                   any = 'https://cmsmailing.cashmachserv.com/';
         
-    apiHelpDeskSytem:                    any = 'http://192.168.55.40:5075/api/';
-    apiHelpDeskSytemh:                   any = 'http://192.168.55.40:5075/';
-    apiCMS:                              any = 'http://192.168.55.40:5130/api/';
-    apiCMSfile:                          any = 'http://192.168.55.40:5130/';
-    api_server_nodejsbrevo_mailing_send: any = 'http://192.168.55.40:4004/api/brevoemail/send';
-    api_server_nodejs:                   any = 'http://192.168.55.40:4004/';
+    // DESARROLLO OFICINA LAN
+    // apiHelpDeskSytem:                    any = 'http://192.168.55.40:5075/api/';
+    // apiHelpDeskSytemh:                   any = 'http://192.168.55.40:5075/';
+    // apiCMS:                              any = 'http://192.168.55.40:5130/api/';
+    // apiCMSfile:                          any = 'http://192.168.55.40:5130/';
+    // api_server_nodejsbrevo_mailing_send: any = 'http://192.168.55.40:4004/api/brevoemail/send';
+    // api_server_nodejs:                   any = 'http://192.168.55.40:4004/';
+    
+    // SALA C WORK
+    // apiHelpDeskSytem:                    any = 'http://192.168.55.78:5075/api/'; 
+    // apiHelpDeskSytemh:                   any = 'http://192.168.55.78:5075/';
+    // apiCMS:                              any = 'http://192.168.55.78:5130/api/';
+    // apiCMSfile:                          any = 'http://192.168.55.78:5130/';
+    // api_server_nodejsbrevo_mailing_send: any = 'http://192.168.55.78:4004/api/brevoemail/send';
+    // api_server_nodejs:                   any = 'http://192.168.55.78:4004/';
     
     // /** LAN */
     // apiHelpDeskSytem:  any = 'http://192.168.55.64:5075/api/';

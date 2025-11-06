@@ -148,7 +148,13 @@ export class MantenimientoComponent implements OnInit {
 
   actualizarContadoresEquipo() {
 
-    this.mant.actualizarContadorEquipo( this.requerimiento.codmaquina, this.resumenMantenimientoRegisterForm.controls['contadorFinal'].value || 0 )
+    if ( this.resumenMantenimientoRegisterForm.controls['contadorFinal'].value == undefined || this.resumenMantenimientoRegisterForm.controls['contadorFinal'].value == null || this.resumenMantenimientoRegisterForm.controls['contadorFinal'].value == 0 ) {
+    
+      return;
+    
+    }
+
+    this.mant.actualizarContadorEquipo( this.requerimiento.codmaquina, this.resumenMantenimientoRegisterForm.controls['contadorFinal'].value )
              .subscribe({
               next: (x) => {
                 // console.warn("CONTADORES DEL EQUIPO ACTUALIZADO");
@@ -195,8 +201,6 @@ export class MantenimientoComponent implements OnInit {
   idResumenMantenimiento: number = 0;
   guardarResumenMantenimiento( idRequerimiento: number ) {
 
-    console.warn('GUARDANDO RESUMEN MANTENIMIENTO')
-
     this.idResumenMantenimiento = 0;
     if ( this.resumenMantenimientoRegisterForm.controls['codResuMante'].value == undefined || this.resumenMantenimientoRegisterForm.controls['codResuMante'].value == null || this.resumenMantenimientoRegisterForm.controls['codResuMante'].value == '' ) {
       Swal.fire({
@@ -231,6 +235,7 @@ export class MantenimientoComponent implements OnInit {
           next: (x:any) => {
             this.idResumenMantenimiento = x.id;
             this.guardarCabCotiza(1, this.idResumenMantenimiento);
+
             this._show_spinner = false;
           }, error: (e) => {
             this._show_spinner = false;
@@ -302,6 +307,9 @@ export class MantenimientoComponent implements OnInit {
 
     this.cotizaServ.guardarCabCotiza(this.sendCabCOtiza).subscribe({
       next: (x) => {
+        console.warn('Cabecera de cotización guardada');
+        console.warn(x);
+        // alert('Datos de cab cotiza guardados!!!!')
         this._show_spinner = false;
       }, error: (e) => {
         this._show_spinner = false;

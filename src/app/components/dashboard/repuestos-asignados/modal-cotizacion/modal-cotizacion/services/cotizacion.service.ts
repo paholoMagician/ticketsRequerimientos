@@ -28,8 +28,8 @@ export class CotizacionService {
     return this.http.get( this.urlHelpDesk + "CabCotiza/actualizarCotizacion/" + id + "/" + codUserAprueba  + "/" + estado, { headers: this.headers });
   }
 
-  eliminarCotizacion( id: number ) {
-    return this.http.delete( this.urlHelpDesk + "CabCotiza/eliminarCotizacion/" + id, { headers: this.headers });
+  eliminarCotizacion( idRequer: number, idResMantenimiento: number ) {
+    return this.http.delete( this.urlHelpDesk + "CabCotiza/eliminarCotizacion/" + idRequer + '/' + idResMantenimiento, { headers: this.headers });
   }
   
   obtenerCabCotizaUnit( id: number ) {

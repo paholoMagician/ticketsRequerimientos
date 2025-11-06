@@ -64,6 +64,7 @@ import { ModalDownCotizacionComponent } from '../dashboard/repuestos-asignados/m
 import { ConfiguracionesComponent } from '../shared/configuraciones/configuraciones.component';
 import { ModalEstadoColorComponent } from '../shared/modal-estado-color/modal-estado-color.component';
 import { DocuIESSComponent } from '../dashboard/docu-iess/docu-iess.component';
+import { PersonalEncargadoBodegaComponent } from '../dashboard/personal-encargado-bodega/personal-encargado-bodega.component';
 
 @NgModule({
   declarations: [
@@ -90,12 +91,14 @@ import { DocuIESSComponent } from '../dashboard/docu-iess/docu-iess.component';
     ModalCotizacionComponent,
     ModalDownCotizacionComponent,
     ConfiguracionesComponent,
-        DocuIESSComponent
+    PersonalEncargadoBodegaComponent,
+    DocuIESSComponent
   ],
   imports: [
     NgxPrintModule,
     // #angularMaterial
     DragDropModule,
+
     MatFormFieldModule,
     CommonModule,
     MatTabsModule,

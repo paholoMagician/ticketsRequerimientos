@@ -9,10 +9,11 @@ import { Environments } from 'src/app/environments/environments';
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss']
 })
-export class FilterComponent implements OnInit {
+export class FilterComponent implements OnInit, OnChanges {
 
   @Output() datafilter: EventEmitter<any[]> = new EventEmitter<any[]>();
   @Input() clienteData: any;
+  @Input() listenTicketTableHelpDesk: any;
 
   urlIconCli: any = this.env.apiCMSfile+ 'icon-cliente/'
   nombreCliente: string = '';
@@ -39,6 +40,8 @@ export class FilterComponent implements OnInit {
 
    }
 
+   
+
   getToken() {
   
     let xtoken:any = sessionStorage.getItem('token');
@@ -47,11 +50,11 @@ export class FilterComponent implements OnInit {
         var decoded:any = jwtDecode(xtokenDecript);
       this.role                  = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-      if(this.role == 'C') {
+      if(this.role == 'R004') {
         this._cli_view = false;
       }
 
-      else if(this.role == 'A') {
+      else if(this.role == 'R003') {
         this._cli_view = true;
       }
 
@@ -61,6 +64,14 @@ export class FilterComponent implements OnInit {
 
 ngOnChanges(changes: SimpleChanges): void {
   if (changes) {
+
+    this.exportdataform.controls['filter'].setValue(Number(this.listenTicketTableHelpDesk.replace('MC-','')).toString());
+    this.filterTicketList();
+
+    if ( this.exportdataform.controls['filter'].value == '0' ) {
+      this.exportdataform.controls['filter'].setValue('');
+    } 
+
     if (this.clienteData) {
       this.nombreCliente = this.clienteData.nombre;
       const imagen = this.clienteData.imagen;
@@ -74,13 +85,17 @@ ngOnChanges(changes: SimpleChanges): void {
         this.imagenCliUrl = imagen;
       }
     }
+    }
   }
-}
+
   onSubmitData() { }
 
   filterTicketList() {
     let filter: any = this.exportdataform.controls['filter'].value;
     this.datafilter.emit(filter);
+    setTimeout(() => {
+      this.exportdataform.controls['filter'].setValue('');
+    }, 1000);
   }
 
 
