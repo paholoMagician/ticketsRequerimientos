@@ -138,6 +138,12 @@ export class ImagecontrolService {
   }
 
   obtenerFileMediaTicket( idTicket: number, type: string ) {
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('OBTENER FILE MEDIA TICKET DESDE EL SERVICIO');
+    console.log(this.url + 'FileMediaTicket/ObtenerFileMediaTicket/' + idTicket + '/' + type, { headers: this.headers })
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     return this.http.get( this.url + 'FileMediaTicket/ObtenerFileMediaTicket/' + idTicket + '/' + type, { headers: this.headers } );
   }
 }

@@ -10,6 +10,9 @@ import { RepCorrectivoService } from '../../../documentos-reportes/services/rep-
 import { MantenimientoService } from '../../../tabla-help-desk/mantenimiento/services/mantenimiento.service';
 import { MasterTableService } from 'src/app/components/shared/master-table/master-table.service';
 
+import jsPDF from 'jspdf'; // <--- NUEVA IMPORTACIÓN
+import html2canvas from 'html2canvas'; // <--- NUEVA IMPORTACIÓN
+
 @Component({
   selector: 'app-modal-cotizacion',
   templateUrl: './modal-cotizacion.component.html',
@@ -158,10 +161,12 @@ constructor(
   }
 
   onSubmit() {
+
     // Usa la función de utilidad para validar y asignar valores
     const repLegalValue = this.getValidValue(this.dataNameForm.controls['repLegal'].value);
     const dirigidoValue = this.getValidValue(this.dataNameForm.controls['dirigido'].value);
-    const tituloPresValue = this.getValidValue(this.dataNameForm.controls['tituloPres'].value);  
+    const tituloPresValue = this.getValidValue(this.dataNameForm.controls['tituloPres'].value);
+
     // Actualiza solo si el valor es válido
     if (repLegalValue !== null) {
       this.replegal = repLegalValue;
@@ -177,9 +182,11 @@ constructor(
       this.tituloLlamar = tituloPresValue;
     } else {
       this.tituloLlamar = '';
-    }  
+    }
+
     // Llama a generarCotizacion para actualizar la vista
     this.generarCotizacion();
+  
   }
 
   //#region [REPORTE NOTA DE ENTREGA]
@@ -194,11 +201,12 @@ constructor(
       // Crea un nuevo elemento div
       const nuevoElemento = this.renderer.createElement('div');
       // Añade contenido HTML al nuevo elemento
-      this.renderer.setProperty(nuevoElemento, 'innerHTML', ` 
-        <style> 
+      this.renderer.setProperty(nuevoElemento, 'innerHTML', `
+        <style>
           * {
             font-family: arial;
-            font-size: 8pt;
+            font-size: 10pt;
+            color: black;
           }
           table {
             width: 100%;
@@ -214,7 +222,7 @@ constructor(
             color: white;
           }
         </style>
-        <div style="width: 100%;">
+        <div style="width: 1180px; padding: 45px;">
           <div style="display: flex; justify-content: space-between;">
             <div style="padding: 15px; display: flex; justify-content: center; align-items: center; width: 50%;">
               <img src="../../../../assets/logotipo/descarga.png"
@@ -227,12 +235,12 @@ constructor(
                   <strong style="font-size: 13pt !important;">NOTA DE ENTREGA</strong>
                 </h2>
                 <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
-                <h1 style=" color: red; margin: 0px;">
-                  <strong style="font-size: 21pt !important;"> ${this.serieTicket}</strong>
+                <h1 style="margin: 0px;">
+                  <strong style="color: red !important; font-size: 22pt !important;"> ${this.serieTicket}</strong>
                 </h1>
-                <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
-                <h4 style="margin: 0px; ">
-                  <strong style="font-size: 11pt !important;">CASH MACHINE SERVICE C. LTDA.</strong>
+                <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">                
+                <h4 style="margin: 0px; "> <strong style="font-size: 11pt !important;">
+                  CASH MACHINE SERVICE C. LTDA.</strong>
                 </h4>
               </div>
             </div>
@@ -294,12 +302,12 @@ constructor(
               <tbody>
                 ${this.listaRepuestoRequerimientos.map((x: any, index: number) => `
                   <tr>
-                    <td style="font-size: 7pt !important; padding: 5px;">${index + 1}</td>
-                    <td style="font-size: 7pt !important; padding: 5px;">${x.codrep.replace(/^REP-\d{3}-\d{3}-\d{3}-/, '')}</td>
-                    <td style="font-size: 7pt !important; padding: 5px;">
+                    <td style="font-size: 12pt !important; padding: 5px;">${index + 1}</td>
+                    <td style="font-size: 12pt !important; padding: 5px;">${x.codrep.replace(/^REP-\d{3}-\d{3}-\d{3}-/, '')}</td>
+                    <td style="font-size: 12pt !important; padding: 5px;">
                       <span> <strong> ${x.nombreRep} </strong> </span>
                     </td>
-                    <td style="font-size: 7pt !important; padding: 5px;">${x.cantidad}</td>
+                    <td style="font-size: 12pt !important; padding: 5px;">${x.cantidad}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -314,7 +322,7 @@ constructor(
                             style="max-width: 250px; height: 80px;">
                     <div style="border-top: solid 3px black;"> 
                       
-                      <div>${this.usuarioAsignadoBodega}</div>
+                      <div>${this.usuarioAsignadoBodega}</div>s
                       <div><strong>(BODEGA)</strong></div>
                     </div>
                   </div>
@@ -350,7 +358,7 @@ constructor(
       this.renderer.appendChild(cotizacionContainer, nuevoElemento);
     }
   }
-   //#endregion
+  //#endregion
   
   //#region [REPORTE TECNICO INICIO]
   generarReporteTecnico() {
@@ -376,9 +384,7 @@ constructor(
                           <strong> REPUESTOS UTILIZADOS </strong>
                       </span>
                   </div>
-              </div>
-          `;
-      }
+              </div>`;}
 
               // Define la sección de la tabla condicionalmente
               let tablaRepuestosHTML = '';
@@ -430,8 +436,8 @@ constructor(
         const nuevoElemento = this.renderer.createElement('div');
         // Añade contenido HTML al nuevo elemento
         this.renderer.setProperty(nuevoElemento, 'innerHTML', `
-            <style> * { font-family: arial; font-size: 8pt; } </style>
-            <div style="width: 100%;">
+            <style> * { font-family: arial; font-size: 8pt; color: black; } </style>
+            <div style="width: 1180px; padding: 45px;">
                 <div style="display: flex; justify-content: space-between;">
                     <div style="border: solid 1px gray; padding: 15px; display: flex; justify-content: center; align-items: center; width: 50%;">
                         <img src="../../../../assets/logotipo/descarga.png"
@@ -444,7 +450,7 @@ constructor(
                                 <strong style="font-size: 13pt !important;">REPORTE TÉCNICO</strong>
                             </h2>
                             <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
-                            <h1 style=" color: red; margin: 0px;">
+                            <h1 style=" color: red !important; margin: 0px;">
                                 <strong style="font-size: 21pt !important;"> #${this.tipoMantenimientoCorto}</strong>
                             </h1>
                             <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
@@ -532,7 +538,7 @@ constructor(
                         <small style="color: black; font-size: 5pt !important;">NO. SERIE</small>
                         <span>
                             <strong>
-                                ${ this.nSerieEquipo } 
+                                ${ this.nSerieEquipo }
                             </strong>
                         </span>
                     </div>
@@ -711,7 +717,7 @@ constructor(
       const nuevoElemento = this.renderer.createElement('div');
       // Añade contenido HTML al nuevo elemento
       this.renderer.setProperty(nuevoElemento, 'innerHTML', `
-        <style> * { font-family: arial;  }
+        <style> * { font-family: arial; color: black; font-size: 14pt; }
           table {
             width: 100%;
             border-collapse: collapse;
@@ -726,42 +732,43 @@ constructor(
             color: white;
           }
         </style>
+        <div style="width: 1180px; padding: 60px; margin-top: 25px;">
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 50%; display: flex; justify-content: center; align-items: center;">
               <img src="../../../../assets/logotipo/descarga.png" width="250px" height="110px">
             </div>
             <div style="width: 50%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-              <div style="font-size: 13pt; height: 35px; display: flex; justify-content: center; align-items: center;">
-                <span><strong>COTIZACIÓN</strong></span>
+              <div style=" height: 35px; display: flex; justify-content: center; align-items: center;">
+                <span><strong style="font-size: 15pt;">COTIZACIÓN</strong></span>
               </div>
-              <div style="font-size: 14pt; color: red; border-bottom: solid 4px gray; border-top: solid 4px gray; display: flex; justify-content: center; align-items: center; height: 35px;">
-                <strong>#${this.nomeclaturaTipoMantenimiento}-${this.idRequer.toString().padStart(10, '0')}</strong>
+              <div style=" border-bottom: solid 4px gray; border-top: solid 4px gray; display: flex; justify-content: center; align-items: center; height: 35px;">
+                <strong style="font-size: 25pt !important; color: red !important;">#${this.nomeclaturaTipoMantenimiento}-${this.idRequer.toString().padStart(10, '0')}</strong>
               </div>
-              <div style="font-size: 8pt; display: flex; justify-content: center; align-items: center; height: 35px;">
+              <div style="font-size: 12pt; display: flex; justify-content: center; align-items: center; height: 35px;">
                 <span>CASH MACHINE SERVICE C. LTDA.</span>
               </div>
             </div>
           </div>
           <div style="margin-top: 45px; display: flex; justify-content: space-between; padding: 25px">
             <div style="display: flex; flex-direction: column; align-items: start;">
-              <span style="font-size: 8pt">
+              <span style="font-size: 12pt">
                 <strong>${this.tituloLlamar}</strong>
               </span>
-              <span style="font-size: 8pt">
+              <span style="font-size: 12pt">
                 ${this.replegal}
               </span>
-              <span style="font-size: 8pt">
+              <span style="font-size: 14pt">
                 <strong>${this.nombreCliente}</strong>
               </span>
             </div>
             <div style="display: flex; justify-content: end; align-items: center;">
-              <span style="font-size: 8pt">
+              <span style="font-size: 12pt">
                 <strong>Guayaquil, ${this.fechaFormateada}</strong>
               </span>
             </div>
           </div>
           <div style="margin-top: 12px; padding: 25px;">
-            <span style="font-size: 8pt;">
+            <span style="font-size: 12pt;">
               ${this.textoCotizacion}:
             </span>
           </div>
@@ -769,21 +776,21 @@ constructor(
             <div style="width: 100%;  ">
               <table style="width: 100%;"> 
                 <thead style="background: black;">
-                  <th style="font-size: 7pt !important; color: white;">SUCURSAL/AGENCIA</th>
-                  <th style="font-size: 7pt !important; color: white;">MARCA</th>
-                  <th style="font-size: 7pt !important; color: white;">MODELO</th>
-                  <th style="font-size: 7pt !important; color: white;">N. SERIE</th>
-                  <th style="font-size: 7pt !important; color: white;">INVENTARIO</th>
-                  <th style="font-size: 7pt !important; color: white;">N. BILLETES / <br>MONEDAS CONTADAS</th>
+                  <th style="font-size: 12pt !important; color: white;">SUCURSAL/AGENCIA</th>
+                  <th style="font-size: 12pt !important; color: white;">MARCA</th>
+                  <th style="font-size: 12pt !important; color: white;">MODELO</th>
+                  <th style="font-size: 12pt !important; color: white;">N. SERIE</th>
+                  <th style="font-size: 12pt !important; color: white;">INVENTARIO</th>
+                  <th style="font-size: 12pt !important; color: white;">N. BILLETES / <br>MONEDAS CONTADAS</th>
                 </thead>
                 <tbody>
                   <tr>
-                    <td style="padding: 5px; font-size: 7pt;">${this.nombreAgencia}</td>
-                    <td style="padding: 5px; font-size: 7pt;">${this.nombreMarcaEquipo}</td>
-                    <td style="padding: 5px; font-size: 7pt;">${this.nombreModeloEquipo}</td>
-                    <td style="padding: 5px; font-size: 7pt;">${this.nserie}</td>
-                    <td style="padding: 5px; font-size: 7pt;">${this.ninventario}</td>
-                    <td style="padding: 5px; font-size: 7pt; text-align: right;">${this.contadorfinal}</td>
+                    <td style="padding: 5px; font-size: 12pt;">${this.nombreAgencia}</td>
+                    <td style="padding: 5px; font-size: 12pt;">${this.nombreMarcaEquipo}</td>
+                    <td style="padding: 5px; font-size: 12pt;">${this.nombreModeloEquipo}</td>
+                    <td style="padding: 5px; font-size: 12pt;">${this.nserie}</td>
+                    <td style="padding: 5px; font-size: 12pt;">${this.ninventario}</td>
+                    <td style="padding: 5px; font-size: 12pt; text-align: right;">${this.contadorfinal}</td>
                   </tr>
                 </tbody>
               </table>
@@ -793,26 +800,26 @@ constructor(
             <div style="width: 100%;">
               <table style="width: 100%;">
                 <thead style="background: black;">
-                  <th style="font-size: 7pt !important; color: white;">CANT.</th>
-                  <th style="font-size: 7pt !important; color: white;">N. PARTE</th>
-                  <th style="font-size: 7pt !important; color: white;">DESCRIPCIÓN</th>
-                  <th style="font-size: 7pt !important; color: white;">P. U.</th>
-                  <th style="font-size: 7pt !important; color: white;">TOTAL</th>
+                  <th style="font-size: 12pt !important; color: white;">CANT.</th>
+                  <th style="font-size: 12pt !important; color: white;">N. PARTE</th>
+                  <th style="font-size: 12pt !important; color: white;">DESCRIPCIÓN</th>
+                  <th style="font-size: 12pt !important; color: white;">P. U.</th>
+                  <th style="font-size: 12pt !important; color: white;">TOTAL</th>
                 </thead>
                 <tbody>
                     ${this.listaCotizacion.map( (x: any) => `
                       <tr>
-                        <td style="font-size: 7pt !important; padding: 5px;">${x.cantidad}</td>
-                        <td style="font-size: 7pt !important; padding: 5px;">${x.codrep.replace(/^REP-\d{3}-\d{3}-\d{3}-/, '')}</td>
-                        <td style="font-size: 7pt !important; padding: 5px;">
+                        <td style="font-size: 12pt !important; padding: 5px;">${x.cantidad}</td>
+                        <td style="font-size: 12pt !important; padding: 5px;">${x.codrep.replace(/^REP-\d{3}-\d{3}-\d{3}-/, '')}</td>
+                        <td style="font-size: 12pt !important; padding: 5px;">
                           <div style="display: flex; flex-direction: column;">
                             <span> <strong> ${x.nombreRep} </strong> </span>
                           </div>
                         </td>
-                        <td style=" font-size: 7pt !important; padding: 5px; text-align: right;">
+                        <td style=" font-size: 12pt !important; padding: 5px; text-align: right;">
                           <strong>$ ${x.preUnitarioSinIva.toFixed(2)}</strong>
                         </td>
-                        <td style=" font-size: 7pt !important; padding: 5px; text-align: right;">
+                        <td style=" font-size: 12pt !important; padding: 5px; text-align: right;">
                           <strong>$ ${x.totalSinIva.toFixed(2)}</strong>
                         </td>
                       </tr>
@@ -823,15 +830,15 @@ constructor(
           </div>
           <div style="display: flex; justify-content: space-between; padding: 20px;">
               <div>
-                  <span style="font-size: 7pt !important;">
+                  <span style="font-size: 14pt !important;">
                       Esperamos su vuestra grata orden,
                   </span>
                   <br>
-                  <strong Style="font-size: 7pt !important;">
+                  <strong Style="font-size: 14pt !important;">
                       Atentamente,
                   </strong>
               </div>
-              <div style=" display: flex; flex-direction: column; font-size: 10pt; width: 270px;">
+              <div style=" display: flex; flex-direction: column; font-size: 15pt; width: 270px;">
               <div style="display: flex; justify-content: space-between; padding: 5px; border-bottom: dashed 1px gray;">
                   <div>SUBTOTAL</div>
                   &nbsp;
@@ -886,6 +893,7 @@ constructor(
                 </span>
             </div>
         </div>
+        </div>
       `);
       // Agrega el nuevo elemento al contenedor
       this.renderer.appendChild(cotizacionContainer, nuevoElemento);
@@ -894,6 +902,103 @@ constructor(
     }
   }
   // #endregion
+
+  // ... después de onSubmit() o donde prefieras añadir nuevos métodos
+  
+  async descargarPDF() {
+    // 1. Determinar qué HTML generar y generarlo, asegurando que el contenido esté en el DOM.
+    // La variable `this.data.type` determina si es COTIZACION, REPTEC o NOTAENTREGA.
+    switch( this.data.type ) {
+        case 'COTIZACION':
+            this.generarCotizacion(); 
+            break;
+        case 'REPTEC':
+            this.generarReporteTecnico();
+            break;
+        case 'NOTAENTREGA':
+        default:
+            this.generarNotaDeEntrega();
+            break;
+    }
+
+    const data = document.getElementById('cotizacion'); // Elemento a capturar
+
+    console.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.warn(data);
+    console.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+
+    if (data) {
+        // --- PREPARACIÓN DEL DOM ANTES DE LA CAPTURA ---
+        // 1.1 Ocultar el footer fijo de la Nota/Cotización para que no se duplique en cada página
+        const footerElement = data.querySelector('div[style*="position: fixed"]');
+        if (footerElement) {
+            (footerElement as HTMLElement).style.display = 'none';
+        }
+
+        // 1.2 Ocultar el botón fijo de descarga (que está en el HTML fuera de #cotizacion)
+        const fixedButton = document.querySelector('button[style*="position: fixed; bottom: 10px"]');
+        if (fixedButton) {
+            (fixedButton as HTMLElement).style.display = 'none';
+        }
+        
+        // Se usa un pequeño timeout para asegurar que Angular haya actualizado el DOM
+        setTimeout(async () => {
+            // 2. CAPTURA DEL HTML A CANVAS
+            const canvas = await html2canvas(data, { 
+                scale: 0.5, // Mejora la calidad
+                logging: false,
+                allowTaint: true, 
+                useCORS: true // Importante para cargar la imagen del logo y la firma
+            });
+
+            // 3. CONVERSIÓN DE CANVAS A PDF (con lógica de paginación)
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4'); 
+
+            const imgWidth = 210; // Ancho A4 en mm
+            const pageHeight = 297; // Alto A4 en mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+                position = position - pageHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+            
+            // 4. GENERACIÓN DEL NOMBRE DE ARCHIVO DINÁMICO
+            const now = new Date();
+            // Formato solicitado: MC-YYYYMMDDHHmmss (sin guiones ni slashes)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const xidrequer = localStorage.getItem('idRequerimientoShow');
+            const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+            const fileName = `MC-${xidrequer}-${timestamp}.pdf`;
+
+            // 5. DESCARGA DEL ARCHIVO
+            pdf.save(fileName);
+
+            // --- RESTAURACIÓN DEL DOM ---
+            // Vuelve a mostrar el footer y el botón fijo para la vista en pantalla
+            if (footerElement) {
+                (footerElement as HTMLElement).style.display = 'block';
+            }
+            if (fixedButton) {
+                (fixedButton as HTMLElement).style.display = 'block';
+            }
+            
+        }, 50); // Pequeño retraso para asegurar el renderizado
+    }
+  }
 
   obtenerReptecCorr(id:number) {
     this.repTec.obtenerReporteTecnicoCorrectivo(id).subscribe({

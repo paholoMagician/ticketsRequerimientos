@@ -11,6 +11,8 @@ import { EmailSettingsServiceX } from '../../shared/configuraciones/services/ema
 import { MantenimientoService } from '../tabla-help-desk/mantenimiento/services/mantenimiento.service';
 import { CotizacionService } from '../repuestos-asignados/modal-cotizacion/modal-cotizacion/services/cotizacion.service';
 import { FileMediaTicketsService } from './services/file-media-tickets.service';
+import { ModalDownCotizacionComponent } from '../repuestos-asignados/modal-down-cotizacion/modal-down-cotizacion.component';
+import { MatDialog } from '@angular/material/dialog';
 
 const Toast = Swal.mixin({
   toast: true,
@@ -72,7 +74,8 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
       private ncrypt: EncryptService,
       private ctz: CotizacionService,
       private eSet: EmailSettingsServiceX,
-      private fileControlServ: ImagecontrolService 
+      private fileControlServ: ImagecontrolService,
+      public  dialog: MatDialog
     ) { }
 
   ngOnInit(): void {
@@ -87,6 +90,7 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     this.obtenerFileMediaTicket('COTIZA');
     this.obtenerFileMediaTicket('NOTENT');
     this.obtenerEmailCliSetts(1);
+    this.obtenerRepuestosRequerimientos();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -145,6 +149,114 @@ actualizarEstadoCabCotiza() {
     });
   }
 }
+
+  analisisCodRep: any     = [];
+  listaRepuestoRequerimientos: any = [];
+  openDataProcessDownCotizModal() {
+    this.darDeBajaCotizacion();
+    // console.log('this.analisisCodRep')
+    // console.log(this.analisisCodRep)
+    const dialogRef = this.dialog.open( ModalDownCotizacionComponent, {
+          height: '95%',
+          width:  '70%',
+          data:   this.analisisCodRep
+      }); 
+  
+    dialogRef.afterClosed().subscribe( (result: any) => {
+        if (result) { 
+          this.listaRepuestoRequerimientos = [];
+          // this.refreshListData.emit( { idReuqer: result.idRequer, idResMant: result.idResManten });
+          if ( result != null ) {
+            // alert(result)
+            this.elimianarAsignRepuTicket(result.idRequer);
+            return;
+          }
+  
+        }
+      });
+      
+  }
+
+    obtenerRepuestosRequerimientos() {
+    console.warn(this.requerimiento.idRequerimientoPad.split('#MC-')[1])
+    this.mserv.obtenerRepuestosRequerimientos( Number(this.requerimiento.idRequerimientoPad.split('#MC-')[1]) ).subscribe({
+      next: (x:any) => {
+
+        this.listaRepuestoRequerimientos = x;
+        console.log('this.listaRepuestoRequerimientos')
+        console.log(this.listaRepuestoRequerimientos)
+    
+      }, complete: () => {
+        
+      }
+    })
+
+  }
+
+
+  // verifcar modelo a armar previo a dar de baja la cotizacion 
+//   {
+//     "id": 2411,
+//     "codrep": "REP_004",
+//     "idRequer": 4287,
+//     "fecrea": "2025-10-30T16:25:58.593",
+//     "estado": 2,
+//     "usercrea": "US-Andre-0vFvWKgytc",
+//     "codcia": "CMS-001-2023",
+//     "cantidad": 1,
+//     "precioUnitario": "19.06",
+//     "valorFinal": 19.06,
+//     "nombreUsuario": "Andre Rivera",
+//     "nombreRep": "DE100 - STACKER GUIDE",
+//     "marcaRep": 23,
+//     "marcaRepuesto": "GLORY GOBLAL SOLUTIONS",
+//     "colorEstado": "#91df0a",
+//     "nombreAgencia": "Agencia Prueba",
+//     "idcli": "CLI-0927031732001-CuutSeU0Hp",
+//     "nombreCliente": "PRUEBA S.A.",
+//     "codigoRepuesto": "CMS-001-2023",
+//     "descripcionRepuesto": "--",
+//     "idTicket": 4287,
+//     "descripcionRequerimiento": "Error en sensor",
+//     "fecrea1": "2025-10-30T16:25:58.593",
+//     "usercrea1": "US-Andre-0vFvWKgytc",
+//     "correomantenimiento": "andre.rivera@cashmachserv.com",
+//     "idResManten": 3301
+// }
+
+  darDeBajaCotizacion() {
+    this. analisisCodRep = [];
+    this.listaRepuestoRequerimientos.forEach( (x:any) => {
+      this.analisisCodRep.push({ 
+          cantidad:            x.cantidad,
+          codRep:              x.codrep,
+          name:                x.nombreRep,
+          icon:                'hourglass_top',
+          colorState:          'orange',
+          idRequer:            x.idRequer,
+          idResManten:         x.idResManten,
+          nombreAgencia:       x.nombreAgencia,
+          nombreCliente:       x.nombreCliente,
+          correomantenimiento: x.correomantenimiento
+        });
+    })
+  }
+
+
+    elimianarAsignRepuTicket(idRequerimiento: any) {
+    this.mserv.eliminarAsignacionRepuTicket( idRequerimiento ).subscribe({
+      next: (x) => {
+        // // console.log('ASIGNACIONES ELIMINADAS');
+        this.listaRepuestoRequerimientos = [];
+      }, error: (e) => {
+        console.error(e);
+      }
+    })
+  }
+
+
+
+  
 
 
   codUserLog: any;
@@ -284,7 +396,7 @@ actualizarEstadoCabCotiza() {
               // console.log('this.doculistAutorizacion');
               // console.log(this.doculistAutorizacion);
               this._show_spinner = false;
-          }, complete: () => {  
+          }, complete: () => {
               const fileurl = this.doculistAutorizacion.url_file;
               const fileName = fileurl.match(/\/([^\/]+\.pdf)$/i)[1];
               // PATH LOCAL
@@ -306,52 +418,46 @@ actualizarEstadoCabCotiza() {
               
                 // Verificar si es el día 1 del mes
                 if (diaActual === 1) {
-
                   let docuAutorizacion_IESS = `C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\storage\\IESS_ingreso_tecnicos_${anioActual}_${mesActual}\\IESS_ingreso_tecnicos_${anioActual}_${mesActual}.pdf`
                   this.adjuntos.push(docuAutorizacion_IESS);
-
                 }
               
-                this.sendMail(
-                  this.adjuntos,
-                  this.correoMantenimiento,
-                  authConfig.fromAddress,
-                  authConfig.replyTo,
-                  tecnicosHtmlAuth,
-                  'AUTORIZACIÓN DE INGRESO TÉCNICO'
-                );
-
+                // this.sendMail( this.adjuntos, this.correoMantenimiento, authConfig.fromAddress, authConfig.replyTo, tecnicosHtmlAuth, 'AUTORIZACIÓN DE INGRESO TÉCNICO' );
+                
               }
 
-              // --- CORREO DE REPORTE TÉCNICO (PARA TÉCNICOS) ---
-              let confCliCodProcessReport = ['007', '008'];
-              const reportConfig = this.listConfmail.find((x: any) => confCliCodProcessReport.includes(x.codecProcess));
-              if (reportConfig) {
-                this.processChoicex = 'REPTECFILE'
-                // Generar tabla de técnicos para el reporte
-                let tecnicosHtmlReport = this.generarTablaTecnicos();
-                //=========================================================================================================================
-                // C:\inetpub\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico\MC-000004200-20250805161316.pdf
-                // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
-                //=========================================================================================================================
-                let xpad = this.requerimiento.idRequerimientoPad.replace('#', '');
-                const fileName = this.serverPathFile.match(/[^\\]+\.pdf$/i)[0];
-                this.sendMail(
-                  //=========================================================================================================================
-                  // INTERNAL SERVER
-                  // ['C:\\inetpub\\wwwroot\\deploy-back-ticket\\wwwroot\\' + this.serverPathFile],
-                  //=========================================================================================================================
-                  // EXXALINK SERVER
-                  // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
-                  [`C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\storage\\pdfTicket\\${xpad}\\ReporteTecnico\\${fileName}`],
-                  //=========================================================================================================================
-                  this.listTecnicosEmails,
-                  reportConfig.fromAddress,
-                  reportConfig.replyTo,
-                  tecnicosHtmlReport,
-                  'REPORTE TÉCNICO'
-                );
-              }
+              //  #region [YA NO SE ENVIA EL CORREO MANUALMENTE - SE ENVÍA AUTOMÁTICAMENTE AL ASIGNAR TÉCNICOS]
+              //  --- CORREO DE REPORTE TÉCNICO (PARA TÉCNICOS) ---
+              //  let confCliCodProcessReport = ['007', '008'];
+              //  const reportConfig = this.listConfmail.find((x: any) => confCliCodProcessReport.includes(x.codecProcess));
+              //  if (reportConfig) {
+              //    this.processChoicex = 'REPTECFILE'
+              //    // Generar tabla de técnicos para el reporte
+              //    let tecnicosHtmlReport = this.generarTablaTecnicos();
+              //    //=========================================================================================================================
+              //    // C:\inetpub\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico\MC-000004200-20250805161316.pdf
+              //    // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
+              //    //=========================================================================================================================
+              //    let xpad = this.requerimiento.idRequerimientoPad.replace('#', '');
+              //    const fileName = this.serverPathFile.match(/[^\\]+\.pdf$/i)[0];
+              //    this.sendMail(
+              //      //=========================================================================================================================
+              //      // INTERNAL SERVER
+              //      // ['C:\\inetpub\\wwwroot\\deploy-back-ticket\\wwwroot\\' + this.serverPathFile],
+              //      //=========================================================================================================================
+              //      // EXXALINK SERVER
+              //      // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
+              //      [`C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\storage\\pdfTicket\\${xpad}\\ReporteTecnico\\${fileName}`],
+              //      //=========================================================================================================================
+              //      this.listTecnicosEmails,
+              //      reportConfig.fromAddress,
+              //      reportConfig.replyTo,
+              //      tecnicosHtmlReport,
+              //      'REPORTE TÉCNICO'
+              //    );
+              // }
+              //#endregion
+          
           }, error: (e) => {
             console.error('Error al obtener la autorización:', e);
             Swal.fire({
@@ -472,12 +578,16 @@ generarTablaTecnicos(): string {
         }, error: (e) => {
           if( e.status === 400 ) {
             this.listaReporteTecnico = [];
+            console.log('No hay archivos de reporte técnico asociados a este ticket.');
+            return;
           } else if ( e.status === 404 ) {
             this.listaReporteTecnico = [];
             console.error('Peticion, incorrecta:',e);
+            return;
           } else if ( e.status === 500 ) {
             this.listaReporteTecnico = [];
             console.error( 'Conexion a servidor inestable, revisar servidor:', e);
+            return;
           }
         }, complete: () => {
           this.listaReporteTecnico.filter((x: any) => {
@@ -493,6 +603,8 @@ generarTablaTecnicos(): string {
       this.fileControlServ.obtenerFileMediaTicket(this.requerimiento.idTicket, type).subscribe({
         next: (x) => {
             this.listaReporteCotizacion = x;
+            console.log('ARCHIVO COTIZACION OBTENIDO:');
+            console.log(x)
             if ( this.role == 'R002' ) {
               // Verificar si hay más de un elemento antes de hacer splice
               if (this.listaReporteCotizacion.length > 1) {
@@ -505,12 +617,16 @@ generarTablaTecnicos(): string {
         error: (e) => {
             if( e.status === 400 ) {
                 this.listaReporteCotizacion = [];
+                console.log('No hay archivos de cotización asociados a este ticket.');
+                return;
             } else if ( e.status === 404 ) {
                 this.listaReporteCotizacion = [];
                 console.error('Peticion, incorrecta:',e);
+                return;
             } else if ( e.status === 500 ) {
                 this.listaReporteCotizacion = [];
                 console.error( 'Conexion a servidor inestable, revisar servidor:', e);
+                return;
             }
         },
         complete: () => {
@@ -546,14 +662,18 @@ generarTablaTecnicos(): string {
         }, error: (e) => {
           if(  e.status === 400 ) {
             this.listaReporteNotaEntrega = [];
+            console.log('No hay archivos de nota de entrega asociados a este ticket.');
+            return;
           }
           else if ( e.status === 404 ) {
             this.listaReporteNotaEntrega = [];
             console.error('Peticion, incorrecta:',e);
+            return;
           }
           else if ( e.status === 500 ) {
             this.listaReporteNotaEntrega = [];
             console.error( 'Conexion a servidor inestable, revisar servidor:', e);
+            return;
           }
         }, complete: () => {
           this.listaReporteNotaEntrega.filter((x: any) => {

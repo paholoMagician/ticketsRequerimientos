@@ -51,10 +51,8 @@ export class ModalDownCotizacionComponent implements OnInit {
   });
 
   ngOnInit(): void {
-
     console.log('Data recibida en ModalDownCotizacionComponent:');
     console.log(this.data);
-
     this.idRequer = this.data[0].idRequer;
     this.idResManten = this.data[0].idResManten;
     this.nombreCliente = this.data[0].nombreCliente;

@@ -80,7 +80,7 @@ export class Environments {
     // apiCMS:            any = 'http://192.168.55.66:5130/api/';
     // apiCMSfile:        any = 'http://192.168.55.66:5130/';
 
-    version: string = '1.0.9';
+    version: string = '1.1.0';
     es:      number = 5;
     hash:    number = 10;
     encode:  number = 99;

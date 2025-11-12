@@ -87,11 +87,11 @@ export class RepuestosAsignadosComponent implements OnInit, OnChanges {
 
   openDataProcessDownCotizModal() {
     this.darDeBajaCotizacion();
-    // console.log('this.analisisCodRep')
-    // console.log(this.analisisCodRep)
+    console.log('this.analisisCodRep')
+    console.log(this.analisisCodRep)
     const dialogRef = this.dialog.open( ModalDownCotizacionComponent, {
         height: '95%',
-        width:  '70%',
+        width:  '100%',
         data:   this.analisisCodRep
     }); 
 

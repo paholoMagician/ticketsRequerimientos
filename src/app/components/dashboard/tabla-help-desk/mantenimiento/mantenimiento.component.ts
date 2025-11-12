@@ -234,7 +234,12 @@ export class MantenimientoComponent implements OnInit {
       this.mant.guardarResumenMantenimiento(this.modelResumenMantenimiento).subscribe({
           next: (x:any) => {
             this.idResumenMantenimiento = x.id;
-            this.guardarCabCotiza(1, this.idResumenMantenimiento);
+
+            if ( this.modelSendAsignacionRepuestosRequerimientos.length > 0 ) { 
+
+              this.guardarCabCotiza(1, this.idResumenMantenimiento);
+
+            }
 
             this._show_spinner = false;
           }, error: (e) => {
@@ -307,8 +312,12 @@ export class MantenimientoComponent implements OnInit {
 
     this.cotizaServ.guardarCabCotiza(this.sendCabCOtiza).subscribe({
       next: (x) => {
+        console.warn('CABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZA');
+        console.warn('CABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZA');
         console.warn('Cabecera de cotización guardada');
         console.warn(x);
+        console.warn('CABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZA');
+        console.warn('CABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZACABCOTIZA');
         // alert('Datos de cab cotiza guardados!!!!')
         this._show_spinner = false;
       }, error: (e) => {
@@ -379,10 +388,8 @@ modelSendAsignacionRepuestosRequerimientos: any = [];
       this.modelSendAsignacionRepuestosRequerimientos.push(xdata);
     });
     this._show_spinner = true;
-
-    console.warn('MODELO LISTO PARA GUARDAR REPUESTOS')
-    console.warn(this.modelSendAsignacionRepuestosRequerimientos)
-
+    console.warn('MODELO LISTO PARA GUARDAR REPUESTOS');
+    console.warn(this.modelSendAsignacionRepuestosRequerimientos);
     // AQUI ELIMINAR LOS REPETIDOS ANTES DE GUARDAR
     this.modelSendAsignacionRepuestosRequerimientos = 
       this.modelSendAsignacionRepuestosRequerimientos.filter((item: any, index: number, self: any[]) =>
@@ -394,16 +401,23 @@ modelSendAsignacionRepuestosRequerimientos: any = [];
     console.warn('MODELO SIN DUPLICADOS')
     console.warn(this.modelSendAsignacionRepuestosRequerimientos)
 
+    if ( this.modelSendAsignacionRepuestosRequerimientos.length > 0 ) { 
+
     this.mant.guardarAsignacionRepuestosRequerimientos( this.modelSendAsignacionRepuestosRequerimientos )
-             .subscribe({
-             next: (x) => {
-             },error: (e) => {
-              this._show_spinner = false;
-              console.error(e);
-             }, complete: () => this._show_spinner = false
-              
-    })
+            .subscribe({
+               next: (x) => {
+                console.warn('REPUESTOS ASIGNADOS GUARDADOS');
+                console.warn(x);
+              },error: (e) => {
+                this._show_spinner = false;
+                console.error(e);
+              }, complete: () => {
+                this._show_spinner = false
+              }              
+            })
+     }
   }
+
   openDataTecnicosDialog() {
 
     const dialogRef = this.dialog.open( ModalTecnicosComponent, {

@@ -65,9 +65,10 @@ export class FilterComponent implements OnInit, OnChanges {
 ngOnChanges(changes: SimpleChanges): void {
   if (changes) {
 
-    this.exportdataform.controls['filter'].setValue(Number(this.listenTicketTableHelpDesk.replace('MC-','')).toString());
-    this.filterTicketList();
-
+    if (this.listenTicketTableHelpDesk) {
+      this.exportdataform.controls['filter'].setValue(Number(this.listenTicketTableHelpDesk.replace('MC-','')).toString());
+      this.filterTicketList();
+    }
     if ( this.exportdataform.controls['filter'].value == '0' ) {
       this.exportdataform.controls['filter'].setValue('');
     } 

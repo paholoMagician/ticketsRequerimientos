@@ -65,6 +65,9 @@ export class LoginComponent implements OnInit {
 
     this.log.login(this.loginModel).subscribe({
       next: (x: any) => {
+
+        console.warn(x);
+
         Toast.fire({
           icon: 'success',
           title: 'Te has logeado con éxito'
