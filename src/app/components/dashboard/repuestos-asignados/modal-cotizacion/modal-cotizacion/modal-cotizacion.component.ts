@@ -23,7 +23,7 @@ export class ModalCotizacionComponent implements OnInit {
   /** COTIZACIÓN VARIABLES INICIO */
   id: any;
   listaCotizacion: any;
-  codrep: any; 
+  codrep: any;
   idRequer: any;
   estado: any;
   cantidad: any;
@@ -61,12 +61,14 @@ export class ModalCotizacionComponent implements OnInit {
   totalIVA: number = 0.0;
   totalCotizacion: number = 0.0;
   ccia: any;
-  
+
   tituloLlamar: string = '';
   tituloLlamarGhost: string = '';
   _show_spinner: boolean = false;
   fechaFormateada!: string;
   nomeclaturaTipoMantenimiento: any;
+  tipoArchivo: string = '';
+  mensajeSpinner: string = '';
   /** COTIZACIÓN VARIABLES FIN */
 
   /** REPORTE TECNICO VARIABLES INICIO */
@@ -86,50 +88,50 @@ export class ModalCotizacionComponent implements OnInit {
   /** REPORTE TECNICO VARIABLES FIN */
 
   /** INPUTS EDICIÓN COTIZACIÓN INICIO */
-  dataNameForm = new FormGroup ({
-    repLegal:    new FormControl(''),
-    dirigido:    new FormControl(''),
-    tituloPres:  new FormControl('')
+  dataNameForm = new FormGroup({
+    repLegal: new FormControl(''),
+    dirigido: new FormControl(''),
+    tituloPres: new FormControl('')
   })
   /** INPUTS EDICIÓN COTIZACIÓN FIN */
 
-constructor( 
-  private mant: MantenimientoService,
-  private repTec: RepCorrectivoService,
-  private dataMater: MasterTableService,
-  private cotiza: DocumentoCotizacionService,
-  private fechaService: EncryptService, 
-  private renderer: Renderer2, private el: ElementRef,
-  private env: Environments,
-  public dialog: MatDialog,
-  @Inject(MAT_DIALOG_DATA) public data: any,
-  public dialogRef: MatDialogRef<RepuestosAsignadosComponent> ) { }
-  
+  constructor(
+    private mant: MantenimientoService,
+    private repTec: RepCorrectivoService,
+    private dataMater: MasterTableService,
+    private cotiza: DocumentoCotizacionService,
+    private fechaService: EncryptService,
+    private renderer: Renderer2, private el: ElementRef,
+    private env: Environments,
+    public dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<RepuestosAsignadosComponent>) { }
+
 
   show_form: boolean = true;
   ngOnInit(): void {
 
-      const fechaActual = new Date();
-      this.fechaFormateada = this.fechaService.formatFecha(fechaActual);
-      switch( this.data.type ) {
-        case 'COTIZACION':
-          this.show_form = true;
-          this.obtenerCotizacion( Number(this.data.idRequerimiento) );
-          break;
-        case 'REPTEC':
-          this.show_form = false;
-          this.obtenerReptecCorr( Number(this.data.idRequerimiento) );
-          break;
-        case 'NOTAENTREGA':
-          this.obtenerNotaRepuestos( Number(this.data.idRequerimiento) );
-          this.show_form = false;
-          break;
-      }
+    const fechaActual = new Date();
+    this.fechaFormateada = this.fechaService.formatFecha(fechaActual);
+    switch (this.data.type) {
+      case 'COTIZACION':
+        this.show_form = true;
+        this.obtenerCotizacion(Number(this.data.idRequerimiento));
+        break;
+      case 'REPTEC':
+        this.show_form = false;
+        this.obtenerReptecCorr(Number(this.data.idRequerimiento));
+        break;
+      case 'NOTAENTREGA':
+        this.obtenerNotaRepuestos(Number(this.data.idRequerimiento));
+        this.show_form = false;
+        break;
+    }
   }
 
   getValidValue(value: any) {
     return (value !== null && value !== undefined && value.trim() !== '') ? value : null;
-  }  
+  }
 
   listaEstadoEquipo: any = [];
   obtenerDataEstadoEquipo() {
@@ -150,13 +152,13 @@ constructor(
   }
 
   listaRepuestoRequerimientos: any = [];
-  obtenerRepuestosRequerimientos( id:number ) {
+  obtenerRepuestosRequerimientos(id: number) {
     this.mant.obtenerRepuestosRequerimientos(id).subscribe({
       next: (x) => {
         this.listaRepuestoRequerimientos = x;
       }, error: (e) => {
-        if( e.status != 200 ) console.error(e);
-      }      
+        if (e.status != 200) console.error(e);
+      }
     })
   }
 
@@ -186,11 +188,12 @@ constructor(
 
     // Llama a generarCotizacion para actualizar la vista
     this.generarCotizacion();
-  
+
   }
 
   //#region [REPORTE NOTA DE ENTREGA]
   generarNotaDeEntrega() {
+    this.tipoArchivo = 'NOTA DE ENTREGA';
     this.ccia = sessionStorage.getItem('ccia');
     let xareaRep: any = <HTMLDivElement>document.getElementById('area-rep');
     xareaRep.style.width = '100%';
@@ -349,7 +352,7 @@ constructor(
               <div style="width: 100%; height:7px; background: green;"></div>
               <div style="">
                   <span style="text-align: left; color: black; font-size: 7pt !important;">
-                        GUAYAQUIL ${ this.direccion } * ${ this.telf1 } - ${ this.telf2 } * ${ this.email }
+                        GUAYAQUIL ${this.direccion} * ${this.telf1} - ${this.telf2} * ${this.email}
                   </span>
               </div>
           </div>
@@ -359,20 +362,21 @@ constructor(
     }
   }
   //#endregion
-  
+
   //#region [REPORTE TECNICO INICIO]
   generarReporteTecnico() {
+    this.tipoArchivo = 'REPORTE TECNICO';
     let xareaRep: any = <HTMLDivElement>document.getElementById('area-rep');
     xareaRep.style.width = '100%';
 
     // Obtén el contenedor usando ElementRef y Renderer2
     const cotizacionContainer = this.el.nativeElement.querySelector('#cotizacion');
     if (cotizacionContainer) {
-        // Limpia el contenido anterior del contenedor
-        cotizacionContainer.innerHTML = '';
-        let repuestosUtilizadosHTML = '';
-        if (this.listaRepuestoRequerimientos && this.listaRepuestoRequerimientos.length > 0) {
-          repuestosUtilizadosHTML = `
+      // Limpia el contenido anterior del contenedor
+      cotizacionContainer.innerHTML = '';
+      let repuestosUtilizadosHTML = '';
+      if (this.listaRepuestoRequerimientos && this.listaRepuestoRequerimientos.length > 0) {
+        repuestosUtilizadosHTML = `
               <div style="width: 100%;">
                   <div style="text-align: center;     
                               border: solid 1px gray;
@@ -384,13 +388,14 @@ constructor(
                           <strong> REPUESTOS UTILIZADOS </strong>
                       </span>
                   </div>
-              </div>`;}
+              </div>`;
+      }
 
-              // Define la sección de la tabla condicionalmente
-              let tablaRepuestosHTML = '';
-              if (this.listaRepuestoRequerimientos && this.listaRepuestoRequerimientos.length > 0) {
-                  // Genera las filas de la tabla usando .map()
-                  const filasTabla = this.listaRepuestoRequerimientos.map((rep: any) => `
+      // Define la sección de la tabla condicionalmente
+      let tablaRepuestosHTML = '';
+      if (this.listaRepuestoRequerimientos && this.listaRepuestoRequerimientos.length > 0) {
+        // Genera las filas de la tabla usando .map()
+        const filasTabla = this.listaRepuestoRequerimientos.map((rep: any) => `
                       <tr>
                           <td style="border: solid 1px gray; padding: 3px;">${rep.cantidad}</td>
                           <td style="border: solid 1px gray; padding: 3px;">${rep.codrep}</td>
@@ -410,9 +415,9 @@ constructor(
                           </td>
                       </tr>
                   `).join('');
-      
-                  // HTML completo de la tabla
-                  tablaRepuestosHTML = `
+
+        // HTML completo de la tabla
+        tablaRepuestosHTML = `
                       <div style="width: 100%; margin-bottom: 15px;">
                           <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
                               <thead style="background-color: #333; color: white;">
@@ -430,12 +435,12 @@ constructor(
                           </table>
                       </div>
                   `;
-              }
+      }
 
-        // Crea un nuevo elemento div
-        const nuevoElemento = this.renderer.createElement('div');
-        // Añade contenido HTML al nuevo elemento
-        this.renderer.setProperty(nuevoElemento, 'innerHTML', `
+      // Crea un nuevo elemento div
+      const nuevoElemento = this.renderer.createElement('div');
+      // Añade contenido HTML al nuevo elemento
+      this.renderer.setProperty(nuevoElemento, 'innerHTML', `
             <style> * { font-family: arial; font-size: 8pt; color: black; } </style>
             <div style="width: 1180px; padding: 45px;">
                 <div style="display: flex; justify-content: space-between;">
@@ -525,27 +530,27 @@ constructor(
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 30%;">
                         <small style="color: black; font-size: 5pt !important;">MARCA</small>
                         <span>
-                            <strong> ${ this.marca } </strong>
+                            <strong> ${this.marca} </strong>
                         </span>
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 30%;">
                         <small style="color: black; font-size: 5pt !important;">MODELO</small>
                         <span>
-                            <strong> ${ this.modelo } </strong>
+                            <strong> ${this.modelo} </strong>
                         </span>
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 20%;">
                         <small style="color: black; font-size: 5pt !important;">NO. SERIE</small>
                         <span>
                             <strong>
-                                ${ this.nSerieEquipo }
+                                ${this.nSerieEquipo}
                             </strong>
                         </span>
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 20%;">
                         <small style="color: black; font-size: 5pt !important;">COD. INV</small>
                         <span> 
-                            <strong> ${ this.ninventario } </strong>
+                            <strong> ${this.ninventario} </strong>
                         </span>
                     </div>
                 </div>
@@ -553,7 +558,7 @@ constructor(
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 50%;">
                         <small style="color: black; font-size: 5pt !important;">DESCRIPCIÓN DEL SERVICIO:</small>
                         <span> 
-                            <strong> ${ this.serieTicket } </strong>
+                            <strong> ${this.serieTicket} </strong>
                         </span>
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 50%;">
@@ -614,16 +619,16 @@ constructor(
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 50%;">
                         ${this.listaCheckListaMantenimiento.map((checkList: any) =>
-                            `<small style="display: flex; justify-content: space-between; margin: 3px;"> 
+        `<small style="display: flex; justify-content: space-between; margin: 3px;"> 
                                 <span>${checkList.nombre}</span>
                                 <span>
                                     <div style="width: 10px; height: 10px; border: solid 2px #444;"></div>
                                 </span>
                             </small>`
-                        ).join('')}
+      ).join('')}
                     </div>
                 </div>
-                ${ repuestosUtilizadosHTML }
+                ${repuestosUtilizadosHTML}
 
                 ${tablaRepuestosHTML}
 
@@ -680,7 +685,7 @@ constructor(
                 <div style="width: 100%; display: flex; justify-content: space-between;">
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 50%;">
                         <small> 
-                            Nombre: <strong> ${ this.nombreTecnico } / ${ this.cedulaTecnico } </strong>
+                            Nombre: <strong> ${this.nombreTecnico} / ${this.cedulaTecnico} </strong>
                         </small>
                     </div>
                     <div style="border: solid 1px gray; padding: 5px; display: flex; justify-content: center; align-content: center; flex-direction: column; width: 50%;">
@@ -693,24 +698,25 @@ constructor(
                     <div style="border-top: solid 10px green;  width: 100%;"></div>
                     <div style="display: flex; justify-content: center; width: 100%; margint-top: 10px;">
                         <span style="text-align: center; color: black; font-size: 7pt !important;">
-                              GUAYAQUIL ${ this.direccion } * ${ this.telf1 } - ${ this.telf2 } * ${ this.email }
+                              GUAYAQUIL ${this.direccion} * ${this.telf1} - ${this.telf2} * ${this.email}
                         </span>
                     </div>
                 </div>
             </div>
             `);
-        this.renderer.appendChild(cotizacionContainer, nuevoElemento);
+      this.renderer.appendChild(cotizacionContainer, nuevoElemento);
     }
   }
   //#endregion
 
   // #region [COTIZACION]
   generarCotizacion() {
-    let xareaRep: any = <HTMLDivElement> document.getElementById('area-rep');
+    this.tipoArchivo = 'COTIZACION';
+    let xareaRep: any = <HTMLDivElement>document.getElementById('area-rep');
     xareaRep.style.width = '100%';
     // Obtén el contenedor usando ElementRef y Renderer2
     const cotizacionContainer = this.el.nativeElement.querySelector('#cotizacion');
-    if (cotizacionContainer) {      
+    if (cotizacionContainer) {
       // Limpia el contenido anterior del contenedor
       cotizacionContainer.innerHTML = '';
       // Crea un nuevo elemento div
@@ -807,7 +813,7 @@ constructor(
                   <th style="font-size: 12pt !important; color: white;">TOTAL</th>
                 </thead>
                 <tbody>
-                    ${this.listaCotizacion.map( (x: any) => `
+                    ${this.listaCotizacion.map((x: any) => `
                       <tr>
                         <td style="font-size: 12pt !important; padding: 5px;">${x.cantidad}</td>
                         <td style="font-size: 12pt !important; padding: 5px;">${x.codrep.replace(/^REP-\d{3}-\d{3}-\d{3}-/, '')}</td>
@@ -843,7 +849,7 @@ constructor(
                   <div>SUBTOTAL</div>
                   &nbsp;
                   <div>
-                      <strong>${ this.subTotal.toFixed(2) }</strong>
+                      <strong>${this.subTotal.toFixed(2)}</strong>
                   </div>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 5px; border-bottom: dashed 1px gray;">
@@ -889,7 +895,7 @@ constructor(
             <div style="border-top: solid 5px green;  width: 100%;"></div>
             <div style="">
                 <span style="text-align: left; color: black; font-size: 7pt !important;">
-                      GUAYAQUIL ${ this.direccion } * ${ this.telf1 } - ${ this.telf2 } * ${ this.email }
+                      GUAYAQUIL ${this.direccion} * ${this.telf1} - ${this.telf2} * ${this.email}
                 </span>
             </div>
         </div>
@@ -903,22 +909,22 @@ constructor(
   }
   // #endregion
 
-  // ... después de onSubmit() o donde prefieras añadir nuevos métodos
-  
   async descargarPDF() {
+    this.mensajeSpinner = 'GENERANDO PDF UN MOMENTO POR FAVOR...';
+    this._show_spinner = true;
     // 1. Determinar qué HTML generar y generarlo, asegurando que el contenido esté en el DOM.
     // La variable `this.data.type` determina si es COTIZACION, REPTEC o NOTAENTREGA.
-    switch( this.data.type ) {
-        case 'COTIZACION':
-            this.generarCotizacion(); 
-            break;
-        case 'REPTEC':
-            this.generarReporteTecnico();
-            break;
-        case 'NOTAENTREGA':
-        default:
-            this.generarNotaDeEntrega();
-            break;
+    switch (this.data.type) {
+      case 'COTIZACION':
+        this.generarCotizacion();
+        break;
+      case 'REPTEC':
+        this.generarReporteTecnico();
+        break;
+      case 'NOTAENTREGA':
+      default:
+        this.generarNotaDeEntrega();
+        break;
     }
 
     const data = document.getElementById('cotizacion'); // Elemento a capturar
@@ -928,79 +934,82 @@ constructor(
     console.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
     if (data) {
-        // --- PREPARACIÓN DEL DOM ANTES DE LA CAPTURA ---
-        // 1.1 Ocultar el footer fijo de la Nota/Cotización para que no se duplique en cada página
-        const footerElement = data.querySelector('div[style*="position: fixed"]');
+      // --- PREPARACIÓN DEL DOM ANTES DE LA CAPTURA ---
+      // 1.1 Ocultar el footer fijo de la Nota/Cotización para que no se duplique en cada página
+      const footerElement = data.querySelector('div[style*="position: fixed"]');
+      if (footerElement) {
+        (footerElement as HTMLElement).style.display = 'none';
+      }
+
+      // 1.2 Ocultar el botón fijo de descarga (que está en el HTML fuera de #cotizacion)
+      const fixedButton = document.querySelector('button[style*="position: fixed; bottom: 10px"]');
+      if (fixedButton) {
+        (fixedButton as HTMLElement).style.display = 'none';
+      }
+
+      // Se usa un pequeño timeout para asegurar que Angular haya actualizado el DOM
+      setTimeout(async () => {
+        // 2. CAPTURA DEL HTML A CANVAS
+        const canvas = await html2canvas(data, {
+          scale: 0.5, // Mejora la calidad
+          logging: false,
+          allowTaint: true,
+          useCORS: true // Importante para cargar la imagen del logo y la firma
+        });
+
+        // 3. CONVERSIÓN DE CANVAS A PDF (con lógica de paginación)
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const imgWidth = 210; // Ancho A4 en mm
+        const pageHeight = 297; // Alto A4 en mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+          position = position - pageHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        // 4. GENERACIÓN DEL NOMBRE DE ARCHIVO DINÁMICO
+        const now = new Date();
+        // Formato solicitado: MC-YYYYMMDDHHmmss (sin guiones ni slashes)
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const xidrequer = localStorage.getItem('idRequerimientoShow');
+        const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+        const fileName = `MC-${xidrequer}-${this.tipoArchivo}-${timestamp}.pdf`;
+
+        // 5. DESCARGA DEL ARCHIVO
+        pdf.save(fileName);
+
+        // --- RESTAURACIÓN DEL DOM ---
+        // Vuelve a mostrar el footer y el botón fijo para la vista en pantalla
         if (footerElement) {
-            (footerElement as HTMLElement).style.display = 'none';
+          (footerElement as HTMLElement).style.display = 'block';
         }
-
-        // 1.2 Ocultar el botón fijo de descarga (que está en el HTML fuera de #cotizacion)
-        const fixedButton = document.querySelector('button[style*="position: fixed; bottom: 10px"]');
         if (fixedButton) {
-            (fixedButton as HTMLElement).style.display = 'none';
+          (fixedButton as HTMLElement).style.display = 'block';
         }
-        
-        // Se usa un pequeño timeout para asegurar que Angular haya actualizado el DOM
-        setTimeout(async () => {
-            // 2. CAPTURA DEL HTML A CANVAS
-            const canvas = await html2canvas(data, { 
-                scale: 0.5, // Mejora la calidad
-                logging: false,
-                allowTaint: true, 
-                useCORS: true // Importante para cargar la imagen del logo y la firma
-            });
 
-            // 3. CONVERSIÓN DE CANVAS A PDF (con lógica de paginación)
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4'); 
+        this._show_spinner = false;
+        this.mensajeSpinner = '';
 
-            const imgWidth = 210; // Ancho A4 en mm
-            const pageHeight = 297; // Alto A4 en mm
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft > 0) {
-                position = position - pageHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-            
-            // 4. GENERACIÓN DEL NOMBRE DE ARCHIVO DINÁMICO
-            const now = new Date();
-            // Formato solicitado: MC-YYYYMMDDHHmmss (sin guiones ni slashes)
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const xidrequer = localStorage.getItem('idRequerimientoShow');
-            const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
-            const fileName = `MC-${xidrequer}-${timestamp}.pdf`;
-
-            // 5. DESCARGA DEL ARCHIVO
-            pdf.save(fileName);
-
-            // --- RESTAURACIÓN DEL DOM ---
-            // Vuelve a mostrar el footer y el botón fijo para la vista en pantalla
-            if (footerElement) {
-                (footerElement as HTMLElement).style.display = 'block';
-            }
-            if (fixedButton) {
-                (fixedButton as HTMLElement).style.display = 'block';
-            }
-            
-        }, 50); // Pequeño retraso para asegurar el renderizado
+      }, 50); // Pequeño retraso para asegurar el renderizado
     }
   }
 
-  obtenerReptecCorr(id:number) {
+  obtenerReptecCorr(id: number) {
     this.repTec.obtenerReporteTecnicoCorrectivo(id).subscribe({
       next: (x) => {
         this.listaReporteTecnicoCorrectivo = x;
@@ -1010,49 +1019,49 @@ constructor(
         console.error(e);
       }, complete: () => {
 
-        this.serieTicket            = this.listaReporteTecnicoCorrectivo[0]
-                                          .serieTicket;
-        this.idAgencia              = this.listaReporteTecnicoCorrectivo[0]
-                                          .idAgencia;
-        this.nombreCliente          = this.listaReporteTecnicoCorrectivo[0]
-                                          .nombreCliente;
-        this.nombreAgencia          = this.listaReporteTecnicoCorrectivo[0]
-                                          .nombreAgencia;
-        this.nombreTecnico          = this.listaReporteTecnicoCorrectivo[0]
-                                          .nombreTecnico || 'No hay técnico asignado';
-        this.cedulaTecnico          = this.listaReporteTecnicoCorrectivo[0]
-                                          .cedulaTecnico;
-        this.provinciaAgencia       = this.listaReporteTecnicoCorrectivo[0]
-                                          .provinciaAgencia;
+        this.serieTicket = this.listaReporteTecnicoCorrectivo[0]
+          .serieTicket;
+        this.idAgencia = this.listaReporteTecnicoCorrectivo[0]
+          .idAgencia;
+        this.nombreCliente = this.listaReporteTecnicoCorrectivo[0]
+          .nombreCliente;
+        this.nombreAgencia = this.listaReporteTecnicoCorrectivo[0]
+          .nombreAgencia;
+        this.nombreTecnico = this.listaReporteTecnicoCorrectivo[0]
+          .nombreTecnico || 'No hay técnico asignado';
+        this.cedulaTecnico = this.listaReporteTecnicoCorrectivo[0]
+          .cedulaTecnico;
+        this.provinciaAgencia = this.listaReporteTecnicoCorrectivo[0]
+          .provinciaAgencia;
         this.tipoMantenimientoCorto = this.listaReporteTecnicoCorrectivo[0]
-                                          .tipoMantenimientoCorto;
-        this.nSerieEquipo           = this.listaReporteTecnicoCorrectivo[0]
-                                          .nSerieEquipo;
-        this.tipoMaquina            = this.listaReporteTecnicoCorrectivo[0]
-                                          .tipoMaquina;
-        this.capacidad              = this.listaReporteTecnicoCorrectivo[0]
-                                          .capacidad;
-        this.marca                  = this.listaReporteTecnicoCorrectivo[0]
-                                          .marca;
-        this.modelo                 = this.listaReporteTecnicoCorrectivo[0]
-                                          .modelo;
-        this.contadorinicial        = this.listaReporteTecnicoCorrectivo[0]
-                                          .contadorfinal || 0;
-        this.codigobp               = this.listaReporteTecnicoCorrectivo[0]
-                                          .codigobp;
-        this.ninventario            = this.listaReporteTecnicoCorrectivo[0]
-                                          .ninventario;
-        this.estadoEquipo           = this.listaReporteTecnicoCorrectivo[0]
-                                          .estadoEquipo;
-        this.direccion              = this.listaReporteTecnicoCorrectivo[0]
-                                          .direccion;
-        this.telf1                  = this.listaReporteTecnicoCorrectivo[0]
-                                          .telf1;
-        this.telf2                  = this.listaReporteTecnicoCorrectivo[0]
-                                          .telf2;
-        this.email                  = this.listaReporteTecnicoCorrectivo[0]
-                                          .email;
-        
+          .tipoMantenimientoCorto;
+        this.nSerieEquipo = this.listaReporteTecnicoCorrectivo[0]
+          .nSerieEquipo;
+        this.tipoMaquina = this.listaReporteTecnicoCorrectivo[0]
+          .tipoMaquina;
+        this.capacidad = this.listaReporteTecnicoCorrectivo[0]
+          .capacidad;
+        this.marca = this.listaReporteTecnicoCorrectivo[0]
+          .marca;
+        this.modelo = this.listaReporteTecnicoCorrectivo[0]
+          .modelo;
+        this.contadorinicial = this.listaReporteTecnicoCorrectivo[0]
+          .contadorfinal || 0;
+        this.codigobp = this.listaReporteTecnicoCorrectivo[0]
+          .codigobp;
+        this.ninventario = this.listaReporteTecnicoCorrectivo[0]
+          .ninventario;
+        this.estadoEquipo = this.listaReporteTecnicoCorrectivo[0]
+          .estadoEquipo;
+        this.direccion = this.listaReporteTecnicoCorrectivo[0]
+          .direccion;
+        this.telf1 = this.listaReporteTecnicoCorrectivo[0]
+          .telf1;
+        this.telf2 = this.listaReporteTecnicoCorrectivo[0]
+          .telf2;
+        this.email = this.listaReporteTecnicoCorrectivo[0]
+          .email;
+
         /** =============================================
          *  ========================================= */
         //CHECKLIST ACTIVIDADES MANTENIMIENTOS
@@ -1063,52 +1072,52 @@ constructor(
         this.obtenerRepuestosRequerimientos(id);
         /** =============================================
          *  ========================================= */
-        
+
         this._show_spinner = true;
         setTimeout(() => {
           this.generarReporteTecnico()
           this._show_spinner = false;
         }, 2000);
-        
+
       }
     })
   }
-usuarioAsignadoBodega: string = '';
-urlImagenFirma: string = '';
+  usuarioAsignadoBodega: string = '';
+  urlImagenFirma: string = '';
   listaNotaRepuestos: any = [];
-  obtenerNotaRepuestos( idTicket: number ) {
+  obtenerNotaRepuestos(idTicket: number) {
     // alert('Obteniendo nota repuestos')
     this._show_spinner = true;
     this.ccia = sessionStorage.getItem('ccia');
-    this.cotiza.obtenerNotaReporteRepuestos( idTicket, this.ccia ).subscribe({
+    this.cotiza.obtenerNotaReporteRepuestos(idTicket, this.ccia).subscribe({
       next: (x) => {
         this.listaNotaRepuestos = x;
-        this.listaNotaRepuestos.filter( (listaNotaRepuestos:any) => {
-          this.serieTicket            = 'CMS-'+listaNotaRepuestos.idTicket.toString().padStart(9,0);
-          this.idAgencia              = listaNotaRepuestos.idAgencia;
-          this.nombreCliente          = listaNotaRepuestos.nombreCliente;
-          this.nombreAgencia          = listaNotaRepuestos.nombreAgencia;
-          this.nombreTecnico          = listaNotaRepuestos.nombreTecnico || 'No hay técnico asignado';
-          this.cedulaTecnico          = listaNotaRepuestos.cedulaTecnico;
-          this.provinciaAgencia       = listaNotaRepuestos.provinciaAgencia;
+        this.listaNotaRepuestos.filter((listaNotaRepuestos: any) => {
+          this.serieTicket = 'CMS-' + listaNotaRepuestos.idTicket.toString().padStart(9, 0);
+          this.idAgencia = listaNotaRepuestos.idAgencia;
+          this.nombreCliente = listaNotaRepuestos.nombreCliente;
+          this.nombreAgencia = listaNotaRepuestos.nombreAgencia;
+          this.nombreTecnico = listaNotaRepuestos.nombreTecnico || 'No hay técnico asignado';
+          this.cedulaTecnico = listaNotaRepuestos.cedulaTecnico;
+          this.provinciaAgencia = listaNotaRepuestos.provinciaAgencia;
           this.tipoMantenimientoCorto = listaNotaRepuestos.tipoMantenimientoCorto;
-          this.nSerieEquipo           = listaNotaRepuestos.nSerieEquipo;
-          this.tipoMaquina            = listaNotaRepuestos.tipoMaquina;
-          this.capacidad              = listaNotaRepuestos.capacidad;
-          this.marca                  = listaNotaRepuestos.marca;
-          this.modelo                 = listaNotaRepuestos.modelo;
-          this.contadorinicial        = listaNotaRepuestos.contadorinicial;
-          this.codigobp               = listaNotaRepuestos.codigobp;
-          this.ninventario            = listaNotaRepuestos.ninventario;
-          this.estadoEquipo           = listaNotaRepuestos.estadoEquipo;
-          this.direccion              = listaNotaRepuestos.direccion;
-          this.telf1                  = listaNotaRepuestos.telf1;
-          this.telf2                  = listaNotaRepuestos.telf2;
-          this.email                  = listaNotaRepuestos.email;
-          this.usuarioAsignadoBodega  = listaNotaRepuestos.usuarioAsignadoBodega;
-          this.urlImagenFirma         = listaNotaRepuestos.urlImagenFirma;
+          this.nSerieEquipo = listaNotaRepuestos.nSerieEquipo;
+          this.tipoMaquina = listaNotaRepuestos.tipoMaquina;
+          this.capacidad = listaNotaRepuestos.capacidad;
+          this.marca = listaNotaRepuestos.marca;
+          this.modelo = listaNotaRepuestos.modelo;
+          this.contadorinicial = listaNotaRepuestos.contadorinicial;
+          this.codigobp = listaNotaRepuestos.codigobp;
+          this.ninventario = listaNotaRepuestos.ninventario;
+          this.estadoEquipo = listaNotaRepuestos.estadoEquipo;
+          this.direccion = listaNotaRepuestos.direccion;
+          this.telf1 = listaNotaRepuestos.telf1;
+          this.telf2 = listaNotaRepuestos.telf2;
+          this.email = listaNotaRepuestos.email;
+          this.usuarioAsignadoBodega = listaNotaRepuestos.usuarioAsignadoBodega;
+          this.urlImagenFirma = listaNotaRepuestos.urlImagenFirma;
         })
-               
+
 
         this._show_spinner = false;
       }, error: (e) => {
@@ -1126,55 +1135,55 @@ urlImagenFirma: string = '';
     })
   }
 
-  obtenerCotizacion( idTicket: number ) {
+  obtenerCotizacion(idTicket: number) {
     this._show_spinner = true;
     this.ccia = sessionStorage.getItem('ccia');
-    this.cotiza.obtenerCotizacion( idTicket, this.ccia ).subscribe({
-      next: (x:any) => {
-        this.listaCotizacion              = x;
+    this.cotiza.obtenerCotizacion(idTicket, this.ccia).subscribe({
+      next: (x: any) => {
+        this.listaCotizacion = x;
         // console.warn('COTIZACION')
         // console.warn(this.listaCotizacion)
         this.nomeclaturaTipoMantenimiento = x[0].nomeclaturaTipoMantenimiento;
-        this.id                  = x[0].id;
-        this.codrep              = x[0].codrep;
-        this.idRequer            = x[0].idRequer;
-        this.estado              = x[0].estado;
-        this.cantidad            = x[0].cantidad            || 0;
-        this.valorFinal          = x[0].valorFinal          || 0.0;
-        this.nombreEmpresa       = x[0].nombreEmpresa;
-        this.descripcionEmpresa  = x[0].descripcionEmpresa  || '';
+        this.id = x[0].id;
+        this.codrep = x[0].codrep;
+        this.idRequer = x[0].idRequer;
+        this.estado = x[0].estado;
+        this.cantidad = x[0].cantidad || 0;
+        this.valorFinal = x[0].valorFinal || 0.0;
+        this.nombreEmpresa = x[0].nombreEmpresa;
+        this.descripcionEmpresa = x[0].descripcionEmpresa || '';
         this.descripcionRepuesto = x[0].descripcionRepuesto || '';
-        this.direccion           = x[0].direccion           || '';
-        this.cargo               = x[0].cargo;
-        this.nombrePersCargo     = x[0].nombrePersCargo;
-        this.logotipoUrl         = x[0].logotipoUrl;
-        this.textoCotizacion     = x[0].textoCotizacion;
-        this.replegal            = x[0].replegal;
-        this.replegalGhost       = x[0].replegal;
-        this.telf1               = x[0].telf1;
-        this.telf2               = x[0].telf2;
-        this.email               = x[0].email;
-        this.nombreMarcaEquipo   = x[0].nombreMarcaEquipo;
-        this.nombreModeloEquipo  = x[0].nombreModeloEquipo;
-        this.nombreTipoDeEquipo  = x[0].nombreTipoDeEquipo;
-        this.nombreRep           = x[0].nombreRep            || '--';
-        this.nserie              = x[0].nserie               || '--';
-        this.nombreCliente       = x[0].nombreCliente        || '--';
-        this.nombreClienteGhost  = x[0].nombreCliente        || '--';
-        this.nombreAgencia       = x[0].nombreAgencia        || '--';
-        this.contadorinicial     = x[0].contadorinicial      || 0;
-        this.contadorfinal       = x[0].contadorfinal        || 0;
-        this.ninventario         = x[0].ninventario          || '--';
-        this.codigobp            = x[0].codigobp             || '--';
-        this.fechaActual         = new Date();
-        this.firma               = this.env.apiCMSfile+x[0].firmaRepLegal;
-        this.iva                 = x[0].iva;
-        this._show_spinner       = false;
+        this.direccion = x[0].direccion || '';
+        this.cargo = x[0].cargo;
+        this.nombrePersCargo = x[0].nombrePersCargo;
+        this.logotipoUrl = x[0].logotipoUrl;
+        this.textoCotizacion = x[0].textoCotizacion;
+        this.replegal = x[0].replegal;
+        this.replegalGhost = x[0].replegal;
+        this.telf1 = x[0].telf1;
+        this.telf2 = x[0].telf2;
+        this.email = x[0].email;
+        this.nombreMarcaEquipo = x[0].nombreMarcaEquipo;
+        this.nombreModeloEquipo = x[0].nombreModeloEquipo;
+        this.nombreTipoDeEquipo = x[0].nombreTipoDeEquipo;
+        this.nombreRep = x[0].nombreRep || '--';
+        this.nserie = x[0].nserie || '--';
+        this.nombreCliente = x[0].nombreCliente || '--';
+        this.nombreClienteGhost = x[0].nombreCliente || '--';
+        this.nombreAgencia = x[0].nombreAgencia || '--';
+        this.contadorinicial = x[0].contadorinicial || 0;
+        this.contadorfinal = x[0].contadorfinal || 0;
+        this.ninventario = x[0].ninventario || '--';
+        this.codigobp = x[0].codigobp || '--';
+        this.fechaActual = new Date();
+        this.firma = this.env.apiCMSfile + x[0].firmaRepLegal;
+        this.iva = x[0].iva;
+        this._show_spinner = false;
       }, complete: () => {
-        let ivaDeduc: any = ((this.iva/100)+1);
+        let ivaDeduc: any = ((this.iva / 100) + 1);
         this.listaCotizacion.forEach((cotiza: any) => {
           cotiza.preUnitarioSinIva = (cotiza.valorFinal / cotiza.cantidad) / ivaDeduc;
-          cotiza.totalSinIva       = cotiza.valorFinal / ivaDeduc;
+          cotiza.totalSinIva = cotiza.valorFinal / ivaDeduc;
         });
         // Calculamos el subTotal sumando todos los valores de totalSinIva
         this.subTotal = this.listaCotizacion.reduce((sum: number, cotiza: any) => sum + cotiza.totalSinIva, 0);
@@ -1182,10 +1191,10 @@ urlImagenFirma: string = '';
         this.totalIVA = this.subTotal * 0.15;
         // Calculamos el total de la cotización
         this.totalCotizacion = this.subTotal + this.totalIVA;
-        this._show_spinner= true;
+        this._show_spinner = true;
         setTimeout(() => {
           this.generarCotizacion();
-          this._show_spinner= false;
+          this._show_spinner = false;
         }, 2000);
       }, error: (e) => {
         console.error(e);

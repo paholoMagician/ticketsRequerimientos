@@ -240,8 +240,7 @@ filtroRepuestos() {
   this.listRepuestos = this.listRepuestosGhost.filter (( item: any ) =>
     item.codigo.toLowerCase().includes(filter.toLowerCase())          ||
     item.nombreRep.toLowerCase().includes(filter.toLowerCase())       ||
-    item.marcaRepuesto.toLowerCase().includes(filter.toLowerCase())   || 
-    item.nombreMarcaEquipo.toLowerCase().includes(filter.toLowerCase())
+    item.marcaRepuesto.toLowerCase().includes(filter.toLowerCase())   
   );
   this.currentPage = 1; // Resetear a la primera página al filtrar
 }

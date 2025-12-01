@@ -33,7 +33,7 @@ const Toast = Swal.mixin({
 })
 
 export class FileMediaTicketComponent implements OnInit, OnChanges {
-    modelSendFileMidaTicketDBHub: any = [];
+  modelSendFileMidaTicketDBHub: any = [];
   @Input() requerimiento: any;
   _show_spinner: boolean = false;
   public fileonReporteTecnico!: File;
@@ -46,17 +46,20 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   listTecnicosEmails: any = [];
   correoMantenimiento: string = '';
   processChoicex: any;
-  body:           any;
-  subject:        any;
-  recipients:     any;
-  fromAddress:    any;
-  replyTo:        any;
-  enviarEmail:    number = 0;
+  body: any;
+  subject: any;
+  recipients: any;
+  fromAddress: any;
+  replyTo: any;
+  enviarEmail: number = 0;
   serverPathFile: any;
 
-  listaReporteTecnico:     any = [];
-  listaReporteCotizacion:  any = [];
+  listaReporteTecnico: any = [];
+  listaReporteCotizacion: any = [];
   listaReporteNotaEntrega: any = [];
+
+  analisisCodRep: any = [];
+  listaRepuestoRequerimientos: any = [];
 
   fileMediaRegisterForm = new FormGroup({
     fileMediaReporteTecnico: new FormControl(null),
@@ -68,23 +71,24 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   adjuntos: any = [];
 
   constructor(
-      private env: Environments,
-      private fillemedServ: FileMediaTicketsService,
-      private mserv: MantenimientoService,
-      private ncrypt: EncryptService,
-      private ctz: CotizacionService,
-      private eSet: EmailSettingsServiceX,
-      private fileControlServ: ImagecontrolService,
-      public  dialog: MatDialog
-    ) { }
+    private env: Environments,
+    private fillemedServ: FileMediaTicketsService,
+    private mserv: MantenimientoService,
+    private ncrypt: EncryptService,
+    private ctz: CotizacionService,
+    private eSet: EmailSettingsServiceX,
+    private fileControlServ: ImagecontrolService,
+    public dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
+    console.warn('requerimiento en file media ticket:', this.requerimiento);
     // this.correoMantenimiento = ''
     this.correoMantenimiento = this.requerimiento.correomantenimiento;
     // console.warn(this.correoMantenimiento)
     this.getToken();
-    this.listaReporteTecnico     = [];
-    this.listaReporteCotizacion  = [];
+    this.listaReporteTecnico = [];
+    this.listaReporteCotizacion = [];
     this.listaReporteNotaEntrega = [];
     this.obtenerFileMediaTicket('REPTEC');
     this.obtenerFileMediaTicket('COTIZA');
@@ -92,159 +96,134 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     this.obtenerEmailCliSetts(1);
     this.obtenerRepuestosRequerimientos();
   }
-  
+
   ngOnChanges(changes: SimpleChanges): void {
+
     if (changes['requerimiento'] && changes['requerimiento'].currentValue) {
-      this.listaReporteTecnico     = [];
-      this.listaReporteCotizacion  = [];
-      this.listaReporteNotaEntrega = [];
-      // this.obtenerFileMediaTicket('REPTEC');
-      // this.obtenerFileMediaTicket('COTIZA');
-      // this.obtenerFileMediaTicket('NOTENT');
+
+      this.listaReporteTecnico      = [];
+      this.listaReporteCotizacion   = [];
+      this.listaReporteNotaEntrega  = [];
       this.obtenerTecnicosRequer();
+
     }
+
   }
-  
+
   obtenerTecnicosRequer() {
-    this.mserv.obtenerTecnicosTicket( this.requerimiento.idTicket ).subscribe({
-      next: (X:any) => {
-        X.filter( (j:any) => {
-          this.listTecnicosEmails.push( j.email );
+    this.mserv.obtenerTecnicosTicket(this.requerimiento.idTicket).subscribe({
+      next: (X: any) => {
+        X.filter((j: any) => {
+          this.listTecnicosEmails.push(j.email);
         })
-      }, error: (e) => { console.error(e) }
+      }, error: (e) => { 
+        console.error(e) 
+      }
     })
   }
 
+  actualizarEstadoCabCotiza() {
+    const xuser: any = sessionStorage.getItem('usuario');
+    if (this.codUserLog) {
+      this.ctz.actualizarCabCotiza(this.requerimiento.idTicket, this.codUserLog, 2).subscribe({
+        next: (x: any) => {
+          const fecha = new Date(x.fechaAprueba);
+          const opcionesFecha = { day: 'numeric', month: 'long', year: 'numeric' } as const;
+          const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
 
-actualizarEstadoCabCotiza() {
-  const xuser: any = sessionStorage.getItem('usuario');
-  if (this.codUserLog) {
-    this.ctz.actualizarCabCotiza(this.requerimiento.idTicket, this.codUserLog, 2).subscribe({
-      next: (x: any) => {
-        const fecha = new Date(x.fechaAprueba);
-        const opcionesFecha = { day: 'numeric', month: 'long', year: 'numeric' } as const;
-        const fechaFormateada = fecha.toLocaleDateString('es-ES', opcionesFecha);
+          let horas = fecha.getHours();
+          const minutos = fecha.getMinutes().toString().padStart(2, '0');
+          const ampm = horas >= 12 ? 'PM' : 'AM';
+          horas = horas % 12 || 12;
 
-        let horas = fecha.getHours();
-        const minutos = fecha.getMinutes().toString().padStart(2, '0');
-        const ampm = horas >= 12 ? 'PM' : 'AM';
-        horas = horas % 12 || 12;
+          const horaFormateada = `${horas}:${minutos} ${ampm}`;
+          const mensaje = `Cotización ${this.requerimiento.idRequerimientoPad}, ha sido aprobada por el usuario ${xuser}. el ${fechaFormateada} a las ${horaFormateada}`;
 
-        const horaFormateada = `${horas}:${minutos} ${ampm}`;
-        const mensaje = `Cotización ${this.requerimiento.idRequerimientoPad}, ha sido aprobada por el usuario ${xuser}. el ${fechaFormateada} a las ${horaFormateada}`;
+          // console.warn(mensaje);
 
-        // console.warn(mensaje);
+          this.sendMail(
+            [''],
+            this.recipients,
+            this.fromAddress,
+            this.replyTo,
+            mensaje,
+            'Cotización, '
+          );
 
-        this.sendMail(
-          [''],
-          this.recipients,
-          this.fromAddress,
-          this.replyTo,
-          mensaje,
-          'Cotización, '
-        );
-
-      },
-      error: (e) => console.error(e),
-    });
+        },
+        error: (e) => console.error(e),
+      });
+    }
   }
-}
 
-  analisisCodRep: any     = [];
-  listaRepuestoRequerimientos: any = [];
-  openDataProcessDownCotizModal() {
+
+  openDataProcessDownCotizModal(idfilemedia: number, index: number) {
     this.darDeBajaCotizacion();
     // console.log('this.analisisCodRep')
     // console.log(this.analisisCodRep)
-    const dialogRef = this.dialog.open( ModalDownCotizacionComponent, {
-          height: '95%',
-          width:  '70%',
-          data:   this.analisisCodRep
-      }); 
-  
-    dialogRef.afterClosed().subscribe( (result: any) => {
-        if (result) { 
-          this.listaRepuestoRequerimientos = [];
-          // this.refreshListData.emit( { idReuqer: result.idRequer, idResMant: result.idResManten });
-          if ( result != null ) {
-            // alert(result)
-            this.elimianarAsignRepuTicket(result.idRequer);
-            return;
-          }
-  
+    const dialogRef = this.dialog.open(ModalDownCotizacionComponent, {
+      height: '95%',
+      width: '70%',
+      data: this.analisisCodRep
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.listaRepuestoRequerimientos = [];
+        // this.refreshListData.emit( { idReuqer: result.idRequer, idResMant: result.idResManten });
+        if (result != null) {
+          alert('Tratando de eliminar archivo de cotización asociado al ticket...');
+          this.fileControlServ.eliminarArchivosMedia(idfilemedia, 'COTIZA').subscribe({
+            next: () => {
+              Swal.fire({
+                title: "Eliminado!",
+                text: "Tu archivo ha sido eliminado.",
+                icon: "success"
+              });
+              this.eliminarArchivoLocal(index, 'COTIZA');
+            },
+            error: (e) => {
+              console.error(e);
+              Swal.fire({
+                title: "Error",
+                text: "Hubo un problema al eliminar el archivo.",
+                icon: "error"
+              });
+            }
+          });
+          this.elimianarAsignRepuTicket(result.idRequer);
+          return;
         }
-      });
-      
-  }
-
-    obtenerRepuestosRequerimientos() {
-    console.warn(this.requerimiento.idRequerimientoPad.split('#MC-')[1])
-    this.mserv.obtenerRepuestosRequerimientos( Number(this.requerimiento.idRequerimientoPad.split('#MC-')[1]) ).subscribe({
-      next: (x:any) => {
-
-        this.listaRepuestoRequerimientos = x;
-        console.log('this.listaRepuestoRequerimientos')
-        console.log(this.listaRepuestoRequerimientos)
-    
-      }, complete: () => {
-        
       }
-    })
-
+    });
   }
 
-
-  // verifcar modelo a armar previo a dar de baja la cotizacion 
-//   {
-//     "id": 2411,
-//     "codrep": "REP_004",
-//     "idRequer": 4287,
-//     "fecrea": "2025-10-30T16:25:58.593",
-//     "estado": 2,
-//     "usercrea": "US-Andre-0vFvWKgytc",
-//     "codcia": "CMS-001-2023",
-//     "cantidad": 1,
-//     "precioUnitario": "19.06",
-//     "valorFinal": 19.06,
-//     "nombreUsuario": "Andre Rivera",
-//     "nombreRep": "DE100 - STACKER GUIDE",
-//     "marcaRep": 23,
-//     "marcaRepuesto": "GLORY GOBLAL SOLUTIONS",
-//     "colorEstado": "#91df0a",
-//     "nombreAgencia": "Agencia Prueba",
-//     "idcli": "CLI-0927031732001-CuutSeU0Hp",
-//     "nombreCliente": "PRUEBA S.A.",
-//     "codigoRepuesto": "CMS-001-2023",
-//     "descripcionRepuesto": "--",
-//     "idTicket": 4287,
-//     "descripcionRequerimiento": "Error en sensor",
-//     "fecrea1": "2025-10-30T16:25:58.593",
-//     "usercrea1": "US-Andre-0vFvWKgytc",
-//     "correomantenimiento": "andre.rivera@cashmachserv.com",
-//     "idResManten": 3301
-// }
+  obtenerRepuestosRequerimientos() {
+    this.mserv.obtenerRepuestosRequerimientos(Number(this.requerimiento.idRequerimientoPad.split('#MC-')[1])).subscribe({
+      next: (x: any) => this.listaRepuestoRequerimientos = x
+    })
+  }
 
   darDeBajaCotizacion() {
-    this. analisisCodRep = [];
-    this.listaRepuestoRequerimientos.forEach( (x:any) => {
-      this.analisisCodRep.push({ 
-          cantidad:            x.cantidad,
-          codRep:              x.codrep,
-          name:                x.nombreRep,
-          icon:                'hourglass_top',
-          colorState:          'orange',
-          idRequer:            x.idRequer,
-          idResManten:         x.idResManten,
-          nombreAgencia:       x.nombreAgencia,
-          nombreCliente:       x.nombreCliente,
-          correomantenimiento: x.correomantenimiento
-        });
+    this.analisisCodRep = [];
+    this.listaRepuestoRequerimientos.forEach((x: any) => {
+      this.analisisCodRep.push({
+        cantidad: x.cantidad,
+        codRep: x.codrep,
+        name: x.nombreRep,
+        icon: 'hourglass_top',
+        colorState: 'orange',
+        idRequer: x.idRequer,
+        idResManten: x.idResManten,
+        nombreAgencia: x.nombreAgencia,
+        nombreCliente: x.nombreCliente,
+        correomantenimiento: x.correomantenimiento
+      });
     })
   }
 
-
-    elimianarAsignRepuTicket(idRequerimiento: any) {
-    this.mserv.eliminarAsignacionRepuTicket( idRequerimiento ).subscribe({
+  elimianarAsignRepuTicket(idRequerimiento: any) {
+    this.mserv.eliminarAsignacionRepuTicket(idRequerimiento).subscribe({
       next: (x) => {
         // // console.log('ASIGNACIONES ELIMINADAS');
         this.listaRepuestoRequerimientos = [];
@@ -256,38 +235,48 @@ actualizarEstadoCabCotiza() {
 
 
 
-  
+
 
 
   codUserLog: any;
+  show_file_form: boolean = false;
   getToken() {
-    let xtoken:any = sessionStorage.getItem('token');
+    let xtoken: any = sessionStorage.getItem('token');
     const xtokenDecript: any = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
     if (xtokenDecript != null || xtokenDecript != undefined) {
-      var decoded:any = jwtDecode(xtokenDecript);
-      console.table(decoded)
+      var decoded: any = jwtDecode(xtokenDecript);
+      // console.table(decoded)
       this.role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
       this.codUserLog = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
-      if(this.role == 'R004') this._cli_view = false;
-      if(this.role == 'R003' || this.role == 'R002') this._cli_view = true;
+
+      // R003 = ADMINISTRADOR
+      // R002 = CLIENTE NORMAL
+      // R004 = CLIENTE GERENTE
+
+      if (this.role == 'R004') this._cli_view = false; this.show_file_form = false;
+      if (this.role == 'R003' || this.role == 'R002') this._cli_view = true;
+      if (this.role == 'R003') this.show_file_form = true;
+
+      console.log(" Este es el rol actualmente: ", this.role)
+
     }
   }
 
   envioAutorizacion: boolean = true;
   onFileSelectedReporteTecnico(event: any): void {
-    if ( !this.correoMantenimiento ) {
+    if (!this.correoMantenimiento) {
       alert('Cliente sin correo de mantenimiento asignado!, el correo de autorización deberá ser enviado manualmente, \n si no asignas uno antes de terminar el proceso de subir el archivo de REPORTE TÉCNICO.')
-        this.envioAutorizacion = false;
-        } else {
-          this.envioAutorizacion = true;
-        }
+      this.envioAutorizacion = false;
+    } else {
+      this.envioAutorizacion = true;
+    }
     event.target.files.length > 0 ? this.parametrizarArchivo(event, 'REPTEC') : null;
   }
-  
+
   onFileSelectedReporteCotizaciones(event: any): void {
     event.target.files.length > 0 ? this.parametrizarArchivo(event, 'COTIZA') : null;
   }
-  
+
   onFileSelectedNotaEntrega(event: any): void {
     event.target.files.length > 0 ? this.parametrizarArchivo(event, 'NOTENT') : null;
   }
@@ -300,10 +289,10 @@ actualizarEstadoCabCotiza() {
       + `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     let ticketId = this.requerimiento.idRequerimientoPad.split('#')[1];
     let nuevoNombre = `${ticketId}-${fechaActual}.pdf`;
-    const renamedFile = new File( [file], nuevoNombre, { type: file.type });
-    if(tipo === 'REPTEC') this.fileonReporteTecnico = renamedFile;
-    if(tipo === 'COTIZA') this.fileonReporteCotizacion = renamedFile;
-    if(tipo === 'NOTENT') this.fileonReporteNotaEntrega = renamedFile;
+    const renamedFile = new File([file], nuevoNombre, { type: file.type });
+    if (tipo === 'REPTEC') this.fileonReporteTecnico = renamedFile;
+    if (tipo === 'COTIZA') this.fileonReporteCotizacion = renamedFile;
+    if (tipo === 'NOTENT') this.fileonReporteNotaEntrega = renamedFile;
     Swal.fire({
       title: "Archivo preparado",
       text: `El archivo ha sido renombrado a: ${nuevoNombre}. Ahora puedes subirlo.`,
@@ -311,7 +300,7 @@ actualizarEstadoCabCotiza() {
     });
   }
 
-  generarDocuAutorizacion( tecnicos: any [], nAutorizacion: string ) {
+  generarDocuAutorizacion(tecnicos: any[], nAutorizacion: string) {
 
     let htmlPDFautorizacion = `
     
@@ -320,7 +309,7 @@ actualizarEstadoCabCotiza() {
       </head>
       <body>        
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h1> <span>AUTORIZACIÓN DE INGRESO <span>  <span> ${ nAutorizacion } </span> </h1>
+          <h1> <span>AUTORIZACIÓN DE INGRESO <span>  <span> ${nAutorizacion} </span> </h1>
         </div>
         <div>
           <p>Fecha de autorización: ${new Date().toLocaleDateString()}</p>
@@ -360,43 +349,43 @@ actualizarEstadoCabCotiza() {
 
   }
 
-  
+
 
   submitFileReporteTecnico() {
 
-  if (this.fileonReporteTecnico) {
+    if (this.fileonReporteTecnico) {
 
-    const fileType = this.fileonReporteTecnico.type;
-    if (fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png') {
-      let x: any = this.requerimiento.idRequerimientoPad.toString().split('#');
-      // 1. Primero subimos el archivo
-      this.uploadFile(
-        this.fileonReporteTecnico,
-        'ReporteTecnico',
-        x[1],
-        this.listTecnicosEmails,
-        this.fromAddress,
-        this.replyTo,
-        this.body,
-        this.subject
-        ,'REPTEC'
-      );
-      
-      // 2. Guardamos en BASE DE DATOS
-      this.guardarArchivosDB('REPTEC', this.fileonReporteTecnico.name);
-      
-      // 3. Envío de DOS correos diferentes
-      if (this.envioAutorizacion) {
-        // --- CORREO DE AUTORIZACIÓN (PARA CLIENTE) ---
-        // OBTENCION DE LA URL DEL ARCHIVO DE AUTORIZACION - POR MEDIO DE NODE JS
-        this._show_spinner = true;
-        this.fillemedServ.getAuthorizationFileMediaTicket(this.requerimiento.idTicket).subscribe({
-          next: (x: any) => {
+      const fileType = this.fileonReporteTecnico.type;
+      if (fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png') {
+        let x: any = this.requerimiento.idRequerimientoPad.toString().split('#');
+        // 1. Primero subimos el archivo
+        this.uploadFile(
+          this.fileonReporteTecnico,
+          'ReporteTecnico',
+          x[1],
+          this.listTecnicosEmails,
+          this.fromAddress,
+          this.replyTo,
+          this.body,
+          this.subject
+          , 'REPTEC'
+        );
+
+        // 2. Guardamos en BASE DE DATOS
+        this.guardarArchivosDB('REPTEC', this.fileonReporteTecnico.name);
+
+        // 3. Envío de DOS correos diferentes
+        if (this.envioAutorizacion) {
+          // --- CORREO DE AUTORIZACIÓN (PARA CLIENTE) ---
+          // OBTENCION DE LA URL DEL ARCHIVO DE AUTORIZACION - POR MEDIO DE NODE JS
+          this._show_spinner = true;
+          this.fillemedServ.getAuthorizationFileMediaTicket(this.requerimiento.idTicket).subscribe({
+            next: (x: any) => {
               this.doculistAutorizacion = x;
               // console.log('this.doculistAutorizacion');
               // console.log(this.doculistAutorizacion);
               this._show_spinner = false;
-          }, complete: () => {
+            }, complete: () => {
               const fileurl = this.doculistAutorizacion.url_file;
               const fileName = fileurl.match(/\/([^\/]+\.pdf)$/i)[1];
               // PATH LOCAL
@@ -415,73 +404,39 @@ actualizarEstadoCabCotiza() {
                 let anioActual = fechaActual.getFullYear();
                 let mesActual = fechaActual.getMonth() + 1;
                 let diaActual = fechaActual.getDate();
-              
+
                 // Verificar si es el día 1 del mes
                 if (diaActual === 1) {
                   let docuAutorizacion_IESS = `C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\storage\\IESS_ingreso_tecnicos_${anioActual}_${mesActual}\\IESS_ingreso_tecnicos_${anioActual}_${mesActual}.pdf`
                   this.adjuntos.push(docuAutorizacion_IESS);
                 }
-              
-                // this.sendMail( this.adjuntos, this.correoMantenimiento, authConfig.fromAddress, authConfig.replyTo, tecnicosHtmlAuth, 'AUTORIZACIÓN DE INGRESO TÉCNICO' );
-                
+
               }
 
-              //  #region [YA NO SE ENVIA EL CORREO MANUALMENTE - SE ENVÍA AUTOMÁTICAMENTE AL ASIGNAR TÉCNICOS]
-              //  --- CORREO DE REPORTE TÉCNICO (PARA TÉCNICOS) ---
-              //  let confCliCodProcessReport = ['007', '008'];
-              //  const reportConfig = this.listConfmail.find((x: any) => confCliCodProcessReport.includes(x.codecProcess));
-              //  if (reportConfig) {
-              //    this.processChoicex = 'REPTECFILE'
-              //    // Generar tabla de técnicos para el reporte
-              //    let tecnicosHtmlReport = this.generarTablaTecnicos();
-              //    //=========================================================================================================================
-              //    // C:\inetpub\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico\MC-000004200-20250805161316.pdf
-              //    // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
-              //    //=========================================================================================================================
-              //    let xpad = this.requerimiento.idRequerimientoPad.replace('#', '');
-              //    const fileName = this.serverPathFile.match(/[^\\]+\.pdf$/i)[0];
-              //    this.sendMail(
-              //      //=========================================================================================================================
-              //      // INTERNAL SERVER
-              //      // ['C:\\inetpub\\wwwroot\\deploy-back-ticket\\wwwroot\\' + this.serverPathFile],
-              //      //=========================================================================================================================
-              //      // EXXALINK SERVER
-              //      // C:\inetpub\wwwroot\back-apptickets\wwwroot\storage\pdfTicket\MC-000004200\ReporteTecnico
-              //      [`C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\storage\\pdfTicket\\${xpad}\\ReporteTecnico\\${fileName}`],
-              //      //=========================================================================================================================
-              //      this.listTecnicosEmails,
-              //      reportConfig.fromAddress,
-              //      reportConfig.replyTo,
-              //      tecnicosHtmlReport,
-              //      'REPORTE TÉCNICO'
-              //    );
-              // }
-              //#endregion
-          
-          }, error: (e) => {
-            console.error('Error al obtener la autorización:', e);
-            Swal.fire({
-              title: "Error",
-              text: "No se pudo obtener la autorización. Inténtalo de nuevo más tarde.",
-              icon: "error"
-            });
-            this._show_spinner = false;
-          }
-        })        
+            }, error: (e) => {
+              console.error('Error al obtener la autorización:', e);
+              Swal.fire({
+                title: "Error",
+                text: "No se pudo obtener la autorización. Inténtalo de nuevo más tarde.",
+                icon: "error"
+              });
+              this._show_spinner = false;
+            }
+          })
+        }
+      } else {
+        Swal.fire({
+          title: "¿No es PDF?",
+          text: "Solo aceptamos archivos con extensión .pdf, .jpg, .jpeg o .png",
+          icon: "warning"
+        });
       }
-    } else {
-      Swal.fire({
-        title: "¿No es PDF?",
-        text: "Solo aceptamos archivos con extensión .pdf, .jpg, .jpeg o .png",
-        icon: "warning"
-      });
     }
-  }  
-}
+  }
 
-// Método auxiliar para generar la tabla de técnicos
-generarTablaTecnicos(): string {
-  let tecnicosHtml = `
+  // Método auxiliar para generar la tabla de técnicos
+  generarTablaTecnicos(): string {
+    let tecnicosHtml = `
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
         <tr>          
@@ -493,42 +448,37 @@ generarTablaTecnicos(): string {
       </thead>
       <tbody>`;
 
-  this.requerimiento.tecnicos.forEach((tecnico: any) => {
-
-    console.table(tecnico)
-
-    tecnicosHtml += `
+    this.requerimiento.tecnicos.forEach((tecnico: any) => {
+      tecnicosHtml += `
       <tr>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${tecnico.nombreTecnico || ''} ${tecnico.apellidoTecnico || ''}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${tecnico.cedula || 'No registrada'}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${tecnico.email || 'No disponible'}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${tecnico.estado || 'Activo'}</td>
       </tr>`;
-  });
+    });
 
-  tecnicosHtml += `</tbody></table>`;
-  return tecnicosHtml;
-}
+    tecnicosHtml += `</tbody></table>`;
+    return tecnicosHtml;
 
+  }
 
   submitFilereporteCotizaciones() {
-    // console.log('this.fileonReporteCotizacion')
-    // console.log(this.fileonReporteCotizacion)
     if (this.fileonReporteCotizacion) {
       const fileType = this.fileonReporteCotizacion.type;
-      if ( fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png' ) {
-        let x: any = this.requerimiento.idRequerimientoPad.toString().split( '#' );
+      if (fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png') {
+        let x: any = this.requerimiento.idRequerimientoPad.toString().split('#');
         this.uploadFile(this.fileonReporteCotizacion,
-                        'Cotizaciones',
-                        x[1],
-                        this.recipients,
-                        this.fromAddress,
-                        this.replyTo,
-                        this.body,
-                        this.subject
-                        ,'COTIZA'
-                      );
-        this.guardarArchivosDB( 'COTIZA', this.fileonReporteCotizacion.name );
+          'Cotizaciones',
+          x[1],
+          this.recipients,
+          this.fromAddress,
+          this.replyTo,
+          this.body,
+          this.subject
+          , 'COTIZA'
+        );
+        this.guardarArchivosDB('COTIZA', this.fileonReporteCotizacion.name);
       } else {
         Swal.fire({
           title: "¿No es PDF?",
@@ -541,52 +491,50 @@ generarTablaTecnicos(): string {
 
   submitFileNotaEntrega() {
     if (this.fileonReporteNotaEntrega) {
-      const fileType = this.fileonReporteNotaEntrega.type;  
-      if ( fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png' ) {
+      const fileType = this.fileonReporteNotaEntrega.type;
+      if (fileType === 'application/pdf' || fileType === 'image/jpeg' || fileType === 'image/png') {
         let x: any = this.requerimiento.idRequerimientoPad.toString().split('#');
-        this.uploadFile(this.fileonReporteNotaEntrega, 
-                        'Nota de Entrega', 
-                        x[1], 
-                        this.listTecnicosEmails,
-                        'gabriel.gallegos@doriantrade.com',
-                        'andre.rivera@cashmachserv.com',
-                        'Se adjunta la siguente nota de entrega',
-                        this.subject
-                      ,'NOTENT');
-
+        this.uploadFile(this.fileonReporteNotaEntrega,
+          'Nota de Entrega',
+          x[1],
+          this.listTecnicosEmails,
+          'gabriel.gallegos@doriantrade.com',
+          'andre.rivera@cashmachserv.com',
+          'Se adjunta la siguente nota de entrega',
+          this.subject,
+          'NOTENT');
         this.guardarArchivosDB('NOTENT', this.fileonReporteNotaEntrega.name);
-      } else {        
+      } else {
         Swal.fire({
           title: "Tipo de archivo no válido",
           text: "Solo aceptamos archivos con extensión .pdf, .jpg, .jpeg o .png",
           icon: "warning"
         });
-
       }
     }
-  }  
+  }
 
-  obtenerFileMediaTicket(type: string) {    
+  obtenerFileMediaTicket(type: string) {
     this.listaReporteTecnico     = [];
     this.listaReporteCotizacion  = [];
     this.listaReporteNotaEntrega = [];
-    
-    if ( type == 'REPTEC' ) {
-      this.fileControlServ.obtenerFileMediaTicket( this.requerimiento.idTicket, type ).subscribe({
+
+    if (type == 'REPTEC') {
+      this.fileControlServ.obtenerFileMediaTicket(this.requerimiento.idTicket, type).subscribe({
         next: (x) => {
           this.listaReporteTecnico = x;
         }, error: (e) => {
-          if( e.status === 400 ) {
+          if (e.status === 400) {
             this.listaReporteTecnico = [];
             console.log('No hay archivos de reporte técnico asociados a este ticket.');
             return;
-          } else if ( e.status === 404 ) {
+          } else if (e.status === 404) {
             this.listaReporteTecnico = [];
-            console.error('Peticion, incorrecta:',e);
+            console.error('Peticion, incorrecta:', e);
             return;
-          } else if ( e.status === 500 ) {
+          } else if (e.status === 500) {
             this.listaReporteTecnico = [];
-            console.error( 'Conexion a servidor inestable, revisar servidor:', e);
+            console.error('Conexion a servidor inestable, revisar servidor:', e);
             return;
           }
         }, complete: () => {
@@ -597,82 +545,81 @@ generarTablaTecnicos(): string {
           });
         }
       });
-    } 
-    
-    else if ( type == 'COTIZA' ) {
+    }
+
+    else if (type == 'COTIZA') {
       this.fileControlServ.obtenerFileMediaTicket(this.requerimiento.idTicket, type).subscribe({
         next: (x) => {
-            this.listaReporteCotizacion = x;
-            console.log('ARCHIVO COTIZACION OBTENIDO:');
-            console.log(x)
-            if ( this.role == 'R002' ) {
-              // Verificar si hay más de un elemento antes de hacer splice
-              if (this.listaReporteCotizacion.length > 1) {
-                  // Sacar el elemento con índice 0
-                  const primerElemento = this.listaReporteCotizacion.splice(0, 1)[0];
-                  // Aquí puedes hacer algo con primerElemento si lo necesitas
-              }
+          this.listaReporteCotizacion = x;
+          console.log('this.listaReporteCotizacion');
+          console.log(this.listaReporteCotizacion)
+          if (this.role == 'R002') {
+            if (this.listaReporteCotizacion.length > 1) {
+              const primerElemento = this.listaReporteCotizacion.splice(0, 1)[0];
             }
+          }
         },
         error: (e) => {
-            if( e.status === 400 ) {
-                this.listaReporteCotizacion = [];
-                console.log('No hay archivos de cotización asociados a este ticket.');
-                return;
-            } else if ( e.status === 404 ) {
-                this.listaReporteCotizacion = [];
-                console.error('Peticion, incorrecta:',e);
-                return;
-            } else if ( e.status === 500 ) {
-                this.listaReporteCotizacion = [];
-                console.error( 'Conexion a servidor inestable, revisar servidor:', e);
-                return;
-            }
+          if (e.status === 400) {
+            this.listaReporteCotizacion = [];
+            console.log('No hay archivos de cotización asociados a este ticket.');
+            return;
+          } else if (e.status === 404) {
+            this.listaReporteCotizacion = [];
+            console.error('Peticion, incorrecta:', e);
+            return;
+          } else if (e.status === 500) {
+            this.listaReporteCotizacion = [];
+            console.error('Conexion a servidor inestable, revisar servidor:', e);
+            return;
+          }
         },
         complete: () => {
-            this.listaReporteCotizacion.forEach((x: any, index: number) => {
-                // Asignar el tipo de archivo según la extensión
-                let typeFile: any = x.fileUrl;
-                if (typeFile.endsWith('.pdf')) {
-                    x.typeFile = '../../../../assets/pdf-icons/pdf-logotipo.png';
-                } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg')) {
-                    x.typeFile = '../../../../assets/jpg-icons/img.png';
-                }
-        
-                // Validar si el índice es 0 para asignar show_multiply_options
-                if (index === 0) {
-                    if (this.role == 'R002') {
-                        x.show_multiply_options = false; // Solo el primer elemento será false
-                    } 
-                    else if (this.role == 'R003') {
-                        x.show_multiply_options = true; // Solo el primer elemento será false
-                    }
-                } else if (index >= 1) {
-                    x.show_multiply_options = true; 
-                }
-            });
+          this.listaReporteCotizacion.forEach((x: any, index: number) => {
+            // Asignar el tipo de archivo según la extensión
+            let typeFile: any = x.fileUrl;
+            if (typeFile.endsWith('.pdf')) {
+              x.typeFile = '../../../../assets/pdf-icons/pdf-logotipo.png';
+            } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg')) {
+              x.typeFile = '../../../../assets/jpg-icons/img.png';
+            }
+
+            // Validar si el índice es 0 para asignar show_multiply_options
+            if (index === 0) {
+              if (this.role == 'R002') {
+                x.show_multiply_options = false; // Solo el primer elemento será false
+              }
+              else if (this.role == 'R003') {
+                x.show_multiply_options = true; // Solo el primer elemento será false
+              }
+            } else if (index >= 1) {
+              x.show_multiply_options = true;
+            }
+          });
         }
       });
-    } 
-    
-    else if ( type == 'NOTENT' ) {
-      this.fileControlServ.obtenerFileMediaTicket( this.requerimiento.idTicket, type ).subscribe({
+    }
+
+    else if (type == 'NOTENT') {
+      this.fileControlServ.obtenerFileMediaTicket(this.requerimiento.idTicket, type).subscribe({
         next: (x) => {
           this.listaReporteNotaEntrega = x;
+          console.log('this.listaReporteNotaEntrega');
+          console.log(this.listaReporteNotaEntrega);
         }, error: (e) => {
-          if(  e.status === 400 ) {
+          if (e.status === 400) {
             this.listaReporteNotaEntrega = [];
             console.log('No hay archivos de nota de entrega asociados a este ticket.');
             return;
           }
-          else if ( e.status === 404 ) {
+          else if (e.status === 404) {
             this.listaReporteNotaEntrega = [];
-            console.error('Peticion, incorrecta:',e);
+            console.error('Peticion, incorrecta:', e);
             return;
           }
-          else if ( e.status === 500 ) {
+          else if (e.status === 500) {
             this.listaReporteNotaEntrega = [];
-            console.error( 'Conexion a servidor inestable, revisar servidor:', e);
+            console.error('Conexion a servidor inestable, revisar servidor:', e);
             return;
           }
         }, complete: () => {
@@ -689,9 +636,9 @@ generarTablaTecnicos(): string {
     }
   }
 
-  guardarArchivosDB( type: string, fileName: string ) {
+  guardarArchivosDB(type: string, fileName: string) {
 
-    const xcodcli:any = sessionStorage.getItem('codcli');
+    const xcodcli: any = sessionStorage.getItem('codcli');
     let typeCOuntFileCotiza = 0;
     let typeCOuntFileNotEnt = 0;
     let typeCOuntFileRepTec = 0;
@@ -702,10 +649,10 @@ generarTablaTecnicos(): string {
       "observacion": "",
       "estado": 1,
       "permisos": 1,
-      "type": type    
+      "type": type
     }
 
-    switch(type) {
+    switch (type) {
       case 'COTIZA':
         typeCOuntFileCotiza = 1;
         typeCOuntFileNotEnt = 0;
@@ -724,11 +671,11 @@ generarTablaTecnicos(): string {
     }
 
     this.modelSendFileMidaTicketDBHub = {
-      "idTicket":    this.requerimiento.idTicket,
-      "fileCotiza":  typeCOuntFileCotiza,
-      "fileNotEnt":  typeCOuntFileNotEnt,
+      "idTicket": this.requerimiento.idTicket,
+      "fileCotiza": typeCOuntFileCotiza,
+      "fileNotEnt": typeCOuntFileNotEnt,
       "ffileRepTec": typeCOuntFileRepTec,
-      "type":        type
+      "type": type
     }
 
     this.fileControlServ.guardarFileMidaTicketDB(this.modelSendFileMidaTicketDB, this.modelSendFileMidaTicketDBHub).subscribe({
@@ -747,8 +694,8 @@ generarTablaTecnicos(): string {
 
     // proceso de perfil escogido
     this.processChoicex = data;
-    let confCliCodProcess: string[] = [];    
-    switch(this.processChoicex) {
+    let confCliCodProcess: string[] = [];
+    switch (this.processChoicex) {
       case 'COTIZAFILE':
         confCliCodProcess = ['003', '004', '005'];
         break;
@@ -760,7 +707,7 @@ generarTablaTecnicos(): string {
         break;
       case 'AUTORIZACION-INGRESO-TECNICO':
         confCliCodProcess = ['010'];
-        break;      
+        break;
     }
 
     // Filtrar los elementos cuyo codecProcess esté en el array confCliCodProcess
@@ -773,21 +720,21 @@ generarTablaTecnicos(): string {
       // variable para enviar si el correo se envia a o no
       this.enviarEmail = 1;
       // cuerpo del correo
-      this.body        = filteredList[0].body;
+      this.body = filteredList[0].body;
       // a quien envia el correo
-      this.subject     = filteredList[0].subject;
-      this.recipients  = filteredList[0].recipients;
+      this.subject = filteredList[0].subject;
+      this.recipients = filteredList[0].recipients;
       // de donde envia el correo
       this.fromAddress = filteredList[0].fromAddress;
       // a quien replica el envio del correo
-      this.replyTo     = filteredList[0].replyTo;
+      this.replyTo = filteredList[0].replyTo;
     }
 
-}
+  }
 
   listConfmail: any = [];
-  obtenerEmailCliSetts( idConfig: number ) {
-    this.eSet.obtenerEmailCliSetts( idConfig ).subscribe({
+  obtenerEmailCliSetts(idConfig: number) {
+    this.eSet.obtenerEmailCliSetts(idConfig).subscribe({
       next: (x) => {
         this.listConfmail = x;
       },
@@ -795,104 +742,104 @@ generarTablaTecnicos(): string {
         console.error('Error al obtener configuración de email:', err);
       }
     });
-  
+
   }
 
-  uploadFile( file: File, nombre: string, 
-              idRequerimiento: string, 
-              recipients: any, 
-              fromAddress: any, 
-              replyTo:any, 
-              body: any, 
-              subject: any,
-              type: string): void {
+  uploadFile(file: File, nombre: string,
+    idRequerimiento: string,
+    recipients: any,
+    fromAddress: any,
+    replyTo: any,
+    body: any,
+    subject: any,
+    type: string): void {
 
-        if(file) {
-          this.fileControlServ.uploadFilePDF(file, nombre, idRequerimiento).subscribe({
-            next: (response) => {
-              this.serverPathFile = response.filePath;
-              Swal.fire({
-                title: "Archivo",
-                text: "Se ha subido exitosamente",
-                icon: "success"
-              });
-            },
-            error: (error) => {
-              Swal.fire({
-                title: "Archivo",
-                text: "Error al subir el archivo",
-                icon: "error"
-              });
-              console.error('Error al subir el archivo', error);
-            }, 
-            complete: () => {
-              // // Verificar si tenemos datos de email válidos antes de enviar
-              if(this.enviarEmail) {
-                if( type !== 'REPTEC' ) {
-                  this.sendMail(
-                    ['C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\' + this.serverPathFile],
-                    recipients,
-                    fromAddress,
-                    replyTo,
-                    body,
-                    subject
-                  );
-                } 
-            } else {
-                Swal.fire({
-                  title:  "Hey!",
-                  text:   "No hay un perfil que gestione el envio de correos en este proceso",
-                  footer: "Consulta con el administrador del software",
-                  icon:   "info"
-                });
-            }
-          }
+    if (file) {
+      this.fileControlServ.uploadFilePDF(file, nombre, idRequerimiento).subscribe({
+        next: (response) => {
+          this.serverPathFile = response.filePath;
+          Swal.fire({
+            title: "Archivo",
+            text: "Se ha subido exitosamente",
+            icon: "success"
           });
-          
+        },
+        error: (error) => {
+          Swal.fire({
+            title: "Archivo",
+            text: "Error al subir el archivo",
+            icon: "error"
+          });
+          console.error('Error al subir el archivo', error);
+        },
+        complete: () => {
+          // // Verificar si tenemos datos de email válidos antes de enviar
+          if (this.enviarEmail) {
+            if (type !== 'REPTEC') {
+              this.sendMail(
+                ['C:\\inetpub\\wwwroot\\back-apptickets\\wwwroot\\' + this.serverPathFile],
+                recipients,
+                fromAddress,
+                replyTo,
+                body,
+                subject
+              );
+            }
+          } else {
+            Swal.fire({
+              title: "Hey!",
+              text: "No hay un perfil que gestione el envio de correos en este proceso",
+              footer: "Consulta con el administrador del software",
+              icon: "info"
+            });
+          }
         }
+      });
+
+    }
 
   }
-  
+
   //#region ENVIO DE EMAILS
   modelMail: any = [];
-  sendMail(filePathServer: any, recipients: any, fromAddress: any, replyTo: any, contentHtml: any, subject: any) {  
+  sendMail(filePathServer: any, recipients: any, fromAddress: any, replyTo: any, contentHtml: any, subject: any) {
 
-  let toRecipients = recipients.toString().split(',').map((email: string) => ({
-    email: email.trim(),
-    name: '---'
-  }));
+    let toRecipients = recipients.toString().split(',').map((email: string) => ({
+      email: email.trim(),
+      name: '---'
+    }));
 
-  // Determinar el tipo de proceso para personalizar el diseño
-  const processType = this.processChoicex || '';
-  let headerColor = '#304999'; // Color por defecto (azul corporativo)
-  let headerText = 'Notificación CMS';
-  let icon = '📄';
+    // Determinar el tipo de proceso para personalizar el diseño
+    const processType = this.processChoicex || '';
+    let headerColor = '#304999'; // Color por defecto (azul corporativo)
+    let headerText = 'Notificación CMS';
+    let icon = '📄';
 
-  switch(processType) {
-    case 'COTIZAFILE':
-      headerColor = '#4CAF50'; // Verde para cotizaciones
-      headerText = 'Cotización Enviada';
-      icon = '💰';
-      break;
-    case 'NENTREGAFILE':
-      headerColor = '#FF9800'; // Naranja para notas de entrega
-      headerText = 'Nota de Entrega';
-      icon = '📦';
-      break;
-    case 'REPTECFILE':
-      headerColor = '#2196F3'; // Azul claro para reportes técnicos
-      headerText = 'Reporte Técnico';
-      icon = '🔧';
-      break;
-    case 'AUTORIZACION-INGRESO-TECNICO':
-      headerColor = '#9C27B0'; // Morado para autorizaciones
-      headerText = 'Autorización Requerida';
-      icon = '🔐';
-      break;
-  }
+    switch (processType) {
+      case 'COTIZAFILE':
+        headerColor = '#4CAF50'; // Verde para cotizaciones
+        headerText = 'Cotización Enviada';
+        icon = '💰';
+        break;
+      case 'NENTREGAFILE':
+        headerColor = '#FF9800'; // Naranja para notas de entrega
+        headerText = 'Nota de Entrega';
+        icon = '📦';
+        break;
+      case 'REPTECFILE':
+        headerColor = '#2196F3'; // Azul claro para reportes técnicos
+        headerText = 'Reporte Técnico';
+        icon = '🔧';
+        break;
+      case 'AUTORIZACION-INGRESO-TECNICO':
+        headerColor = '#9C27B0'; // Morado para autorizaciones
+        headerText = 'Autorización Requerida';
+        icon = '🔐';
+        break;
+    }
 
-  // Plantilla HTML mejorada
-  const htmlContent = `
+    // Plantilla HTML mejorada
+    const htmlContent = `
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -1033,125 +980,128 @@ generarTablaTecnicos(): string {
     </html>
   `;
 
-  // Crear el modelo para Brevo manteniendo el manejo original de adjuntos
-  const brevoMail: any = {
-    to: toRecipients,
-    subject: `${headerText}: ${this.requerimiento.idRequerimientoPad} - ${this.requerimiento.nombreCliente}`,
-    htmlContent: htmlContent,
-    sender: {
-      email: "notificaciones@cashmachserv.com",
-      name: "Sistema de Notificaciones CMS"
-    },
-    replyTo: {
-      email: replyTo || fromAddress || "notificaciones@cashmachserv.com"
-    },
-    params: {
-      nombreCliente: this.requerimiento.nombreCliente,
-      agencia: this.requerimiento.nombreAgencia
-    }
-  };
+    // Crear el modelo para Brevo manteniendo el manejo original de adjuntos
+    const brevoMail: any = {
+      to: toRecipients,
+      subject: `${headerText}: ${this.requerimiento.idRequerimientoPad} - ${this.requerimiento.nombreCliente}`,
+      htmlContent: htmlContent,
+      sender: {
+        email: "notificaciones@cashmachserv.com",
+        name: "Sistema de Notificaciones CMS"
+      },
+      replyTo: {
+        email: replyTo || fromAddress || "notificaciones@cashmachserv.com"
+      },
+      params: {
+        nombreCliente: this.requerimiento.nombreCliente,
+        agencia: this.requerimiento.nombreAgencia
+      }
+    };
 
-  // Validación y agregado de adjuntos (manteniendo tu lógica original)
-  if (filePathServer && filePathServer.length > 0) {
-    // Filtrar rutas válidas
-    const validAttachments = filePathServer
-      .filter((file: string) => file && file.trim() !== '')
-      .map((file: string) => ({
-        filePath: file,
-        name: file.split('\\').pop() || file.split('/').pop() || 'documento.pdf'
-      }));
+    // Validación y agregado de adjuntos (manteniendo tu lógica original)
+    if (filePathServer && filePathServer.length > 0) {
+      // Filtrar rutas válidas
+      const validAttachments = filePathServer
+        .filter((file: string) => file && file.trim() !== '')
+        .map((file: string) => ({
+          filePath: file,
+          name: file.split('\\').pop() || file.split('/').pop() || 'documento.pdf'
+        }));
 
-    if (validAttachments.length > 0) {
-      brevoMail.attachments = validAttachments;
+      if (validAttachments.length > 0) {
+        brevoMail.attachments = validAttachments;
+      }
     }
-  }
 
-  this.eSet.enviarEmails(brevoMail).subscribe({
-    next: (x) => {
-      Swal.fire({
-        title: filePathServer?.length > 0 ? "Archivo enviado" : "Correo enviado",
-        html: `Email enviado a: ${recipients}`,
-        icon: "success"
-      });
-    },
-    error: (e) => {
-      Swal.fire({
-        title: "Error en envío",
-        text: "Ocurrió un error al enviar el correo",
-        icon: "error"
-      });
-      console.error('Error al enviar:', e);
-    }
-  });
+    this.eSet.enviarEmails(brevoMail).subscribe({
+      next: (x) => {
+        Swal.fire({
+          title: filePathServer?.length > 0 ? "Archivo enviado" : "Correo enviado",
+          html: `Email enviado a: ${recipients}`,
+          icon: "success"
+        });
+      },
+      error: (e) => {
+        Swal.fire({
+          title: "Error en envío",
+          text: "Ocurrió un error al enviar el correo",
+          icon: "error"
+        });
+        console.error('Error al enviar:', e);
+      }
+    });
   }
 
 
   eliminarArchivoMedia(id: number | null, index: number, type: string) {
     Swal.fire({
-        title: "¿Estás seguro?",
-        text: "Esta acción es irreversible!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Sí, eliminar!"
+      title: "¿Estás seguro?",
+      text: "Esta acción es irreversible!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar!"
     }).then((result) => {
-        if (result.isConfirmed) {
-            // Si el archivo no tiene un ID, significa que es un archivo recién subido y solo está en la UI
-            if (!id || id === 0) {
-                this.eliminarArchivoLocal(index, type);
-                Swal.fire({
-                    title: "Eliminado!",
-                    text: "El archivo fue eliminado",
-                    icon: "success"
-                });
-                return;
-            }
-            
-            // Si el archivo tiene un ID, se envía la petición al servidor
-            this.fileControlServ.eliminarArchivosMedia(id, type).subscribe({
-                next: () => {
-                    Swal.fire({
-                        title: "Eliminado!",
-                        text: "Tu archivo ha sido eliminado.",
-                        icon: "success"
-                    });
-                    // Eliminamos de la lista local después de la confirmación del servidor
-                    this.eliminarArchivoLocal(index, type);
-                },
-                error: (e) => {
-                    console.error(e);
-                    Swal.fire({
-                        title: "Error",
-                        text: "Hubo un problema al eliminar el archivo.",
-                        icon: "error"
-                    });
-                }
-            });
+
+      if (result.isConfirmed) {
+        // Si el archivo no tiene un ID, significa que es un archivo recién subido y solo está en la UI
+        if (!id || id === 0) {
+          this.eliminarArchivoLocal(index, type);
+          Swal.fire({
+            title: "Eliminado!",
+            text: "El archivo fue eliminado",
+            icon: "success"
+          });
+          return;
         }
+
+        // Si el archivo tiene un ID, se envía la petición al servidor
+        this.fileControlServ.eliminarArchivosMedia(id, type).subscribe({
+          next: () => {
+            Swal.fire({
+              title: "Eliminado!",
+              text: "Tu archivo ha sido eliminado.",
+              icon: "success"
+            });
+            // Eliminamos de la lista local después de la confirmación del servidor
+            this.eliminarArchivoLocal(index, type);
+          },
+          error: (e) => {
+            console.error(e);
+            Swal.fire({
+              title: "Error",
+              text: "Hubo un problema al eliminar el archivo.",
+              icon: "error"
+            });
+          }
+        });
+      }
     });
+    
   }
 
   // 🔥 Nueva función para eliminar archivos solo de la UI
   eliminarArchivoLocal(index: number, type: string) {
     if (type === 'REPTEC') {
-        this.listaReporteTecnico.splice(index, 1);
+      this.listaReporteTecnico.splice(index, 1);
     } else if (type === 'COTIZA') {
-        this.listaReporteCotizacion.splice(index, 1);
+      this.listaReporteCotizacion.splice(index, 1);
     } else if (type === 'NOTENT') {
-        this.listaReporteNotaEntrega.splice(index, 1);
+      this.listaReporteNotaEntrega.splice(index, 1);
     }
   }
 
-  actualizarEstadoArchivosMedia( id:number, estado: number ) {
-    
-    this.fileControlServ.actualizarArchivosMedia( id, estado, this.requerimiento.idTicket ).subscribe({
-      next: (x) =>{ 
-      Swal.fire({
-        title: "Aprobado!",
-        text: "Cotización aprobada.",
-        icon: "success"
-      })}, error: (e) => {
+  actualizarEstadoArchivosMedia(id: number, estado: number) {
+
+    this.fileControlServ.actualizarArchivosMedia(id, estado, this.requerimiento.idTicket).subscribe({
+      next: (x) => {
+        Swal.fire({
+          title: "Aprobado!",
+          text: "Cotización aprobada.",
+          icon: "success"
+        })
+      }, error: (e) => {
         if (e.status === 404) {
           const errorMessage = e.error || "No se encontraron repuestos asociados al requerimiento y a esta cotización.\n Por eso no puede aprobarse";
           Swal.fire({
