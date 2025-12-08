@@ -119,6 +119,10 @@ export class MantenimientoService {
     return this.http.get(  this.urlHelpDesk + 'AsignRepuRequer/obtenerLocalidadAgencia/' + idAgencia,  { headers: this.headers } );
   }
 
+  obtenerLocalidadPorProvincia( codprov: string ) {
+    return this.http.get(  this.urlHelpDesk + 'LocalidadPorProvincia/ObtenerLocalidadPorProvincia/' + codprov,  { headers: this.headers } );
+  }
+
   actualizarContadorEquipo( idEquipo: string, contador: number ) {
     return this.http.get( this.urlHelpDesk + 'AsignRepuRequer/actualizarEquipoContadorInicial/' + idEquipo + '/' + contador,  { headers: this.headers } )
   }

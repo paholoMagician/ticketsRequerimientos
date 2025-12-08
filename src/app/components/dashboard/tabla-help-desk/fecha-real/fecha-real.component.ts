@@ -37,7 +37,7 @@ export class FechaRealComponent implements OnInit, OnChanges {
   @Output() emitTecnicosMantenimiento: EventEmitter<any> = new EventEmitter();
   @Output() showFormFechaReal:         EventEmitter<any> = new EventEmitter();
 
-  constructor( private env: Environments, private eSet: EmailSettingsServiceX, private fecReal: FechasRealesService, private mantServ: MantenimientoService,  public dialog: MatDialog, private nodeServer: FileMediaTicketsService ) {}
+  constructor(  private env: Environments, private eSet: EmailSettingsServiceX, private fecReal: FechasRealesService, private mantServ: MantenimientoService,  public dialog: MatDialog, private nodeServer: FileMediaTicketsService ) {}
 
   dateTimeRegisterForm = new FormGroup ({
       fecreaRealIni:   new FormControl(null),
@@ -311,6 +311,7 @@ export class FechaRealComponent implements OnInit, OnChanges {
         this.emitTecnicosMantenimiento.emit(this.listaTecnicosRecibidos);
         this.obtenerReportecnicoCorrectivo(this.requerimiento.idTicket);
 
+        this.guardarProcedimientos();
 
       }
     });
@@ -390,14 +391,16 @@ obtenerReportecnicoCorrectivo(id:any) {
       data: this.modelDataRequer
     });
 
+    this.tecnicosEmail = [];
     dialogRef.afterClosed().subscribe((result: any) => { if (result) {
-      this.listaTecnicosRecibidos = result;
+      this.listaTecnicosRecibidos = [result];
 
-      console.table(this.listaTecnicosRecibidos);
+      // console.table('this.listaTecnicosRecibidos RECIBIDOS DESDE EL MODAL');
+      // console.table(this.listaTecnicosRecibidos);
 
       this.listaTecnicosRecibidos.filter( (x:any) => {
-        console.warn(x);
-        console.warn(x.email);
+        // console.warn(x);
+        // console.warn(x.email);
         this.tecnicosEmail.push( x.email );
       })
       console.warn(this.tecnicosEmail);
@@ -407,15 +410,15 @@ obtenerReportecnicoCorrectivo(id:any) {
 
   deleteTecnicoAsign(tecnicos:any, index:number) {
     
-    this.mantServ.eliminarTecnicoProcess( this.requerimiento.idTicket, tecnicos.coduser ).subscribe({
-      next:(x) => {
-        Toast.fire({
-          icon: "success",
-          title: "Eliminado correctamente."
-        });
-        this.listaTecnicosRecibidos.splice( index, 1 );
-      }, error: (e) => console.error(e)
-    })
+    this.listaTecnicosRecibidos.splice( index, 1 );
+    // this.mantServ.eliminarTecnicoProcess( this.requerimiento.idTicket, tecnicos.coduser ).subscribe({
+    //   next:(x) => {
+    //     Toast.fire({
+    //       icon: "success",
+    //       title: "Eliminado correctamente."
+    //     });
+    //   }, error: (e) => console.error(e)
+    // })
   
   }
 
@@ -452,7 +455,7 @@ obtenerReportecnicoCorrectivo(id:any) {
       }
     ));
     let headerColor = '#9C27B0';
-    let headerText = 'Autorización Requerida';
+    let headerText = 'REPORTE TÉCNICO ASIGNADO';
     let icon = '🔐';
   
     // Plantilla HTML mejorada
@@ -670,7 +673,182 @@ obtenerReportecnicoCorrectivo(id:any) {
       }
     });
     }
-  
 
+  //#region [GUARDAR PROCEDIMIENTOS DE MANTENIMIENTO Y ASIGNACION DE TECNICO]
+
+  modelCrono: any = {};
+  guardarProcedimientos() {
+    let xuser: any = sessionStorage.getItem('codcli');
+    
+    // Primero eliminamos técnicos repetidos (basado en algún campo único como coduser)
+    const tecnicosUnicos = this.eliminarTecnicosRepetidos(this.listaTecnicosRecibidos);
+    
+    if (tecnicosUnicos.length > 0) {
+      tecnicosUnicos.filter((x: any) => {
+        let aniox = new Date().getFullYear();
+        let mesx = new Date().getMonth();
+        let codigoCrono = 'CRONO-' + this.mantServ.generateRandomString(15) + '-' + mesx.toString() + aniox.toString();
+        let fechaRealIni = this.requerimiento.fecreaRealIni;
+        let dateRequerReal = new Date(fechaRealIni);
+        let diaReal = dateRequerReal.getDate();
+        let mesReal = dateRequerReal.getMonth();
+        let anioReal = dateRequerReal.getFullYear();
+        let nombreTecnic = x.nombre + ' ' + x.apellido;
+        x.ImagenTecnico = x.imagenPerfil;
+        x.NombreTecnico = x.nombre;
+        x.ApellidoTecnico = x.apellido;
+
+        // Convertir fecha a objeto Date
+        let fechaMantenimientoStr = diaReal + '-' + (mesReal + 1) + '-' + anioReal;
+        let [dia, mes, anio] = fechaMantenimientoStr.split('-').map(Number);
+        let fechaMantenimiento = new Date(anio, mes - 1, dia);
+
+        this.modelCrono = {
+          "codcrono": codigoCrono,
+          "codusertecnic": x.coduser,
+          "codagencia": this.requerimiento.idAgencia,
+          "observacion": '',
+          "feccrea": new Date(),
+          "codusercreacrono": xuser,
+          "semanainicio": 0,
+          "dia": dia,
+          "mes": mes,
+          "anio": anio,
+          "fechamantenimiento": fechaMantenimiento,
+          "maquinasmanuales": 1,
+          "Codlocalidad": x.idlocalidad,
+          "Estado": 0,
+          "idRequer": this.requerimiento.idTicket
+        }
+
+        x.IdTicket = this.requerimiento.idTicket;
+        this._show_spinner = true;
+
+        this.guardarCrono(this.modelCrono, nombreTecnic)
+        this.guardarMantenimiento(
+          codigoCrono,
+          x.coduser,
+          this.requerimiento.horaInicialReal,
+          this.requerimiento.horaFinalReal,
+          this.requerimiento.codMarca,
+          this.requerimiento.fecreaRealIni,
+          this.requerimiento.fecreaRealFin
+        );
+
+        this.guardarAsignacionTecnicoTicket(x, this.requerimiento.horaInicialReal, this.requerimiento.horaFinalReal, this.requerimiento.fecreaRealIni, this.requerimiento.fecreaRealFin);
+        this.mantServ.guardarCronoInteligente(this.requerimiento.codfrecuencia, codigoCrono).subscribe({
+          next: (x) => {
+            this._show_spinner = false;
+          },
+          error: (e) => {
+            this._show_spinner = false;
+            console.error(e);
+          }
+        })
+      });
+    }
+  }
+
+  // Función para eliminar técnicos repetidos
+  eliminarTecnicosRepetidos(tecnicos: any[]): any[] {
+    // Usamos un objeto para almacenar técnicos únicos (usando coduser como clave)
+    const tecnicosUnicos: { [key: string]: any } = {};
+
+    tecnicos.forEach(tecnico => {
+      if (!tecnicosUnicos[tecnico.coduser]) {
+        tecnicosUnicos[tecnico.coduser] = tecnico;
+      }
+    });
+
+    // Convertimos el objeto de vuelta a array
+    return Object.values(tecnicosUnicos);
+  }
+
+  guardarCrono( modelCrono:any, tecnico:string ) {
+    this._show_spinner = true;
+    this.mantServ.guardarCronos(modelCrono).subscribe ({
+      next: (x) => {
+          this._show_spinner = false;
+          Toast.fire({ icon: 'success',
+                       title: 'Trabajo asignado al técnico: ' + tecnico+'.',
+                       text: 'Esperando la confirmación del trabajo para cambiar de estado.',
+                       timer: 2500  });
+        }, error: (e) => {
+          this._show_spinner = false;
+          Toast.fire({ icon: 'error',
+                       title: 'No se ha podido agregar este trabajo al ' + tecnico+'.' });
+        }, complete: () => { 
+          // this.obtenerCrono(modelCrono.mes, 'void', 3)
+          // this.actualizarEstadoAgencia(2, this.modelCrono.codagencia);
+          this._show_spinner = false;
+        }
+    })
+  }
+
+  modelMantenimiento: any = [];
+  modelSendAsignacionTecnicoTicket: any = [];
+  guardarAsignacionTecnicoTicket(data: any, horaIni: any, horafin: any, fechaIni: any, fechaFin: any) {        
+    
+        this.modelSendAsignacionTecnicoTicket = {
+          idRequerimiento: this.requerimiento.idTicket,
+          resTecnico: '',
+          urlA: '',
+          urlB: '',
+          codTenicUser: data.coduser,
+          fechacrea:    new Date(),
+          fechares:     new Date(),
+          horaIni:      horaIni,
+          horafin:      horafin,
+          fechaIni:     fechaIni,
+          fechaFin:     fechaFin
+        }
+
+        this.mantServ.guardarAsignacionTecnicoTicket(
+          this.modelSendAsignacionTecnicoTicket, 
+          data
+        ).subscribe({
+          next: (response) => {
+            // console.log('Asignación completada', response);
+            // Puedes acceder a response.tecnico si necesitas los datos del técnico
+          }, 
+          error: (e) => console.error('Error en asignación', e)
+        });
+    }
+
+    guardarMantenimiento(codCrono: any, codusertecnic: any, hi:any, hf:any, codprod: any, feciniciomante: any, fecfinmant: any) {
+
+      let xuser: any = sessionStorage.getItem('codcli');
+      this.modelMantenimiento = {
+        codcrono:       codCrono,
+        codtecnico:     codusertecnic,
+        feciniciomante: feciniciomante,
+        fecfinmant:     fecfinmant,
+        feccrea:        new Date(),
+        horainit:       hi,
+        horafin:        hf,
+        usercrea:       xuser,
+        codprod:        codprod,
+        estado:         1,
+        idRequer:       this.requerimiento.idTicket
+      }
+
+      this.mantServ.guardarMantenimiento(this.modelMantenimiento).subscribe ({
+        next:(x) => {
+          Toast.fire({
+            icon: 'success',
+            title: 'Asignación ha sido completada'
+          })
+          // // console.log(x);
+        }, error: (e) => {
+          // console.log(e);
+          Toast.fire({
+            icon: 'error',
+            title: 'No se ha podido completar la asignación'
+          })
+        }, complete: () => {}
+      })
+
+    }
+    //#endregion
 
 }
