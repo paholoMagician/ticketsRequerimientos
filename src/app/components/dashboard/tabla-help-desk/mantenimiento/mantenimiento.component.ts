@@ -134,16 +134,15 @@ export class MantenimientoComponent implements OnInit {
                public dialog: MatDialog ) {}
                ccia: any
   ngOnInit(): void {
-
     // console.log('Enviado al Resumen Mantenimiento')
     // console.log(this.requerimiento)
-
     this.xcli = sessionStorage.getItem('codcli');
     this.ccia = sessionStorage.getItem('ccia');
     this.obtenerResMantenimiento();
     this.obtenerEstadoEquipo();
     // quemamos por ahora el id de configuracion de los settings del envio de email para el cliente, ya
     // que este dato debe traerlo en el sp de obtener tickets requerimiento
+    this.igualarcontadorFinal();
   }
 
   actualizarContadoresEquipo() {
@@ -270,6 +269,10 @@ export class MantenimientoComponent implements OnInit {
     this.resumenMantenimientoRegisterForm.controls[tipoControl].setValue(
       (this.resumenMantenimientoRegisterForm.controls[tipoControl].value || 0) * 1
     );
+  }
+
+  igualarcontadorFinal() {
+    this.resumenMantenimientoRegisterForm.controls['contadorFinal'].setValue( this.requerimiento.contadorfinal );
   }
 
   validateRangoContadores() {
