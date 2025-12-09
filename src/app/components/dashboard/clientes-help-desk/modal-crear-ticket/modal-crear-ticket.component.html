@@ -1,0 +1,13 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <h2>Crear Ticket para {{ data.nombreCliente }}</h2>
+        <button mat-icon-button (click)="closeModal()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <div class="modal-body">
+        <app-formulario-registro-problemas [codClienteAdmin]="data.codCliente" (showFormView)="closeModal()"
+            (GetTickets)="onTicketCreated($event)">
+        </app-formulario-registro-problemas>
+    </div>
+</div>

@@ -29,10 +29,10 @@ export class Environments {
     // api_server_nodejs:                   any = 'http://104.243.44.89:4004/';
 
     // SERVIDOR EXXALINK DOMINIO (DNS)
-    apiHelpDeskSytem:                    any = 'https://cmsbackticket.cashmachserv.com/api/';
-    apiHelpDeskSytemh:                   any = 'https://cmsbackticket.cashmachserv.com/';
-    apiCMS:                              any = 'https://cmsbackerp.cashmachserv.com/api/';
-    apiCMSfile:                          any = 'https://cmsbackerp.cashmachserv.com/';
+    apiHelpDeskSytem: any = 'https://cmsbackticket.cashmachserv.com/api/';
+    apiHelpDeskSytemh: any = 'https://cmsbackticket.cashmachserv.com/';
+    apiCMS: any = 'https://cmsbackerp.cashmachserv.com/api/';
+    apiCMSfile: any = 'https://cmsbackerp.cashmachserv.com/';
     api_server_nodejsbrevo_mailing_send: any = 'https://cmsmailing.cashmachserv.com/api/brevoemail/send';
     api_server_nodejs: any = 'https://cmsmailing.cashmachserv.com/';
 
@@ -80,7 +80,7 @@ export class Environments {
     // apiCMS:            any = 'http://192.168.55.66:5130/api/';
     // apiCMSfile:        any = 'http://192.168.55.66:5130/';
 
-    version: string = '1.0.5 - BETA - 2025';
+    version: string = '1.0.6 - BETA - 2025';
     es: number = 5;
     hash: number = 10;
     encode: number = 99;

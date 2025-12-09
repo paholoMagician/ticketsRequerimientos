@@ -861,8 +861,8 @@ getRepuestosMantenimiento( event:any ) {
           'BOD': 'BÓBEDA',
           'CAJ': 'CAJA'
         };
-        ticket.espacioSirveNombre = espacioSirveMap[ticket.espacioSirve] || 'DESCONOCIDO';
-        
+
+        ticket.espacioSirveNombre = espacioSirveMap[ticket.espacioSirve] || 'DESCONOCIDO';        
         const estadoMap: any = {
           '1': { color: '#B8DEF6', significado: 'Enviado pero no leído aún.' },
           '2': { color: '#FFECA1', significado: 'Requerimiento asignado.' },
@@ -874,6 +874,7 @@ getRepuestosMantenimiento( event:any ) {
         const estadoInfo: any = estadoMap[ticket.estado];
         ticket.colorEstado = estadoInfo?.color || '#FFFFFF';
         ticket.estadoSignificado = estadoInfo?.significado || 'Estado desconocido.';
+
       });
 
       this.cont ++;
@@ -883,8 +884,7 @@ getRepuestosMantenimiento( event:any ) {
     
     },
     error: (error) => {
-      this._show_spinner = false;
-      
+      this._show_spinner = false;      
       // Silenciar específicamente el error 404
       if (error.status === 404) {
         // console.log('No se encontraron tickets para este cliente');
@@ -897,27 +897,25 @@ getRepuestosMantenimiento( event:any ) {
       console.error('Error al obtener tickets:', error);
       this.listaTickets = [];
       this.listaTicketsGhost = [];
-    },
-    complete: () => {
-      if (this.listenTagTicket) {
-        this.listaTickets.forEach((x: any) => {
-          x.collapseShow = 'accordion-collapse collapse';
-          if ('#' + this.listenTagTicket == x.idRequerimientoPad) {
-            x.collapseShow = 'accordion-collapse collapse show';
-          }
-        });
+    }, complete: () => {
+        if (this.listenTagTicket) {
+          this.listaTickets.forEach( (x: any) => {
+            x.collapseShow = 'accordion-collapse collapse';
+            if ( '#' + this.listenTagTicket == x.idRequerimientoPad ) x.collapseShow = 'accordion-collapse collapse show';
+          });
+        }
+
+        this._show_spinner = false;
+        this.updatePagination();
+
       }
-
-      this._show_spinner = false;
-      // Actualizar paginación después de cargar tickets
-      this.updatePagination();
-    }   
-
+  
     });
+  
   }
 
   
-  sendIdTicket( idTicket: number ) {
+  sendIdTicket( idTicket: number ) {    
     if( idTicket > 0 ) {
       this.idTicketEmit = idTicket;
       localStorage.setItem('idRequerimientoShow', idTicket.toString());
@@ -930,15 +928,19 @@ getRepuestosMantenimiento( event:any ) {
   }
 
   obtenerCantMensajes(event:any) {
+
     this.listaTickets.filter( (x:any) => {
       if ( x.idRequerimiento == event.idRequerimiento ) x.cantidadMensajes = x.cantidadMensajes - 1;
     })
+
     this.listaTicketsNoLeidos.filter( (x:any) => {
       if ( x.idRequerimiento == event.idRequerimiento ) x.cantidad = x.cantidad - 1;
     })
+
   }
 
   catchData( data:any ) {
+
     this.modelDataSend = {
       idRequerimiento: data.idRequerimiento,
       idAgencia: data.idagencia,
@@ -951,7 +953,9 @@ getRepuestosMantenimiento( event:any ) {
       fechacrea: data.fechacrea,
       tipo: data.tipo
     }
+
     this.dataUpdateTicketEmit.emit(this.modelDataSend);
+
   }
 
   obtenerDataFilter(event:any) {

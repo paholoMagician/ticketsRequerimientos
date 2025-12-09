@@ -26,11 +26,11 @@ const Toast = Swal.mixin({
   styleUrls: ['./formulario-registro-problemas.component.scss']
 })
 export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
-  
-  @Input() GetDataTicketUpdate: any; 
+
+  @Input() GetDataTicketUpdate: any;
   @Output() showFormView: EventEmitter<any> = new EventEmitter();
   @Output() GetTickets: EventEmitter<any> = new EventEmitter();
-  
+
   _show_form: boolean = true;
   _show_spinner: boolean = false;
   listaEquipos: any = [];
@@ -39,32 +39,32 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
   // Aquí se almacena el equipo seleccionado
   equipoSeleccionado: any = null;
 
-  codProv:          any;
-  codCanton:        any;
-  _cli_view:        boolean = false;
+  codProv: any;
+  codCanton: any;
+  _cli_view: boolean = false;
   maquinarias_show: boolean = false;
-  listaAgencias:    any     = [];
-  _dis_btn:         boolean = false;
-  _data_label:      string  = 'agencia';
-  codcli:           any;
-  listaMaquinaria:  any     = [];
-  modelTicket:      any     = [];
-  horaValidar:      number  = 0;
+  listaAgencias: any = [];
+  _dis_btn: boolean = false;
+  _data_label: string = 'agencia';
+  codcli: any;
+  listaMaquinaria: any = [];
+  modelTicket: any = [];
+  horaValidar: number = 0;
 
   listaCantonesGhost: any = [];
-  listaCantones:      any = [];
+  listaCantones: any = [];
   role: any;
   listaProvincias: any = [];
 
-  nameFile:  string = '';
+  nameFile: string = '';
   nameFileB: string = '';
 
-  _IMGE:any;
-  _IMGEB:any;
-  
-  public file!:   File;
-  public fileB!:  File;
-  public fileId:  any;
+  _IMGE: any;
+  _IMGEB: any;
+
+  public file!: File;
+  public fileB!: File;
+  public fileId: any;
   public fileIdB: any;
 
   xcli: any;
@@ -76,51 +76,51 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
 
   modelSendFileMidaTicketDB: any = [];
 
-  registerTroubleForm = new FormGroup (
+  registerTroubleForm = new FormGroup(
     {
-      agencia:                new FormControl(''),
-      mensajeDelProblema:     new FormControl(''),
-      equipo:                 new FormControl(''),
-      fileA:                  new FormControl(''),
-      fileB:                  new FormControl(''),
-      tipo:                   new FormControl(''),
-      observacion:            new FormControl(''),
-      codprov:                new FormControl(''),
-      codcan:                 new FormControl(''),
-      espacioSirve:           new FormControl(''),
-      fechainiPlanif:         new FormControl(''),
+      agencia: new FormControl(''),
+      mensajeDelProblema: new FormControl(''),
+      equipo: new FormControl(''),
+      fileA: new FormControl(''),
+      fileB: new FormControl(''),
+      tipo: new FormControl(''),
+      observacion: new FormControl(''),
+      codprov: new FormControl(''),
+      codcan: new FormControl(''),
+      espacioSirve: new FormControl(''),
+      fechainiPlanif: new FormControl(''),
       horaInicialPlanificada: new FormControl(''),
-      fechafinPlanif:         new FormControl(''),
-      horaFinalPlanificada:   new FormControl(''),
-      fecreaRealIni:          new FormControl(''),
-      fecreaRealFin:          new FormControl(''),
-      horaInicialReal:        new FormControl(''),
-      horaFinalReal:          new FormControl('')
+      fechafinPlanif: new FormControl(''),
+      horaFinalPlanificada: new FormControl(''),
+      fecreaRealIni: new FormControl(''),
+      fecreaRealFin: new FormControl(''),
+      horaInicialReal: new FormControl(''),
+      horaFinalReal: new FormControl('')
     }
   )
 
   espacioSirveList: any = [
     {
-    cod: "BOB",
-    nombre: "BÓVEDA"
-  }, {
-    cod: "BOD",
-    nombre: "BODEGA"
-  }, {
-    cod: "CAJ",
-    nombre: "CAJA"
-  }]
+      cod: "BOB",
+      nombre: "BÓVEDA"
+    }, {
+      cod: "BOD",
+      nombre: "BODEGA"
+    }, {
+      cod: "CAJ",
+      nombre: "CAJA"
+    }]
 
-  constructor( private maquinaria: FormularioRegistroProblemasService,
-               private env: Environments,
-               private ncrypt: EncryptService,
-               private fileserv: ImagecontrolService, 
-               private mt: MasterTableService, 
-              private fileService: ImagecontrolService ) {}
+  constructor(private maquinaria: FormularioRegistroProblemasService,
+    private env: Environments,
+    private ncrypt: EncryptService,
+    private fileserv: ImagecontrolService,
+    private mt: MasterTableService,
+    private fileService: ImagecontrolService) { }
 
   onSubmit() {
     // // console.warn(this.action_button)
-    switch( this.action_button ) {
+    switch (this.action_button) {
       case 'Agregar':
         // this.guardarTicket();
         // // console.warn('agregando')
@@ -134,10 +134,10 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
-      if( this.GetDataTicketUpdate == null || 
-          this.GetDataTicketUpdate == 0 || 
-          this.GetDataTicketUpdate == undefined ) {
-          return
+      if (this.GetDataTicketUpdate == null ||
+        this.GetDataTicketUpdate == 0 ||
+        this.GetDataTicketUpdate == undefined) {
+        return
       }
       else {
         this.catchData(this.GetDataTicketUpdate);
@@ -161,11 +161,11 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     }
   }
 
-  onUpload(idTicket:number): void {
+  onUpload(idTicket: number): void {
     if (this.selectedFile) {
       this.fileService.uploadFile(this.selectedFile, this.selectedFile!.name).subscribe({
         next: (x) => {
-          this.guardarArchivosDB( 'CTICK', this.selectedFile!.name, idTicket );
+          this.guardarArchivosDB('CTICK', this.selectedFile!.name, idTicket);
         }, error: (e) => {
           console.error('Error al subir la imagen', e);
         }
@@ -175,9 +175,9 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     }
   }
 
-  guardarArchivosDB( type: string, fileName:string, idTicket: any ) {
+  guardarArchivosDB(type: string, fileName: string, idTicket: any) {
 
-    const xcodcli:any = sessionStorage.getItem('codcli');
+    const xcodcli: any = sessionStorage.getItem('codcli');
     this.modelSendFileMidaTicketDB = {
       usercrea: xcodcli,
       fileUrl: fileName,
@@ -189,68 +189,80 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     }
 
     this.fileService
-        .guardarFileMidaTicketDBUnit( this.modelSendFileMidaTicketDB )
-        .subscribe({
-          next: (x) => {
-            // // console.warn('Guardado en base de datos');
-          }, error: (e) => {
-            console.error(e);
-          }
-    })
+      .guardarFileMidaTicketDBUnit(this.modelSendFileMidaTicketDB)
+      .subscribe({
+        next: (x) => {
+          // // console.warn('Guardado en base de datos');
+        }, error: (e) => {
+          console.error(e);
+        }
+      })
 
   }
+
+  @Input() codClienteAdmin: any;
 
   ngOnInit(): void {
     this.getToken();
-    this.xcli = sessionStorage.getItem('codcli');
+
+    // Si viene codClienteAdmin (desde el modal creado por admin), usamos ese.
+    // Si no, usamos el del sessionStorage (cliente/gerente logueado).
+    if (this.codClienteAdmin) {
+      this.xcli = this.codClienteAdmin;
+    } else {
+      this.xcli = sessionStorage.getItem('codcli');
+    }
+
     this.obtenerAgenciaCliente(this.env.codcia, this.xcli);
     this.obtenerMasterTable();
-    this.obtenerProvincias();  
+    this.obtenerProvincias();
   }
 
+
   obtenerProvincias() {
-    this.mt.obtenerDatosMasterTable( 'PRV00' ).subscribe({
+    this.mt.obtenerDatosMasterTable('PRV00').subscribe({
       next: (x) => {
-        this.listaProvinciasGhost =x;
-      },  complete: () => {
-        this.listaProvinciasGhost.filter( (p:any) => {
+        this.listaProvinciasGhost = x;
+      }, complete: () => {
+        this.listaProvinciasGhost.filter((p: any) => {
           p.codigo = p.codigo.toString().trim();
           this.listaProvincias.push(p);
         })
-      }}
+      }
+    }
     )
   }
 
   getToken() {
 
-    let xtoken:any = sessionStorage.getItem('token');
+    let xtoken: any = sessionStorage.getItem('token');
     const xtokenDecript: any = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
-    if (xtokenDecript != null || xtokenDecript != undefined) {      
-      var decoded:any = jwtDecode(xtokenDecript);
-      this.role       = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-      this.codcli     = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
+    if (xtokenDecript != null || xtokenDecript != undefined) {
+      var decoded: any = jwtDecode(xtokenDecript);
+      this.role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      this.codcli = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country"];
     }
 
   }
 
   obtenerCantones(codProv: any) {
     this.mt.obtenerDatosMasterTable(codProv).subscribe({
-      next: ( x ) => {
-         this.listaCantonesGhost = x;
-         // // console.warn(this.listaCantonesGhost);
+      next: (x) => {
+        this.listaCantonesGhost = x;
+        // // console.warn(this.listaCantonesGhost);
       }, complete: () => {
-        this.listaCantonesGhost.filter( (c:any) => {
+        this.listaCantonesGhost.filter((c: any) => {
           c.codigo = c.codigo.toString().trim();
           c.master = c.master.toString().trim();
           this.listaCantones.push(c);
         })
         // // console.warn('this.listaCantones');
         // console.table(this.listaCantones);
-        if( this.codCanton != null || this.codCanton == undefined ) this.registerTroubleForm.controls['codcan'].setValue(this.codCanton);
+        if (this.codCanton != null || this.codCanton == undefined) this.registerTroubleForm.controls['codcan'].setValue(this.codCanton);
       }
     })
   }
-  
+
   selectedTipoRequerimiento: any;
   selectTipoRequerimiento(tipoRequerimiento: any) {
     this.selectedTipoRequerimiento = tipoRequerimiento.codigo.toString().trim();
@@ -271,13 +283,13 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
 
     // Validar que la fecha sea laboral y que la hora esté en el horario permitido
     if (!this.esDiaLaboral(dateINI)) {
-        dateINI.setDate(dateINI.getDate());
-        return false;
+      dateINI.setDate(dateINI.getDate());
+      return false;
     }
 
     if (!this.esHoraValida(horaInicialPlanificada)) {
-        // // // console.log('Las horas deben estar entre 8 AM y 5 PM.');
-        return false;
+      // // // console.log('Las horas deben estar entre 8 AM y 5 PM.');
+      return false;
     }
 
     // Convertir hora inicial planificada a minutos totales
@@ -286,14 +298,14 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
 
     // Si la hora inicial es mayor a 1:00 PM (13:00), ajustar la fecha y hora
     if (horaInicial > 13) {
-        // Sumar un día a la fecha de inicio
-        dateINI.setDate(dateINI.getDate() + 1);
-        const yy: any = this.esDiaLaboral(dateINI);
-        if( !yy ) {
-          dateINI.setDate(dateINI.getDate() + 3);
-        }
-        // Establecer la hora inicial a las 8:00 AM
-        minutosTotalesInicial = 8 * 60;  // 8:00 AM en minutos
+      // Sumar un día a la fecha de inicio
+      dateINI.setDate(dateINI.getDate() + 1);
+      const yy: any = this.esDiaLaboral(dateINI);
+      if (!yy) {
+        dateINI.setDate(dateINI.getDate() + 3);
+      }
+      // Establecer la hora inicial a las 8:00 AM
+      minutosTotalesInicial = 8 * 60;  // 8:00 AM en minutos
     }
 
     // Sumar `this.horaValidar` (en horas) a la hora inicial en minutos
@@ -316,16 +328,16 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     const fechaFinalFormateada = `${fechaFinal.getFullYear()}-${(fechaFinal.getMonth() + 1).toString().padStart(2, '0')}-${fechaFinal.getDate().toString().padStart(2, '0')}`;
     // Asignar fecha final a fecha inicial también
     this.registerTroubleForm.controls['fechafinPlanif'].setValue(fechaFinalFormateada);
-    this.registerTroubleForm.controls['fechainiPlanif'].setValue(fechaFinalFormateada); 
+    this.registerTroubleForm.controls['fechainiPlanif'].setValue(fechaFinalFormateada);
 
     // Setear la hora inicial a las 8:00 AM
     this.registerTroubleForm.controls['horaInicialPlanificada'].setValue('08:00');
-    
+
     return true;
 
   }
 
-  
+
   formatearFecha(fecha: any): string {
     // // // console.log( 'Fecha antes de formatear:', fecha );
     let dia = fecha.getDate();
@@ -339,30 +351,30 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     const dia = new Date(fecha.setHours(0, 0, 0, 0)).getDay();
     // Validación para fines de semana
     if (dia === 5) {
-        // Sumar 2 días para pasar al lunes
-        let nuevaFecha = new Date(fecha);
-        nuevaFecha.setDate(fecha.getDate() + 3);
+      // Sumar 2 días para pasar al lunes
+      let nuevaFecha = new Date(fecha);
+      nuevaFecha.setDate(fecha.getDate() + 3);
 
-        // Formatear y asignar nueva fecha
-        const nuevaFechaFormateada = `${nuevaFecha.getFullYear()}-${(nuevaFecha.getMonth() + 1).toString().padStart(2, '0')}-${nuevaFecha.getDate().toString().padStart(2, '0')}`;
-        this.registerTroubleForm.controls['fechafinPlanif'].setValue(nuevaFechaFormateada);
-        this.registerTroubleForm.controls['fechainiPlanif'].setValue(nuevaFechaFormateada);
+      // Formatear y asignar nueva fecha
+      const nuevaFechaFormateada = `${nuevaFecha.getFullYear()}-${(nuevaFecha.getMonth() + 1).toString().padStart(2, '0')}-${nuevaFecha.getDate().toString().padStart(2, '0')}`;
+      this.registerTroubleForm.controls['fechafinPlanif'].setValue(nuevaFechaFormateada);
+      this.registerTroubleForm.controls['fechainiPlanif'].setValue(nuevaFechaFormateada);
 
-        return false;
+      return false;
     } else if (dia === 6) {
-        // Sumar 1 día para pasar al lunes
-        let nuevaFecha = new Date(fecha);
-        nuevaFecha.setDate(fecha.getDate() + 2);
-        // Formatear y asignar nueva fecha
-        const nuevaFechaFormateada = `${nuevaFecha.getFullYear()}-${(nuevaFecha.getMonth() + 1).toString().padStart(2, '0')}-${nuevaFecha.getDate().toString().padStart(2, '0')}`;
-        this.registerTroubleForm.controls['fechafinPlanif'].setValue(nuevaFechaFormateada);
-        this.registerTroubleForm.controls['fechainiPlanif'].setValue(nuevaFechaFormateada);
-        return false;
+      // Sumar 1 día para pasar al lunes
+      let nuevaFecha = new Date(fecha);
+      nuevaFecha.setDate(fecha.getDate() + 2);
+      // Formatear y asignar nueva fecha
+      const nuevaFechaFormateada = `${nuevaFecha.getFullYear()}-${(nuevaFecha.getMonth() + 1).toString().padStart(2, '0')}-${nuevaFecha.getDate().toString().padStart(2, '0')}`;
+      this.registerTroubleForm.controls['fechafinPlanif'].setValue(nuevaFechaFormateada);
+      this.registerTroubleForm.controls['fechainiPlanif'].setValue(nuevaFechaFormateada);
+      return false;
     }
 
     // Si es un día laboral (lunes a viernes), retornar verdadero
     return true;
-  
+
   }
 
   esHoraValida(hora: string): boolean {
@@ -380,27 +392,27 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     return `${año}-${mes}-${dia}`;
   }
 
-  obtenerAgenciaCliente(cci:string, filter:string) {
-    this.maquinaria.obtenerAgencias( cci, filter, 777 ).subscribe({
-        next: ( x ) => {
-          this.listaAgencias = x;
-        }, error: (e) => {
-          console.error(e);
-        }, complete: () => { }
-      }
+  obtenerAgenciaCliente(cci: string, filter: string) {
+    this.maquinaria.obtenerAgencias(cci, filter, 777).subscribe({
+      next: (x) => {
+        this.listaAgencias = x;
+      }, error: (e) => {
+        console.error(e);
+      }, complete: () => { }
+    }
     )
   }
- 
+
   obtenerMasterTable() {
     this.lstaTipoRequerimientos = [];
     this.lstaTipoRequerimientosGhost = [];
-    this.mt.obtenerDatosMasterTable( 'TM' ).subscribe({
+    this.mt.obtenerDatosMasterTable('TM').subscribe({
       next: (x) => {
         this.lstaTipoRequerimientosGhost = x;
       }, complete: () => {
-        this.lstaTipoRequerimientosGhost.filter( (x: any) => {
+        this.lstaTipoRequerimientosGhost.filter((x: any) => {
           x.gestion = x.gestion.trim();
-          if ( x.gestion == '1' ) {
+          if (x.gestion == '1') {
             this.lstaTipoRequerimientos.push(x)
           }
         })
@@ -412,31 +424,31 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
   }
 
   validateTipoData() {
-    if ( this.registerTroubleForm.controls['tipo'].value == undefined ||
-         this.registerTroubleForm.controls['tipo'].value == null ||
-         this.registerTroubleForm.controls['tipo'].value == '' ) {
-         this.registerTroubleForm.controls['agencia']
-                                 .disable();
-         this.registerTroubleForm.controls['mensajeDelProblema']
-                                 .disable();
-         this.registerTroubleForm.controls['equipo']
-                                 .disable();
-         this.registerTroubleForm.controls['fileA']
-                                 .disable();
-         this.registerTroubleForm.controls['fileB']
-                                 .disable();
-         this.registerTroubleForm.controls['observacion']
-                                 .disable();
-         this._dis_btn = true;
-    } else if ( this.registerTroubleForm.controls['tipo'].value != undefined ||
-         this.registerTroubleForm.controls['tipo'].value != null ||
-         this.registerTroubleForm.controls['tipo'].value != '' ) {
-         this.registerTroubleForm.controls['agencia'].enable();
-         this._dis_btn = false;
+    if (this.registerTroubleForm.controls['tipo'].value == undefined ||
+      this.registerTroubleForm.controls['tipo'].value == null ||
+      this.registerTroubleForm.controls['tipo'].value == '') {
+      this.registerTroubleForm.controls['agencia']
+        .disable();
+      this.registerTroubleForm.controls['mensajeDelProblema']
+        .disable();
+      this.registerTroubleForm.controls['equipo']
+        .disable();
+      this.registerTroubleForm.controls['fileA']
+        .disable();
+      this.registerTroubleForm.controls['fileB']
+        .disable();
+      this.registerTroubleForm.controls['observacion']
+        .disable();
+      this._dis_btn = true;
+    } else if (this.registerTroubleForm.controls['tipo'].value != undefined ||
+      this.registerTroubleForm.controls['tipo'].value != null ||
+      this.registerTroubleForm.controls['tipo'].value != '') {
+      this.registerTroubleForm.controls['agencia'].enable();
+      this._dis_btn = false;
     }
 
     this.tipoRequerimiento();
-  
+
   }
 
   // Función para manejar la selección del equipo
@@ -477,7 +489,7 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
       item.nserie.toLowerCase().includes(filter.toLowerCase()) ||
       item.tipomaquina.toLowerCase().includes(filter.toLowerCase()) ||
       item.nombremarca.toLowerCase().includes(filter.toLowerCase()) ||
-      item.nombremodelo.toLowerCase().includes(filter.toLowerCase()) 
+      item.nombremodelo.toLowerCase().includes(filter.toLowerCase())
     );
   }
 
@@ -487,12 +499,12 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
   choiceMachine() {
 
     let equipoChoice: any = this.registerTroubleForm.controls['equipo'].value;
-    this.listaEquipos.filter( (x:any) => {
+    this.listaEquipos.filter((x: any) => {
 
-      if ( equipoChoice   == x.codmaquina ) {
-        this.nModelo      =  x.nombremodelo;
-        this.nTipomaquina =  x.tipomaquina;
-        this.nSerie       =  x.nserie;
+      if (equipoChoice == x.codmaquina) {
+        this.nModelo = x.nombremodelo;
+        this.nTipomaquina = x.tipomaquina;
+        this.nSerie = x.nserie;
       }
 
     })
@@ -503,19 +515,19 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     {
       nombre: 'Bugs en el software CFI',
       codigo: 'BS'
-    },{
+    }, {
       nombre: 'Mantenimiento o daño en los equipos CFI',
       codigo: 'EM'
     }
   ]
 
   cancelBtn() {
-    this.showFormView.emit( false );
+    this.showFormView.emit(false);
   }
 
   idRequerimiento: number = 0;
   estadoTicket: any;
-  catchData(data:any) {
+  catchData(data: any) {
     /** ----------------------------------------------------------------------------------------- */
     this.registerTroubleForm.controls['agencia'].enable();
     this.registerTroubleForm.controls['mensajeDelProblema'].enable();
@@ -560,18 +572,18 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
       this.registerTroubleForm.controls['observacion'].setValue(xobs.toString().slice(0, 300));
     }
   }
-  
+
   getProgressBarStyle() {
     let xmsj: any = this.registerTroubleForm.controls['mensajeDelProblema'].value;
     let percentage = (xmsj.length / 1000) * 100;
-  
+
     let bgColor = 'green';
     if (percentage > 85) {
       bgColor = 'red';
     } else if (percentage > 45) {
       bgColor = 'orange';
     }
-  
+
     return {
       width: percentage + '%',
       backgroundColor: bgColor
@@ -588,25 +600,25 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     } else if (percentage > 45) {
       bgColor = 'orange';
     }
-  
+
     return {
       width: percentage + '%',
       backgroundColor: bgColor
     };
 
-  }   
+  }
 
 
   tipoRequerimiento() {
-    if( this.registerTroubleForm.controls['tipo'].value == 'BS' ) {
+    if (this.registerTroubleForm.controls['tipo'].value == 'BS') {
       this.maquinarias_show = false;
-    } else if ( this.registerTroubleForm.controls['tipo'].value == 'EM' ) {
+    } else if (this.registerTroubleForm.controls['tipo'].value == 'EM') {
       this.maquinarias_show = true;
     }
   }
 
-  limpiar( type: any ) {
-    if( type == 'ALL' ) {
+  limpiar(type: any) {
+    if (type == 'ALL') {
       this.registerTroubleForm.controls['agencia'].setValue('');
       this.registerTroubleForm.controls['fileA'].setValue('');
       this.registerTroubleForm.controls['fileB'].setValue('');
@@ -636,7 +648,7 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
       this.registerTroubleForm.controls['observacion'].enable();
       this.registerTroubleForm.controls['tipo'].enable();
     }
-    
+
   }
 
   obtenerFechaYHora() {
@@ -653,105 +665,105 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
     let horaFormateada: string = `${hora}:${minutos}:${segundos}`;
 
     return {
-        fechaFormateada: fechaFormateada,
-        horaFormateada: horaFormateada,
-        dia: dia,
-        mes: mes,
-        año: año,
-        hora: hora,
-        minutos: minutos,
-        segundos: segundos
+      fechaFormateada: fechaFormateada,
+      horaFormateada: horaFormateada,
+      dia: dia,
+      mes: mes,
+      año: año,
+      hora: hora,
+      minutos: minutos,
+      segundos: segundos
     };
-}
+  }
 
   validateInputFill(): boolean {
-    if ( this.registerTroubleForm.controls['agencia'].value == null ||
+    if (this.registerTroubleForm.controls['agencia'].value == null ||
       this.registerTroubleForm.controls['agencia'].value == undefined ||
       this.registerTroubleForm.controls['agencia'].value == ''
-  ) {
-   Toast.fire({
-     icon: "warning",
-     title: "No puedes enviar el campo agencia vacío"
-   });
-   return false;
-  } else if ( this.registerTroubleForm.controls['codprov'].value == null ||
-              this.registerTroubleForm.controls['codprov'].value == undefined ||
-              this.registerTroubleForm.controls['codprov'].value == '' ) {
-     Toast.fire({
-       icon: "warning",
-       title: "No puedes enviar el campo provincia vacío"
-     });
-     return false;
-  } else if ( this.registerTroubleForm.controls['codcan'].value == null ||
-              this.registerTroubleForm.controls['codcan'].value == undefined ||
-              this.registerTroubleForm.controls['codcan'].value == '' ) {
+    ) {
+      Toast.fire({
+        icon: "warning",
+        title: "No puedes enviar el campo agencia vacío"
+      });
+      return false;
+    } else if (this.registerTroubleForm.controls['codprov'].value == null ||
+      this.registerTroubleForm.controls['codprov'].value == undefined ||
+      this.registerTroubleForm.controls['codprov'].value == '') {
+      Toast.fire({
+        icon: "warning",
+        title: "No puedes enviar el campo provincia vacío"
+      });
+      return false;
+    } else if (this.registerTroubleForm.controls['codcan'].value == null ||
+      this.registerTroubleForm.controls['codcan'].value == undefined ||
+      this.registerTroubleForm.controls['codcan'].value == '') {
       Toast.fire({
         icon: "warning",
         title: "No puedes enviar el campo cantón vacío"
       });
       return false;
-  } 
-  
-    else if ( this.registerTroubleForm.controls['mensajeDelProblema'].value == null ||
-               this.registerTroubleForm.controls['mensajeDelProblema'].value == undefined ||
-               this.registerTroubleForm.controls['mensajeDelProblema'].value == '' ) {
-       Toast.fire({
-          icon: "warning",
-          title: "No puedes enviar el campo descripción del problema vacío"
-       });
-       return false;
-   } else {
-    return true;
-   }
+    }
+
+    else if (this.registerTroubleForm.controls['mensajeDelProblema'].value == null ||
+      this.registerTroubleForm.controls['mensajeDelProblema'].value == undefined ||
+      this.registerTroubleForm.controls['mensajeDelProblema'].value == '') {
+      Toast.fire({
+        icon: "warning",
+        title: "No puedes enviar el campo descripción del problema vacío"
+      });
+      return false;
+    } else {
+      return true;
+    }
   }
 
   guardarRequerimiento() {
     let resultado = this.obtenerFechaYHora();
     let xcia: any = sessionStorage.getItem('ccia');
 
-    if( this.validateInputFill() ) {
+    if (this.validateInputFill()) {
       this._show_spinner = true;
       this.modelSendRequerimiento = {
-        idAgencia:              this.registerTroubleForm.controls['agencia'].value,
-        url:                    "",
-        estado:                 1,
-        codprov:                this.registerTroubleForm.controls['codprov'].value,
-        ciudad:                 this.registerTroubleForm.controls['codcan'].value,
-        fecrea:                 new Date(),
-        fechainiPlanif:         new Date(),
-        fechafinPlanif:         new Date(),
-        area:                   this.registerTroubleForm.controls['espacioSirve'].value,
-        motivoTrabajo:          this.registerTroubleForm.controls['observacion'].value,
-        espacioSirve:           this.registerTroubleForm.controls['espacioSirve'].value,
-        descripcionProblema:    this.registerTroubleForm.controls['mensajeDelProblema'].value,
-        nserieEquipo:           this.equipoSeleccionado.nserie,
-        beneficiario:           "",
-        telefono:               "",
-        email:                  "",
-        fecreaRealIni:          new Date(),
-        fecreaRealFin:          new Date(),
-        codTipoEquipo:          this.equipoSeleccionado.tipomaquina,
-        codMarca:               this.equipoSeleccionado.codmaquina,
-        codModelo:              this.equipoSeleccionado.nombremodelo,
-        tipo:                   '002',
-        horaInicialReal:        '00:00:00',
-        horaFinalReal:          '00:00:00',
+        idAgencia: this.registerTroubleForm.controls['agencia'].value,
+        url: "",
+        estado: 1,
+        codprov: this.registerTroubleForm.controls['codprov'].value,
+        ciudad: this.registerTroubleForm.controls['codcan'].value,
+        fecrea: new Date(),
+        fechainiPlanif: new Date(),
+        fechafinPlanif: new Date(),
+        area: this.registerTroubleForm.controls['espacioSirve'].value,
+        motivoTrabajo: this.registerTroubleForm.controls['observacion'].value,
+        espacioSirve: this.registerTroubleForm.controls['espacioSirve'].value,
+        descripcionProblema: this.registerTroubleForm.controls['mensajeDelProblema'].value,
+        nserieEquipo: this.equipoSeleccionado.nserie,
+        beneficiario: "",
+        telefono: "",
+        email: "",
+        fecreaRealIni: new Date(),
+        fecreaRealFin: new Date(),
+        codTipoEquipo: this.equipoSeleccionado.tipomaquina,
+        codMarca: this.equipoSeleccionado.codmaquina,
+        codModelo: this.equipoSeleccionado.nombremodelo,
+        tipo: '002',
+        horaInicialReal: '00:00:00',
+        horaFinalReal: '00:00:00',
         horaInicialPlanificada: resultado.horaFormateada,
-        horaFinalPlanificada:   resultado.horaFormateada,
-        usercrea:               this.xcli,
-        ccia:                   xcia,
-        codUserAtencionTicket:  'Usuario sin asignar'
+        horaFinalPlanificada: resultado.horaFormateada,
+        usercrea: this.xcli,
+        ccia: xcia,
+        codUserAtencionTicket: 'Usuario sin asignar'
       }
 
-      
+
       this.maquinaria.guardarTicketRequerimiento(this.modelSendRequerimiento).subscribe({
-        next: (x:any) => {
+        next: (x: any) => {
           this.onUpload(x.id);
           this.modelSendRequerimiento.idTicket = x.id;
           this.GetTickets.emit(this.modelSendRequerimiento);
           Toast.fire({
-              icon: "success",
-              title: "Ticket creado con éxito!"
+            icon: "success",
+            title: "Ticket creado con éxito!"
           });
         }, error: (e) => {
           Toast.fire({
@@ -761,7 +773,7 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
           console.error(e);
           this._show_spinner = false;
         }, complete: () => {
-          this._show_spinner = false;          
+          this._show_spinner = false;
           this.cancelBtn();
         }
       });
@@ -769,14 +781,14 @@ export class FormularioRegistroProblemasComponent implements OnInit, OnChanges {
   }
 
 
-  encodeImageFileAsURL(id:any) {
-    
+  encodeImageFileAsURL(id: any) {
+
     this._show_spinner = true;
     const filesSelected: any = document.getElementById(id) as HTMLInputElement;
     this.fileId = filesSelected.files;
     let s = this.fileId[0].name.split('.');
     this.nameFile = s[0].toString().replace(' ', '_');
-    
+
     let base;
     if (this.fileId.length > 0) {
       const fileToLoad: any = filesSelected[0];

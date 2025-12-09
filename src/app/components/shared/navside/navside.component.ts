@@ -93,6 +93,7 @@ export class NavsideComponent {
     } 
   }
 
+
     openDataConfigDialog() {
       
       let xidCliente: any = localStorage.getItem('id-cliente-escogido');
