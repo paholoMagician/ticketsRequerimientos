@@ -44,7 +44,6 @@ export class ImagecontrolService {
 
   uploadFilePDF(file: File, nombre: string, idRequerimiento: string): Observable<any> {
 
-    alert( file.name )
 
     const formData = new FormData();
     formData.append('Archivo', file, file.name);

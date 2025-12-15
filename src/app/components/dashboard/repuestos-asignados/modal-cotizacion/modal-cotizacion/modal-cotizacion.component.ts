@@ -722,7 +722,7 @@ export class ModalCotizacionComponent implements OnInit {
       const nuevoElemento = this.renderer.createElement('div');
       // Añade contenido HTML al nuevo elemento
       this.renderer.setProperty(nuevoElemento, 'innerHTML', `
-        <style> * { font-family: arial; color: black; font-size: 14pt; }
+        <style> * { font-family: arial; color: black !important; font-size: 14pt; }
           table {
             width: 100%;
             border-collapse: collapse;
@@ -744,13 +744,13 @@ export class ModalCotizacionComponent implements OnInit {
             </div>
             <div style="width: 50%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
               <div style=" height: 35px; display: flex; justify-content: center; align-items: center;">
-                <span><strong style="font-size: 15pt;">COTIZACIÓN</strong></span>
+                <span><strong style="font-size: 15pt; color: black;">COTIZACIÓN</strong></span>
               </div>
-              <div style=" border-bottom: solid 4px gray; border-top: solid 4px gray; display: flex; justify-content: center; align-items: center; height: 35px;">
+              <div style=" border-bottom: solid 4px gray; border-top: solid 4px gray; display: flex; justify-content: center; align-items: center; height: 35px; ">
                 <strong style="font-size: 25pt !important; color: red !important;">#${this.nomeclaturaTipoMantenimiento}-${this.idRequer.toString().padStart(10, '0')}</strong>
               </div>
               <div style="font-size: 12pt; display: flex; justify-content: center; align-items: center; height: 35px;">
-                <span>CASH MACHINE SERVICE C. LTDA.</span>
+                <span style="color: black !important;">CASH MACHINE SERVICE C. LTDA.</span>
               </div>
             </div>
           </div>
@@ -966,7 +966,7 @@ export class ModalCotizacionComponent implements OnInit {
         heightLeft -= pageHeight;
 
         while (heightLeft > 0) {
-          
+
           position = position - pageHeight;
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);

@@ -29,10 +29,10 @@ export class Environments {
     // api_server_nodejs:                   any = 'http://104.243.44.89:4004/';
 
     // SERVIDOR EXXALINK DOMINIO (DNS)
-    // apiHelpDeskSytem: any = 'https://cmsbackticket.cashmachserv.com/api/';
-    // apiHelpDeskSytemh: any = 'https://cmsbackticket.cashmachserv.com/';
-    // apiCMS: any = 'https://cmsbackerp.cashmachserv.com/api/';
-    // apiCMSfile: any = 'https://cmsbackerp.cashmachserv.com/';
+    apiHelpDeskSytem: any = 'https://cmsbackticket.cashmachserv.com/api/';
+    apiHelpDeskSytemh: any = 'https://cmsbackticket.cashmachserv.com/';
+    apiCMS: any = 'https://cmsbackerp.cashmachserv.com/api/';
+    apiCMSfile: any = 'https://cmsbackerp.cashmachserv.com/';
     api_server_nodejsbrevo_mailing_send: any = 'https://cmsmailing.cashmachserv.com/api/brevoemail/send';
     api_server_nodejs: any = 'https://cmsmailing.cashmachserv.com/';
 
@@ -59,10 +59,10 @@ export class Environments {
     // apiCMSfile:        any = 'http://192.168.55.64:5130/';
 
     // /** LOCALHOST */
-    apiHelpDeskSytem: any = 'http://localhost:5075/api/';
-    apiHelpDeskSytemh: any = 'http://localhost:5075/';
-    apiCMS: any = 'http://localhost:5130/api/';
-    apiCMSfile: any = 'http://localhost:5130/';
+    // apiHelpDeskSytem: any = 'http://localhost:5075/api/';
+    // apiHelpDeskSytemh: any = 'http://localhost:5075/';
+    // apiCMS: any = 'http://localhost:5130/api/';
+    // apiCMSfile: any = 'http://localhost:5130/';
 
     // /** LOCAL NETWOR ROOM PRUEBAS SALA C */
     // apiHelpDeskSytem:  any = 'http://192.168.55.67:5075/api/';

@@ -150,7 +150,7 @@ export class DocumentoCotizacionComponent implements OnInit, OnChanges {
   
     obtenerCotizacion( idTicket: number ) {
 
-      alert(idTicket)
+      // alert(idTicket)
 
       this.ccia = sessionStorage.getItem('ccia');
       this.cotiza.obtenerCotizacion( idTicket, this.ccia ).subscribe({
