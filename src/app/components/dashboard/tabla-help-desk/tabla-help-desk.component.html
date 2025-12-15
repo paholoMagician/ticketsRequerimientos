@@ -207,7 +207,7 @@
                       FECHA HORA FINALIZACIÓN
                     </small>
                     <span class="subtitulo">
-                      {{ requer.fecreaRealFin | date : "dd-MM-yyyy" }} {{ requer.horaFinalReal }}
+                      {{ requer.fecreaRealFin | date : "dd-MM-yyyy hh:mm:ss" }}
                     </span>
                   </div>
                 </div>
@@ -462,15 +462,14 @@
 </div>
   
   <nav aria-label="Page navigation">
+
     <ul class="pagination pagination-sm mb-0">
-      <!-- Botón Anterior -->
       <li class="page-item" [class.disabled]="currentPage === 1">
         <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>
         </a>
       </li>
       
-      <!-- Números de página -->
       <li class="page-item" *ngFor="let page of pageNumbers"
           [class.active]="page === currentPage"
           [class.disabled]="page === -1">
@@ -481,14 +480,14 @@
         </a>
         <span *ngIf="page === -1" class="page-link">...</span>
       </li>
-      
-      <!-- Botón Siguiente -->
+
       <li class="page-item" [class.disabled]="currentPage === totalPages">
         <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)" aria-label="Next">
           <span aria-hidden="true">&raquo;</span>
         </a>
-      </li>
+      </li>    
     </ul>
+
   </nav>
 
   <!-- Selector de items por página -->

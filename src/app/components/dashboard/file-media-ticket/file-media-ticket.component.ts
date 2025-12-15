@@ -172,7 +172,7 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
         this.listaRepuestoRequerimientos = [];
         // this.refreshListData.emit( { idReuqer: result.idRequer, idResMant: result.idResManten });
         if (result != null) {
-          alert('Tratando de eliminar archivo de cotización asociado al ticket...');
+          // alert('Tratando de eliminar archivo de cotización asociado al ticket...');
           this.fileControlServ.eliminarArchivosMedia(idfilemedia, 'COTIZA').subscribe({
             next: () => {
               Swal.fire({
@@ -265,7 +265,7 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   envioAutorizacion: boolean = true;
   onFileSelectedReporteTecnico(event: any): void {
     if (!this.correoMantenimiento) {
-      alert('Cliente sin correo de mantenimiento asignado!, el correo de autorización deberá ser enviado manualmente, \n si no asignas uno antes de terminar el proceso de subir el archivo de REPORTE TÉCNICO.')
+      // alert('Cliente sin correo de mantenimiento asignado!, el correo de autorización deberá ser enviado manualmente, \n si no asignas uno antes de terminar el proceso de subir el archivo de REPORTE TÉCNICO.')
       this.envioAutorizacion = false;
     } else {
       this.envioAutorizacion = true;
@@ -288,7 +288,11 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     let fechaActual = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
       + `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     let ticketId = this.requerimiento.idRequerimientoPad.split('#')[1];
-    let nuevoNombre = `${ticketId}-${fechaActual}.pdf`;
+    
+    // Obtener la extensión original del archivo
+    const extension = file.name.split('.').pop() || 'pdf'; 
+    let nuevoNombre = `${ticketId}-${fechaActual}.${extension}`;
+    
     const renamedFile = new File([file], nuevoNombre, { type: file.type });
     if (tipo === 'REPTEC') this.fileonReporteTecnico = renamedFile;
     if (tipo === 'COTIZA') this.fileonReporteCotizacion = renamedFile;
@@ -538,10 +542,10 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
             return;
           }
         }, complete: () => {
-          this.listaReporteTecnico.filter((x: any) => {
-            let typeFile: any = x.fileUrl;
+          this.listaReporteTecnico.forEach((x: any) => {
+            let typeFile: any = x.fileUrl.toLowerCase();
             if (typeFile.endsWith('.pdf')) x.typeFile = '../../../../assets/pdf-icons/pdf-logotipo.png';
-            else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg')) x.typeFile = '../../../../assets/jpg-icons/img.png';
+            else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg') || typeFile.endsWith('.png')) x.typeFile = '../../../../assets/jpg-icons/img.png';
           });
         }
       });
@@ -577,10 +581,10 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
         complete: () => {
           this.listaReporteCotizacion.forEach((x: any, index: number) => {
             // Asignar el tipo de archivo según la extensión
-            let typeFile: any = x.fileUrl;
+            let typeFile: any = x.fileUrl.toLowerCase();
             if (typeFile.endsWith('.pdf')) {
               x.typeFile = '../../../../assets/pdf-icons/pdf-logotipo.png';
-            } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg')) {
+            } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg') || typeFile.endsWith('.png')) {
               x.typeFile = '../../../../assets/jpg-icons/img.png';
             }
 
@@ -623,11 +627,11 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
             return;
           }
         }, complete: () => {
-          this.listaReporteNotaEntrega.filter((x: any) => {
-            let typeFile: any = x.fileUrl;
+          this.listaReporteNotaEntrega.forEach((x: any) => {
+            let typeFile: any = x.fileUrl.toLowerCase();
             if (typeFile.endsWith('.pdf')) {
               x.typeFile = '../../../../assets/pdf-icons/pdf-logotipo.png';
-            } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg')) {
+            } else if (typeFile.endsWith('.jpg') || typeFile.endsWith('.jpeg') || typeFile.endsWith('.png')) {
               x.typeFile = '../../../../assets/jpg-icons/img.png';
             }
           });
@@ -733,6 +737,8 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   }
 
   listConfmail: any = [];
+  //#region ENVIO DE EMAILS
+  modelMail: any = [];
   obtenerEmailCliSetts(idConfig: number) {
     this.eSet.obtenerEmailCliSetts(idConfig).subscribe({
       next: (x) => {
@@ -754,6 +760,8 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     subject: any,
     type: string): void {
 
+    // alert(nombre);
+    
     if (file) {
       this.fileControlServ.uploadFilePDF(file, nombre, idRequerimiento).subscribe({
         next: (response) => {
@@ -800,8 +808,6 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
 
   }
 
-  //#region ENVIO DE EMAILS
-  modelMail: any = [];
   sendMail(filePathServer: any, recipients: any, fromAddress: any, replyTo: any, contentHtml: any, subject: any) {
 
     let toRecipients = recipients.toString().split(',').map((email: string) => ({

@@ -209,7 +209,7 @@ export class ModalCotizacionComponent implements OnInit {
           * {
             font-family: arial;
             font-size: 10pt;
-            color: black;
+            color: black !important;
           }
           table {
             width: 100%;
@@ -235,7 +235,7 @@ export class ModalCotizacionComponent implements OnInit {
             <div style="padding: 15px; display: flex; justify-content: center; align-items: center; width: 50%;">
               <div style="display: flex; flex-direction: column; text-align: center;">
                 <h2 style="margin: 0px;">
-                  <strong style="font-size: 13pt !important;">NOTA DE ENTREGA</strong>
+                  <strong style="font-size: 13pt !important; color: black;">NOTA DE ENTREGA</strong>
                 </h2>
                 <hr style="margin: 0px; padding: 0px; border: solid 2px gray;">
                 <h1 style="margin: 0px;">
@@ -368,7 +368,6 @@ export class ModalCotizacionComponent implements OnInit {
     this.tipoArchivo = 'REPORTE TECNICO';
     let xareaRep: any = <HTMLDivElement>document.getElementById('area-rep');
     xareaRep.style.width = '100%';
-
     // Obtén el contenedor usando ElementRef y Renderer2
     const cotizacionContainer = this.el.nativeElement.querySelector('#cotizacion');
     if (cotizacionContainer) {
@@ -378,15 +377,15 @@ export class ModalCotizacionComponent implements OnInit {
       if (this.listaRepuestoRequerimientos && this.listaRepuestoRequerimientos.length > 0) {
         repuestosUtilizadosHTML = `
               <div style="width: 100%;">
-                  <div style="text-align: center;     
+                  <div style="text-align: center;
                               border: solid 1px gray;
                               padding: 5px;
                               display: flex;
                               justify-content: center;
                               align-content: center;">
-                      <span> 
-                          <strong> REPUESTOS UTILIZADOS </strong>
-                      </span>
+                              <span>
+                                  <strong> REPUESTOS UTILIZADOS </strong>
+                              </span>
                   </div>
               </div>`;
       }
@@ -929,10 +928,6 @@ export class ModalCotizacionComponent implements OnInit {
 
     const data = document.getElementById('cotizacion'); // Elemento a capturar
 
-    console.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.warn(data);
-    console.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
     if (data) {
       // --- PREPARACIÓN DEL DOM ANTES DE LA CAPTURA ---
       // 1.1 Ocultar el footer fijo de la Nota/Cotización para que no se duplique en cada página
@@ -951,7 +946,7 @@ export class ModalCotizacionComponent implements OnInit {
       setTimeout(async () => {
         // 2. CAPTURA DEL HTML A CANVAS
         const canvas = await html2canvas(data, {
-          scale: 0.5, // Mejora la calidad
+          scale: 0.7, // Mejora la calidad
           logging: false,
           allowTaint: true,
           useCORS: true // Importante para cargar la imagen del logo y la firma
@@ -971,10 +966,12 @@ export class ModalCotizacionComponent implements OnInit {
         heightLeft -= pageHeight;
 
         while (heightLeft > 0) {
+          
           position = position - pageHeight;
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
+
         }
 
         // 4. GENERACIÓN DEL NOMBRE DE ARCHIVO DINÁMICO
