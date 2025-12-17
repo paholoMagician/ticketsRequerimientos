@@ -101,9 +101,9 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
 
     if (changes['requerimiento'] && changes['requerimiento'].currentValue) {
 
-      this.listaReporteTecnico      = [];
-      this.listaReporteCotizacion   = [];
-      this.listaReporteNotaEntrega  = [];
+      this.listaReporteTecnico = [];
+      this.listaReporteCotizacion = [];
+      this.listaReporteNotaEntrega = [];
       this.obtenerTecnicosRequer();
 
     }
@@ -116,8 +116,8 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
         X.filter((j: any) => {
           this.listTecnicosEmails.push(j.email);
         })
-      }, error: (e) => { 
-        console.error(e) 
+      }, error: (e) => {
+        console.error(e)
       }
     })
   }
@@ -243,7 +243,9 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   getToken() {
     let xtoken: any = sessionStorage.getItem('token');
     const xtokenDecript: any = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
+
     if (xtokenDecript != null || xtokenDecript != undefined) {
+
       var decoded: any = jwtDecode(xtokenDecript);
       // console.table(decoded)
       this.role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
@@ -256,8 +258,6 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
       if (this.role == 'R004') this._cli_view = false; this.show_file_form = false;
       if (this.role == 'R003' || this.role == 'R002') this._cli_view = true;
       if (this.role == 'R003') this.show_file_form = true;
-
-      console.log(" Este es el rol actualmente: ", this.role)
 
     }
   }
@@ -288,11 +288,11 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     let fechaActual = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
       + `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     let ticketId = this.requerimiento.idRequerimientoPad.split('#')[1];
-    
+
     // Obtener la extensión original del archivo
-    const extension = file.name.split('.').pop() || 'pdf'; 
+    const extension = file.name.split('.').pop() || 'pdf';
     let nuevoNombre = `${ticketId}-${fechaActual}.${extension}`;
-    
+
     const renamedFile = new File([file], nuevoNombre, { type: file.type });
     if (tipo === 'REPTEC') this.fileonReporteTecnico = renamedFile;
     if (tipo === 'COTIZA') this.fileonReporteCotizacion = renamedFile;
@@ -519,8 +519,8 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
   }
 
   obtenerFileMediaTicket(type: string) {
-    this.listaReporteTecnico     = [];
-    this.listaReporteCotizacion  = [];
+    this.listaReporteTecnico = [];
+    this.listaReporteCotizacion = [];
     this.listaReporteNotaEntrega = [];
 
     if (type == 'REPTEC') {
@@ -761,7 +761,7 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
     type: string): void {
 
     // alert(nombre);
-    
+
     if (file) {
       this.fileControlServ.uploadFilePDF(file, nombre, idRequerimiento).subscribe({
         next: (response) => {
@@ -1084,7 +1084,7 @@ export class FileMediaTicketComponent implements OnInit, OnChanges {
         });
       }
     });
-    
+
   }
 
   // 🔥 Nueva función para eliminar archivos solo de la UI
