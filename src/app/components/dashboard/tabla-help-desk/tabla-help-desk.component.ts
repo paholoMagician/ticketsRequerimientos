@@ -949,6 +949,13 @@ export class TablaHelpDeskComponent implements OnInit, OnChanges {
     if (idTicket > 0) {
       this.idTicketEmit = idTicket;
       localStorage.setItem('idRequerimientoShow', idTicket.toString());
+
+      // Reset default view
+      this._show_order_work = true;
+      this._show_fecha_real = false;
+      this._show_resumen_mantenimiento = false;
+      this._show_file_media_ticket = false;
+      this.showImg = true;
     }
   }
 

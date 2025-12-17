@@ -2,14 +2,17 @@
     display: flex;
     flex-direction: column;
     justify-content: start;
-    // width: 190px;
+    min-width: 200px; /* Responsive minimum width */
+    max-width: 300px; /* Prevent it from getting too wide */
+    flex: 1 1 200px;  /* Flex grow/shrink/basis */
     align-items: start;
-    padding: 5px;
-    margin: 10px;
+    padding: 15px; /* Increased padding slightly */
+    /* margin: 10px; Removed margin in favor of gap in parent */
     background-color: #f8f9fa;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
-    // border: dashed 2px gray;
+    border-radius: 8px; /* Rounded corners */
+    position: relative; /* Context for absolute positioning if needed */
 }
 
 .btn-color {

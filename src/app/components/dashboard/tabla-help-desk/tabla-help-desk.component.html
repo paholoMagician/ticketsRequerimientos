@@ -18,13 +18,16 @@
         </strong>
       </div>
       <div>
-        <span> Agencia: </span>
+        <span>
+          Agencia:
+        </span>
         <strong>
           {{ itemPendientes.nombre }}
         </strong>
       </div>
     </div>
-    &nbsp; &nbsp;
+    &nbsp;
+    &nbsp;
     <div>
       <button class="btn btn-warning btn-sm d-flex align-items-center" (click)="irTransmitirTicket(itemPendientes)">
         <mat-icon>done</mat-icon>
@@ -116,19 +119,27 @@
                 </button>
                 <button mat-menu-item (click)="deleteRequer(requer.idTicket, i)"
                   *ngIf="actionButton && requer.estado <= 1">
-                  <mat-icon>delete</mat-icon>
-                  <span>Eliminar requerimiento</span>
+                  <mat-icon>
+                    delete
+                  </mat-icon>
+                  <span>
+                    Eliminar requerimiento
+                  </span>
                 </button>
                 <button mat-menu-item *ngIf="requer.estado < 4"
                   (click)="actualizarSoloEstadoTicket(requer.idTicket, 4, requer)"
                   class="d-flex justify-content-end align-items-center">
-                  <mat-icon>done_all</mat-icon>
-                  <span>Cerrar ticket</span>
+                  <mat-icon>
+                    done_all
+                  </mat-icon>
+                  <span>
+                    Cerrar ticket
+                  </span>
                 </button>
               </mat-menu>
             </div>
-            <div class="accordion-button collapsed p-1 mt-1" (click)="sendIdTicket(requer.idTicket)" type="button"
-              data-bs-toggle="collapse" [attr.data-bs-target]="'#flush-collapse-' + requer.idTicket"
+            <div class="accordion-button collapsed p-1 mt-1" (click)="(requer.idTicket)" type="button"
+              data-bs-toggle="collapse" [attr.data-bs-target]="'#flush-cosendIdTicketllapse-' + requer.idTicket"
               aria-expanded="true" [attr.aria-controls]="'flush-collapse-' + requer.idTicket">
               <div class="d-flex justify-content-lg-start align-items-center">
                 <div class="d-flex align-items-center">
@@ -165,10 +176,10 @@
                 <div class="d-flex align-items-center p-1">
                   <ng-container *ngIf="requer.tecnicos.length > 0">
                     <ng-container *ngFor="let tecnico of requer.tecnicos">
-                      <img [src]="tecnico.imagenTecnico || '../../../../assets/user-default/defect-user.png' "
+                      <img [src]="tecnico.imagenTecnico || '../../../../assets/user-default/defect-user.png'"
                         alt="No image" width="40px" height="40px"
                         class="rounded-circle animate__animated animate__bounceIn" style="margin-left: -25px"
-                        [title]="tecnico.nombreTecnico + ' ' + tecnico.apellidoTecnico" />
+                        [title]="tecnico.nombreTecnico + ' ' + tecnico.apellidoTecnico"/>
                     </ng-container>
                   </ng-container>
                 </div>
@@ -218,7 +229,9 @@
                         class="position-absolute animate__animated animate__bounceIn top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="transform: translate(-50%, -50%); font-size: 0.5em;">
                         {{requer.fileRepTec}}
-                        <span class="visually-hidden">unread messages</span>
+                        <span class="visually-hidden">
+                          unread messages
+                        </span>
                       </span>
                     </div>
                   </ng-container>
